@@ -1,0 +1,45 @@
+# Système MacOS
+.DS_Store
+.Trash/
+.CFUserTextEncoding
+
+# Configuration utilisateur
+.zsh_history
+.zsh_sessions/
+.zshrc
+
+# Dossiers de configuration
+.CloudStation/
+.cache/
+.config/
+.cups/
+.eclipse/
+.ganttproject/
+.ganttproject.d/
+.m2/
+.mono/
+.npm/
+.oracle_jre_usage/
+.p2/
+.pgadmin/
+.sts4/
+.vscode/
+.viminfo
+
+# Fichiers de log
+*.log
+
+# Archives et fichiers temporaires
+*.tar.gz
+*.pem
+*.swp
+
+# Dossiers système
+Applications/
+Desktop/
+Documents/
+Downloads/
+Library/
+
+
+
