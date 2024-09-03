@@ -31,3 +31,23 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Security
+*.jks
+*.p12
+*.key
+
