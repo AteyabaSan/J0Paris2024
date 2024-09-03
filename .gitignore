@@ -74,3 +74,25 @@ build/
 # Visual Studio Code
 .vscode/
 
+<<<<<<< HEAD
+=======
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Security
+*.jks
+*.p12
+*.key
+
+>>>>>>> 8135ead (Mise à jour du fichier .gitignore avec des exclusions supplémentaires)
