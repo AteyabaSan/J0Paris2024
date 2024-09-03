@@ -43,15 +43,17 @@ jobs:
       run: |
         curl https://cli-assets.heroku.com/install.sh | sh
 
+    - name: Check Heroku CLI version
+      run: heroku --version
+
     - name: Authenticate with Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: |
-        echo "$HEROKU_API_KEY" | heroku auth:token
+      run: heroku auth:login
 
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
-        heroku git:remote -a jeux-olympiques-paris-2024
+        git remote add heroku https://heroku:${HEROKU_API_KEY}@git.heroku.com/jeux-olympiques-paris-2024.git
         git push heroku master
