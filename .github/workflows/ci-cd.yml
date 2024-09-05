@@ -25,7 +25,7 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: Run tests
-      run: mvn test
+      run: mvn test -Dspring.profiles.active=test  # Utilise le profil de test
 
   deploy:
     needs: build  # Dépend du job de build
