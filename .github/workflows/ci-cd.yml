@@ -58,6 +58,7 @@ jobs:
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Use GitHub Secrets to securely store your Heroku API Key
+        SPRING_PROFILES_ACTIVE: prod  # Set the profile to prod for Heroku
       run: |
         git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/jeux-olympiques-paris-2024.git
         git push heroku master
