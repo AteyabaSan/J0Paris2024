@@ -84,4 +84,25 @@ Thumbs.db
 *.p12
 *.key
 
+.bash_profile
+.bashrc
+.docker/
+.ganttproject
+.gitconfig
+.lemminx/
+.local/
+.netrc
+.psql_history
+EXo 2 CSS
+Local Sites/
+Movies/
+Music/
+Pictures/
+Public/
+apache-maven-3.8.6/
+cypressProject/
+index.html
+logfile
+mon-projet/
+premier-programme/
 
