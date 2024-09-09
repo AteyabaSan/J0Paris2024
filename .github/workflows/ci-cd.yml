@@ -1,0 +1,65 @@
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository to the runner
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Fetch the entire history for all branches and tags
+
+    # Set up JDK 17 for the runner environment
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # Check Maven version (optional, but good for debugging purposes)
+    - name: Check Maven Version
+      run: mvn -version
+
+    # Build and test the project with Maven, enabling detailed logs and using the test profile
+    - name: Build and Test with Maven
+      run: mvn -B clean install -U -X -Dspring.profiles.active=test --file pom.xml
+
+  deploy:
+    needs: build  # Ensure the build job is completed successfully before deploying
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository again to the runner for deployment
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Fetch the entire history for all branches and tags
+
+    # Set up JDK 17 for the runner environment again for the deploy step
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # Install Heroku CLI for deployment
+    - name: Install Heroku CLI
+      run: |
+        curl https://cli-assets.heroku.com/install.sh | sh
+
+    # Deploy the application to Heroku
+    - name: Deploy to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Use GitHub Secrets to securely store your Heroku API Key
+        SPRING_PROFILES_ACTIVE: prod  # Set the profile to prod for Heroku
+      run: |
+        git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/jeux-olympiques-paris-2024.git
+        git push heroku master
+
