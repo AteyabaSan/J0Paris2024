@@ -45,8 +45,9 @@ Library/
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
+!**/src/test/**/target/
 
-# Spring Tool Suite (STS)
+### STS ###
 .apt_generated
 .classpath
 .factorypath
@@ -55,13 +56,13 @@ target/
 .springBeans
 .sts4-cache
 
-# IntelliJ IDEA
+### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
-# NetBeans
+### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -71,21 +72,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# Visual Studio Code
+### VS Code ###
 .vscode/
-
-<<<<<<< HEAD
-=======
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.bak
-*.swp
-
-# MacOS
-.DS_Store
 
 # Windows
 Thumbs.db
@@ -95,4 +83,3 @@ Thumbs.db
 *.p12
 *.key
 
->>>>>>> 8135ead (Mise à jour du fichier .gitignore avec des exclusions supplémentaires)
