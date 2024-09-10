@@ -41,8 +41,7 @@ Documents/
 Downloads/
 Library/
 
-# Autres IDEs et systèmes de build
-HELP.md
+# Maven/Java
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -84,6 +83,7 @@ Thumbs.db
 *.p12
 *.key
 
+<<<<<<< HEAD
 .bash_profile
 .bashrc
 .docker/
