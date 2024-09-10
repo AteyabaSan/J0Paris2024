@@ -9,9 +9,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tickets")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ticket {
 
     @Id
@@ -23,8 +31,12 @@ public class Ticket {
     private Event event;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = true)
+    @JoinColumn(name = "owner_id", nullable = true) // Nullable if not sold
     private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = true) // Nouvelle référence à Order
+    private Order order;
 
     @Column(nullable = false)
     private Double price;
@@ -35,64 +47,7 @@ public class Ticket {
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable;
 
-    // Constructor without parameters
-    public Ticket() {}
+    @Column(name = "qr_code", unique = true)
+    private String qrCode;
 
-    // Constructor with parameters
-    public Ticket(Event event, User owner, Double price, String seatNumber, Boolean isAvailable) {
-        this.event = event;
-        this.owner = owner;
-        this.price = price;
-        this.seatNumber = seatNumber;
-        this.isAvailable = isAvailable;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public String getSeatNumber() {
-        return seatNumber;
-    }
-
-    public void setSeatNumber(String seatNumber) {
-        this.seatNumber = seatNumber;
-    }
-
-    public Boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(Boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
 }
