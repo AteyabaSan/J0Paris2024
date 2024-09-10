@@ -71,9 +71,26 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
-    <build>
+   <build>
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+        </resource>
+    </resources>
+
     <plugins>
         <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -87,8 +104,52 @@
                 <target>17</target>
             </configuration>
         </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <configuration>
+                <nonFilteredFileExtensions>
+                    <nonFilteredFileExtension>properties</nonFilteredFileExtension>
+                </nonFilteredFileExtensions>
+            </configuration>
+        </plugin>
     </plugins>
 </build>
+
+<!-- Profils Maven pour differents environnements -->
+    <profiles>
+        <!-- Profil pour le developpement local -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <!-- Profil pour la production -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <!-- Profil pour les tests d'integration -->
+        <profile>
+            <id>integration</id>
+            <properties>
+                <spring.profiles.active>integration</spring.profiles.active>
+            </properties>
+        </profile>
+
+        <!-- Profil pour les tests unitaires -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 
 </project>
