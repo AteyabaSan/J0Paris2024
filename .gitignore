@@ -7,6 +7,14 @@
 .zsh_history
 .zsh_sessions/
 .zshrc
+.bash_profile
+.bashrc
+.docker/
+.gitconfig
+.lemminx/
+.local/
+.netrc
+.psql_history
 
 # Dossiers de configuration
 .CloudStation/
@@ -28,6 +36,7 @@
 
 # Fichiers de log
 *.log
+logs.txt
 
 # Archives et fichiers temporaires
 *.tar.gz
@@ -82,4 +91,17 @@ Thumbs.db
 *.jks
 *.p12
 *.key
+
+# Autres dossiers utilisateur
+Local Sites/
+Movies/
+Music/
+Pictures/
+Public/
+apache-maven-3.8.6/
+cypressProject/
+index.html
+logfile
+mon-projet/
+premier-programme/
 
