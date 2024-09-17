@@ -48,5 +48,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
+    
+    public User(Long id) {
+        this.id = id;
+    }
+
 
 }

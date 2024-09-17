@@ -4,7 +4,7 @@ import com.joparis2024.dto.UserDTO;
 import com.joparis2024.model.User;
 import com.joparis2024.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,8 +17,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+//    @Autowired
+//    private PasswordEncoder passwordEncoder;
 
     // Récupérer tous les utilisateurs
     public List<UserDTO> getAllUsers() {
@@ -34,7 +34,7 @@ public class UserService {
         user.setRole(userDTO.getRole());
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
-        user.setPassword(passwordEncoder.encode("defaultPassword"));  // Ajouter une méthode pour encoder les mots de passe
+        // Ajouter une méthode pour encoder les mots de passe
         return userRepository.save(user);
     }
 
