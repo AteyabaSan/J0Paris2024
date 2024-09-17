@@ -26,6 +26,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
+	
+	public Order(Long id) {
+	    this.id = id;
+	}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,5 +47,8 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets;
+    
+    @Column(nullable = false)
+    private String status;
 
 }

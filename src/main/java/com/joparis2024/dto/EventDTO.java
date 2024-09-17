@@ -11,6 +11,7 @@ public class EventDTO {
     private LocalDateTime endTime;
     private String category;
     private String description;
+    private String session;
 
     // Constructors
     public EventDTO() {}
@@ -81,5 +82,13 @@ public class EventDTO {
     public void setDescription(String description) {
         this.description = description;
     }
+
+	public String getSession() {
+		return session;
+	}
+
+	public void setSession(String session) {
+		this.session = session;
+	}
 }
 

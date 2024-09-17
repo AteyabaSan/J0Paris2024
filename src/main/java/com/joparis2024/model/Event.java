@@ -21,6 +21,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {
+	
+	public Event(Long id) {
+	    this.id = id;
+	}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,5 +47,8 @@ public class Event {
 
     @Column(length = 1000)
     private String description;
+    
+    @Column(nullable = false)
+    private String session;
 
 }

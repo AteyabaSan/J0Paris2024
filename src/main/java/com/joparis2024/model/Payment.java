@@ -40,5 +40,12 @@ public class Payment {
 
     @Column(name = "payment_date", nullable = false)
     private LocalDateTime paymentDate;
+    
+    @Column(nullable = false)
+    private Double amount;
+
+    @Column(nullable = false)
+    private String status;
+
 
 }

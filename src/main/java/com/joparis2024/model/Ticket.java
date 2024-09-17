@@ -21,6 +21,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ticket {
+	
+	public Ticket(Long id) {
+	    this.id = id;
+	}
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
