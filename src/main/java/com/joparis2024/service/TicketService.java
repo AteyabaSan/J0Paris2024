@@ -1,15 +1,14 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.TicketDTO;
-import com.joparis2024.model.Event;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
@@ -17,30 +16,68 @@ public class TicketService {
     @Autowired
     private TicketRepository ticketRepository;
 
-    // Récupérer tous les tickets
-    public List<TicketDTO> getAllTickets() {
-        List<Ticket> tickets = ticketRepository.findAll();
-        return tickets.stream().map(this::mapToDTO).collect(Collectors.toList());
-    }
+    @Autowired
+    private EventService eventService;
+
+    @Autowired
+    private OrderService orderService;
 
     // Créer un ticket
-    public Ticket createTicket(TicketDTO ticketDTO) {
+    public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
         Ticket ticket = new Ticket();
-        ticket.setEvent(new Event(ticketDTO.getEventId()));
+        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
+        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
         ticket.setPrice(ticketDTO.getPrice());
-        ticket.setSeatNumber(ticketDTO.getSeatNumber());
-        ticket.setIsAvailable(ticketDTO.getIsAvailable());
+        ticket.setQuantity(ticketDTO.getQuantity());
+        ticket.setAvailable(ticketDTO.isAvailable());
         return ticketRepository.save(ticket);
     }
 
-    // Récupérer un ticket par ID
-    public Optional<TicketDTO> getTicketById(Long id) {
-        Optional<Ticket> ticket = ticketRepository.findById(id);
-        return ticket.map(this::mapToDTO);
+    // Mettre à jour un ticket
+    public Ticket updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
+        Optional<Ticket> existingTicket = ticketRepository.findById(ticketId);
+        if (!existingTicket.isPresent()) {
+            throw new Exception("Ticket non trouvé");
+        }
+
+        Ticket ticket = existingTicket.get();
+        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
+        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
+        ticket.setPrice(ticketDTO.getPrice());
+        ticket.setQuantity(ticketDTO.getQuantity());
+        ticket.setAvailable(ticketDTO.isAvailable());
+        return ticketRepository.save(ticket);
     }
 
-    // Mapper l'entité Ticket vers un DTO TicketDTO
-    private TicketDTO mapToDTO(Ticket ticket) {
-        return new TicketDTO(ticket.getId(), ticket.getEvent().getId(), ticket.getOwner().getId(), ticket.getPrice(), ticket.getSeatNumber(), ticket.getIsAvailable());
+    // Récupérer tous les tickets
+    public List<TicketDTO> getAllTickets() {
+        List<Ticket> tickets = ticketRepository.findAll();
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+        for (Ticket ticket : tickets) {
+            ticketDTOs.add(mapToDTO(ticket));
+        }
+        return ticketDTOs;
+    }
+
+    // Mapper Ticket -> TicketDTO
+    public TicketDTO mapToDTO(Ticket ticket) {
+        TicketDTO ticketDTO = new TicketDTO();
+        ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
+        ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
+        ticketDTO.setPrice(ticket.getPrice());
+        ticketDTO.setQuantity(ticket.getQuantity());
+        ticketDTO.setAvailable(ticket.isAvailable());
+        return ticketDTO;
+    }
+
+    // Mapper TicketDTO -> Ticket (Entity)
+    public Ticket mapToEntity(TicketDTO ticketDTO) {
+        Ticket ticket = new Ticket();
+        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
+        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
+        ticket.setPrice(ticketDTO.getPrice());
+        ticket.setQuantity(ticketDTO.getQuantity());
+        ticket.setAvailable(ticketDTO.isAvailable());
+        return ticket;
     }
 }

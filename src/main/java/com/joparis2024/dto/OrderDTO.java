@@ -5,48 +5,49 @@ import java.util.List;
 
 public class OrderDTO {
 
-    private Long id;
-    private Long userId;
-    private LocalDateTime orderDate;
-    private Double totalAmount;
-    private List<Long> ticketIds;
     private String status;
+    private UserDTO user;
+    private List<TicketDTO> tickets;
+    private Double totalAmount;
+    private LocalDateTime orderDate;
+    private LocalDateTime paymentDate;
 
-    // Constructors
+    // Constructeur sans argument
     public OrderDTO() {}
 
-    public OrderDTO(Long id, Long userId, LocalDateTime orderDate, Double totalAmount, List<Long> ticketIds, String status) {
-        this.id = id;
-        this.userId = userId;
-        this.orderDate = orderDate;
+    // Constructeur avec tous les arguments
+    public OrderDTO(String status, UserDTO user, List<TicketDTO> tickets, Double totalAmount, LocalDateTime orderDate, LocalDateTime paymentDate) {
+        this.status = status;
+        this.user = user;
+        this.tickets = tickets;
         this.totalAmount = totalAmount;
-        this.ticketIds = ticketIds;
+        this.orderDate = orderDate;
+        this.paymentDate = paymentDate;
+    }
+
+    // Getters et Setters
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 
-    public Long getUserId() {
-        return userId;
+    public List<TicketDTO> getTickets() {
+        return tickets;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(LocalDateTime orderDate) {
-        this.orderDate = orderDate;
+    public void setTickets(List<TicketDTO> tickets) {
+        this.tickets = tickets;
     }
 
     public Double getTotalAmount() {
@@ -57,20 +58,21 @@ public class OrderDTO {
         this.totalAmount = totalAmount;
     }
 
-    public List<Long> getTicketIds() {
-        return ticketIds;
+    public LocalDateTime getOrderDate() {
+        return orderDate;
     }
 
-    public void setTicketIds(List<Long> ticketIds) {
-        this.ticketIds = ticketIds;
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
     }
 
-    public String getStatus() {
-        return status;
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
     }
 }
+
 

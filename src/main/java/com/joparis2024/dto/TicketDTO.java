@@ -1,72 +1,62 @@
 package com.joparis2024.dto;
 
 public class TicketDTO {
-
-    private Long id;
-    private Long eventId;
-    private Long ownerId;
-    private Double price;
-    private String seatNumber;
-    private Boolean isAvailable;
+    private EventDTO event;
+    private OrderDTO order;
+    private double price;
+    private int quantity;
+    private boolean available;
 
     // Constructors
-    public TicketDTO() {}
+    public TicketDTO() {
+    }
 
-    public TicketDTO(Long id, Long eventId, Long ownerId, Double price, String seatNumber, Boolean isAvailable) {
-        this.id = id;
-        this.eventId = eventId;
-        this.ownerId = ownerId;
+    public TicketDTO(EventDTO event, OrderDTO order, double price, int quantity, boolean available) {
+        this.event = event;
+        this.order = order;
         this.price = price;
-        this.seatNumber = seatNumber;
-        this.isAvailable = isAvailable;
+        this.quantity = quantity;
+        this.available = available;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public EventDTO getEvent() {
+        return event;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEvent(EventDTO event) {
+        this.event = event;
     }
 
-    public Long getEventId() {
-        return eventId;
+    public OrderDTO getOrder() {
+        return order;
     }
 
-    public void setEventId(Long eventId) {
-        this.eventId = eventId;
+    public void setOrder(OrderDTO order) {
+        this.order = order;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
-
-    public Double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public String getSeatNumber() {
-        return seatNumber;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setSeatNumber(String seatNumber) {
-        this.seatNumber = seatNumber;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public Boolean getIsAvailable() {
-        return isAvailable;
+    public boolean isAvailable() {
+        return available;
     }
 
-    public void setIsAvailable(Boolean isAvailable) {
-        this.isAvailable = isAvailable;
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

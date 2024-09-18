@@ -68,8 +68,25 @@ public class UserService {
     }
 
     // Mapper l'entité User vers un DTO UserDTO
-    private UserDTO mapToDTO(User user) {
-        return new UserDTO(user.getUsername(), user.getEmail(), user.getRole(), user.getEnabled(), user.getPhoneNumber());
+    public UserDTO mapToDTO(User user) {
+        return new UserDTO(
+            user.getUsername(),
+            user.getEmail(),
+            user.getRole(),
+            user.getEnabled(),
+            user.getPhoneNumber()
+        );
+    }
+
+    
+    public User mapToEntity(UserDTO userDTO) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setRole(userDTO.getRole());
+        user.setEnabled(userDTO.getEnabled());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        return user;
     }
 }
 

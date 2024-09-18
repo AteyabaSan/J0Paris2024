@@ -6,9 +6,9 @@ import com.joparis2024.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -16,75 +16,91 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    // Obtenir tous les événements
+    // Récupérer tous les événements avec boucle for
     public List<EventDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
-        return events.stream().map(this::mapToDTO).collect(Collectors.toList());
-    }
-
-    // Trouver les événements par catégorie
-    public List<EventDTO> getEventsByCategory(String category) {
-        List<Event> events = eventRepository.findByCategory(category);
-        return events.stream().map(this::mapToDTO).collect(Collectors.toList());
+        List<EventDTO> eventDTOs = new ArrayList<>();
+        for (Event event : events) {
+            eventDTOs.add(mapToDTO(event));
+        }
+        return eventDTOs;
     }
 
     // Créer un événement
     public Event createEvent(EventDTO eventDTO) {
-        Event event = mapToEntity(eventDTO); // Utilisation de la méthode de mapping vers l'entité
+        Event event = mapToEntity(eventDTO);
         return eventRepository.save(event);
     }
 
-    // Trouver un événement par ID
-    public Optional<EventDTO> findById(Long id) {
-        return eventRepository.findById(id)
-            .map(this::mapToDTO);
+    // Récupérer un événement par nom
+    public Optional<EventDTO> getEventByName(String eventName) {
+        Optional<Event> event = eventRepository.findByEventName(eventName);
+        return event.map(this::mapToDTO);
+    }
+
+    // Récupérer les événements par catégorie avec boucle for
+    public List<EventDTO> getEventsByCategory(String category) {
+        List<Event> events = eventRepository.findByCategory(category);
+        List<EventDTO> eventDTOs = new ArrayList<>();
+        for (Event event : events) {
+            eventDTOs.add(mapToDTO(event));
+        }
+        return eventDTOs;
     }
 
     // Mettre à jour un événement
-    public void updateEvent(Long id, EventDTO eventDTO) {
-        Optional<Event> eventOpt = eventRepository.findById(id);
-        if (eventOpt.isPresent()) {
-            Event event = eventOpt.get();
-            event.setName(eventDTO.getName());
-            event.setLocation(eventDTO.getLocation());
-            event.setStartTime(eventDTO.getStartTime());
-            event.setEndTime(eventDTO.getEndTime());
-            event.setCategory(eventDTO.getCategory());
-            event.setSession(eventDTO.getSession());
-            event.setDescription(eventDTO.getDescription());
-            eventRepository.save(event);
+    public Event updateEvent(String eventName, EventDTO eventDTO) throws Exception {
+        Optional<Event> existingEvent = eventRepository.findByEventName(eventName);
+        if (!existingEvent.isPresent()) {
+            throw new Exception("Événement non trouvé");
         }
-    }
+        Event event = existingEvent.get();
+        event.setEventName(eventDTO.getEventName());
+        event.setDate(eventDTO.getDate());
+        event.setLocation(eventDTO.getLocation());
+        event.setCategory(eventDTO.getCategory());
+        event.setPriceRange(eventDTO.getPriceRange());
+        event.setAvailableTickets(eventDTO.getAvailableTickets());
+        event.setDescription(eventDTO.getDescription());
+        event.setSoldOut(eventDTO.isSoldOut());
 
-    // Supprimer un événement
-    public void deleteEvent(Long id) {
-        eventRepository.deleteById(id);
+        return eventRepository.save(event);
     }
 
     // Mapper l'entité Event vers un DTO EventDTO
     public EventDTO mapToDTO(Event event) {
-        EventDTO dto = new EventDTO();
-        dto.setId(event.getId());
-        dto.setName(event.getName());
-        dto.setLocation(event.getLocation());
-        dto.setStartTime(event.getStartTime());
-        dto.setEndTime(event.getEndTime());
-        dto.setCategory(event.getCategory());
-        dto.setSession(event.getSession());
-        dto.setDescription(event.getDescription());
-        return dto;
+        return new EventDTO(
+                event.getEventName(),
+                event.getDate(),
+                event.getLocation(),
+                event.getCategory(),
+                event.getPriceRange(),
+                event.getAvailableTickets(),
+                event.getDescription(),
+                event.isSoldOut()
+        );
     }
 
-    // Mapper un DTO vers l'entité Event
-    private Event mapToEntity(EventDTO eventDTO) {
+    // Mapper le DTO EventDTO vers l'entité Event
+    public Event mapToEntity(EventDTO eventDTO) {
         Event event = new Event();
-        event.setName(eventDTO.getName());
+        event.setEventName(eventDTO.getEventName());
+        event.setDate(eventDTO.getDate());
         event.setLocation(eventDTO.getLocation());
-        event.setStartTime(eventDTO.getStartTime());
-        event.setEndTime(eventDTO.getEndTime());
         event.setCategory(eventDTO.getCategory());
-        event.setSession(eventDTO.getSession());
+        event.setPriceRange(eventDTO.getPriceRange());
+        event.setAvailableTickets(eventDTO.getAvailableTickets());
         event.setDescription(eventDTO.getDescription());
+        event.setSoldOut(eventDTO.isSoldOut());
         return event;
+    }
+
+    // Supprimer un événement par nom
+    public void deleteEvent(String eventName) throws Exception {
+        Optional<Event> event = eventRepository.findByEventName(eventName);
+        if (!event.isPresent()) {
+            throw new Exception("Événement non trouvé");
+        }
+        eventRepository.delete(event.get());
     }
 }

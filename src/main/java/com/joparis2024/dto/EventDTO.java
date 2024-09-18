@@ -4,43 +4,46 @@ import java.time.LocalDateTime;
 
 public class EventDTO {
 
-    private Long id;
-    private String name;
+    private String eventName;
+    private LocalDateTime date;
     private String location;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
     private String category;
+    private double priceRange;
+    private int availableTickets;
     private String description;
-    private String session;
+    private boolean isSoldOut;
 
-    // Constructors
+    // No-Args Constructor
     public EventDTO() {}
 
-    public EventDTO(Long id, String name, String location, LocalDateTime startTime, LocalDateTime endTime, String category, String description) {
-        this.id = id;
-        this.name = name;
+    // All-Args Constructor
+    public EventDTO(String eventName, LocalDateTime date, String location, String category, double priceRange, int availableTickets, String description, boolean isSoldOut) {
+        this.eventName = eventName;
+        this.date = date;
         this.location = location;
-        this.startTime = startTime;
-        this.endTime = endTime;
         this.category = category;
+        this.priceRange = priceRange;
+        this.availableTickets = availableTickets;
         this.description = description;
+        this.isSoldOut = isSoldOut;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+
+    public String getEventName() {
+        return eventName;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 
-    public String getName() {
-        return name;
+    public LocalDateTime getDate() {
+        return date;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 
     public String getLocation() {
@@ -51,28 +54,28 @@ public class EventDTO {
         this.location = location;
     }
 
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
     public String getCategory() {
         return category;
     }
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public double getPriceRange() {
+        return priceRange;
+    }
+
+    public void setPriceRange(double priceRange) {
+        this.priceRange = priceRange;
+    }
+
+    public int getAvailableTickets() {
+        return availableTickets;
+    }
+
+    public void setAvailableTickets(int availableTickets) {
+        this.availableTickets = availableTickets;
     }
 
     public String getDescription() {
@@ -83,12 +86,13 @@ public class EventDTO {
         this.description = description;
     }
 
-	public String getSession() {
-		return session;
-	}
+    public boolean isSoldOut() {
+        return isSoldOut;
+    }
 
-	public void setSession(String session) {
-		this.session = session;
-	}
+    public void setSoldOut(boolean soldOut) {
+        isSoldOut = soldOut;
+    }
 }
+
 
