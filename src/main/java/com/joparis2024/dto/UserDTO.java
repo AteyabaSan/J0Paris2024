@@ -2,18 +2,17 @@ package com.joparis2024.dto;
 
 public class UserDTO {
 
-    private Long id;
     private String username;
     private String email;
     private String role;
     private Boolean enabled;
     private String phoneNumber;
 
-    // Constructors
-    public UserDTO() {}
+    // Constructeurs
+    public UserDTO() {
+    }
 
-    public UserDTO(Long id, String username, String email, String role, Boolean enabled, String phoneNumber) {
-        this.id = id;
+    public UserDTO(String username, String email, String role, Boolean enabled, String phoneNumber) {
         this.username = username;
         this.email = email;
         this.role = role;
@@ -21,15 +20,7 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Getters et Setters
     public String getUsername() {
         return username;
     }
@@ -70,3 +61,4 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
     }
 }
+

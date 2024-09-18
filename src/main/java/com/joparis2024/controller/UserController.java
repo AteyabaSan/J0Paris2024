@@ -25,24 +25,27 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // Récupérer un utilisateur par ID
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        Optional<UserDTO> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     // Créer un utilisateur
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
-        User createdUser = userService.createUser(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        try {
+            User user = userService.createUser(userDTO);
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    // Vérifier si un email existe déjà
-    @GetMapping("/check-email")
-    public ResponseEntity<Boolean> checkEmailExists(@RequestParam String email) {
+    // Récupérer un utilisateur par email
+    @GetMapping("/{email}")
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+        Optional<UserDTO> user = userService.getUserByEmail(email);
+        return user.map(ResponseEntity::ok).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // Vérifier si un email existe
+    @GetMapping("/check-email/{email}")
+    public ResponseEntity<Boolean> emailExists(@PathVariable String email) {
         boolean exists = userService.emailExists(email);
         return ResponseEntity.ok(exists);
     }
