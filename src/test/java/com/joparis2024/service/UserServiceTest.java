@@ -46,7 +46,7 @@ public class UserServiceTest {
         when(userRepository.existsByEmail(any(String.class))).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(new User());
 
-        User createdUser = userService.createUser(userDTO);
+        UserDTO createdUser = userService.createUser(userDTO);
 
         assertNotNull(createdUser);
         verify(userRepository).save(any(User.class));

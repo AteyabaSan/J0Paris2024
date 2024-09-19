@@ -1,7 +1,6 @@
 package com.joparis2024.controller;
 
 import com.joparis2024.dto.UserDTO;
-import com.joparis2024.model.User;
 import com.joparis2024.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,10 +26,10 @@ public class UserController {
 
     // Créer un utilisateur
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         try {
-            User user = userService.createUser(userDTO);
-            return new ResponseEntity<>(user, HttpStatus.CREATED);
+            UserDTO createdUser = userService.createUser(userDTO);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -50,3 +49,4 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 }
+

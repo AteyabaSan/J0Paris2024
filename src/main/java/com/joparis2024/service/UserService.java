@@ -28,7 +28,7 @@ public class UserService {
     }
 
     // Créer un utilisateur
-    public User createUser(UserDTO userDTO) throws Exception {
+    public UserDTO createUser(UserDTO userDTO) throws Exception {
         validateUserDTO(userDTO);
 
         // Vérifier si l'email existe déjà
@@ -43,7 +43,9 @@ public class UserService {
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
 
-        return userRepository.save(user);
+        // Sauvegarde et conversion en DTO
+        User savedUser = userRepository.save(user);
+        return mapToDTO(savedUser);
     }
 
     // Récupérer un utilisateur par email
