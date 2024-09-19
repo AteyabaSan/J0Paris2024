@@ -1,9 +1,11 @@
 package com.joparis2024.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class EventDTO {
-
+	
+	private Long id;  // Ajout de l'id
     private String eventName;
     private LocalDateTime date;
     private String location;
@@ -12,12 +14,17 @@ public class EventDTO {
     private int availableTickets;
     private String description;
     private boolean isSoldOut;
+    
+    private List<TicketDTO> tickets;  // Relation avec TicketDTO
+    private UserDTO organizer;  // Relation avec UserDTO
 
     // No-Args Constructor
     public EventDTO() {}
 
     // All-Args Constructor
-    public EventDTO(String eventName, LocalDateTime date, String location, String category, double priceRange, int availableTickets, String description, boolean isSoldOut) {
+    public EventDTO(Long id, String eventName, LocalDateTime date, String location, String category, double priceRange, int availableTickets, String description, boolean isSoldOut, List<TicketDTO> tickets, UserDTO organizer) {
+    	
+    	this.id = id;
         this.eventName = eventName;
         this.date = date;
         this.location = location;
@@ -26,6 +33,8 @@ public class EventDTO {
         this.availableTickets = availableTickets;
         this.description = description;
         this.isSoldOut = isSoldOut;
+        this.tickets = tickets;
+        this.organizer = organizer;
     }
 
     // Getters and Setters
@@ -92,6 +101,30 @@ public class EventDTO {
 
     public void setSoldOut(boolean soldOut) {
         isSoldOut = soldOut;
+    }
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public List<TicketDTO> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<TicketDTO> tickets) {
+        this.tickets = tickets;
+    }
+
+    public UserDTO getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(UserDTO organizer) {
+        this.organizer = organizer;
     }
 }
 

@@ -88,6 +88,7 @@ public class OrderService {
     // Mapper Order -> OrderDTO (pour les méthodes getAllOrders et autres)
     public OrderDTO mapToDTO(Order order) {
         OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(order.getId());  // Ajout de l'ID ici
         orderDTO.setUser(userService.mapToDTO(order.getUser()));  // Mapper l'utilisateur
         orderDTO.setStatus(order.getStatus());
         orderDTO.setTotalAmount(order.getTotalAmount());
@@ -105,6 +106,7 @@ public class OrderService {
     // Mapper OrderDTO -> Order (Entity)
     public Order mapToEntity(OrderDTO orderDTO) {
         Order order = new Order();
+        order.setId(orderDTO.getId());  // Ajout de l'ID ici
         order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());

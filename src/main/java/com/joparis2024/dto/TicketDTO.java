@@ -1,18 +1,20 @@
 package com.joparis2024.dto;
 
 public class TicketDTO {
+	private Long id;          // Ajout de l'ID
     private EventDTO event;
     private OrderDTO order;
     private double price;
     private int quantity;
     private boolean available;
 
-    // Constructors
+    // Constructeurs
     public TicketDTO() {
     }
 
-    public TicketDTO(EventDTO event, OrderDTO order, double price, int quantity, boolean available) {
-        this.event = event;
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, int quantity, boolean available) {
+    	this.id = id;      // Ajout de l'ID dans le constructeur
+    	this.event = event;
         this.order = order;
         this.price = price;
         this.quantity = quantity;
@@ -58,5 +60,14 @@ public class TicketDTO {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+    
+ // Getters et Setters pour l'ID
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

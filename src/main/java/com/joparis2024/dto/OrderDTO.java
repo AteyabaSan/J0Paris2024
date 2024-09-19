@@ -5,7 +5,8 @@ import java.util.List;
 
 public class OrderDTO {
 
-    private String status;
+    private Long id;
+	private String status;
     private UserDTO user;
     private List<TicketDTO> tickets;
     private Double totalAmount;
@@ -16,8 +17,9 @@ public class OrderDTO {
     public OrderDTO() {}
 
     // Constructeur avec tous les arguments
-    public OrderDTO(String status, UserDTO user, List<TicketDTO> tickets, Double totalAmount, LocalDateTime orderDate, LocalDateTime paymentDate) {
-        this.status = status;
+    public OrderDTO(Long id, String status, UserDTO user, List<TicketDTO> tickets, Double totalAmount, LocalDateTime orderDate, LocalDateTime paymentDate) {
+        this.id = id;
+    	this.status = status;
         this.user = user;
         this.tickets = tickets;
         this.totalAmount = totalAmount;
@@ -72,6 +74,15 @@ public class OrderDTO {
 
     public void setPaymentDate(LocalDateTime paymentDate) {
         this.paymentDate = paymentDate;
+    }
+    
+    // Getters et Setters pour l'ID
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
 

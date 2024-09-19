@@ -55,6 +55,7 @@ public class PaymentService {
     // Mapper PaymentDTO -> Payment
     public Payment mapToEntity(PaymentDTO paymentDTO) {
         Payment payment = new Payment();
+        payment.setId(paymentDTO.getId());  // Ajout de l'ID
         payment.setOrder(orderService.mapToEntity(paymentDTO.getOrder()));
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         payment.setPaymentDate(paymentDTO.getPaymentDate());
@@ -64,14 +65,15 @@ public class PaymentService {
         return payment;
     }
 
-    // Mapper Payment -> PaymentDTO
+ // Mapper Payment -> PaymentDTO
     public PaymentDTO mapToDTO(Payment payment) {
-        return new PaymentDTO(
-            orderService.mapToDTO(payment.getOrder()),
-            payment.getPaymentMethod(),
-            payment.getPaymentDate(),
-            payment.getAmount(),
-            payment.isConfirmed()
-        );
+        PaymentDTO paymentDTO = new PaymentDTO();
+        paymentDTO.setId(payment.getId());  // Ajout de l'ID
+        paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));
+        paymentDTO.setPaymentMethod(payment.getPaymentMethod());
+        paymentDTO.setPaymentDate(payment.getPaymentDate());
+        paymentDTO.setAmount(payment.getAmount());
+        paymentDTO.setConfirmed(payment.isConfirmed());
+        return paymentDTO;
     }
 }

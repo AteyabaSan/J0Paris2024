@@ -3,6 +3,8 @@ package com.joparis2024.dto;
 import java.time.LocalDateTime;
 
 public class PaymentDTO {
+	
+	private Long id; // Ajout de l'ID
     private OrderDTO order;
     private String paymentMethod;
     private LocalDateTime paymentDate;
@@ -14,8 +16,9 @@ public class PaymentDTO {
     }
 
     // Constructeur avec tous les paramètres
-    public PaymentDTO(OrderDTO order, String paymentMethod, LocalDateTime paymentDate, double amount, boolean confirmed) {
-        this.order = order;
+    public PaymentDTO(Long id, OrderDTO order, String paymentMethod, LocalDateTime paymentDate, double amount, boolean confirmed) {
+        this.id = id;
+    	this.order = order;
         this.paymentMethod = paymentMethod;
         this.paymentDate = paymentDate;
         this.amount = amount;
@@ -61,6 +64,14 @@ public class PaymentDTO {
 
     public void setConfirmed(boolean confirmed) {
         this.confirmed = confirmed;
+    }
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
 

@@ -62,6 +62,7 @@ public class TicketService {
     // Mapper Ticket -> TicketDTO
     public TicketDTO mapToDTO(Ticket ticket) {
         TicketDTO ticketDTO = new TicketDTO();
+        ticketDTO.setId(ticket.getId());  // Ajout de l'ID
         ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
         ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
         ticketDTO.setPrice(ticket.getPrice());
@@ -73,6 +74,7 @@ public class TicketService {
     // Mapper TicketDTO -> Ticket (Entity)
     public Ticket mapToEntity(TicketDTO ticketDTO) {
         Ticket ticket = new Ticket();
+        ticket.setId(ticketDTO.getId());  // Ajout de l'ID
         ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
         ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
         ticket.setPrice(ticketDTO.getPrice());
@@ -80,4 +82,23 @@ public class TicketService {
         ticket.setAvailable(ticketDTO.isAvailable());
         return ticket;
     }
+    
+ // Convertir une liste de Tickets en une liste de TicketDTOs
+    public List<TicketDTO> mapToDTOs(List<Ticket> tickets) {
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+        for (Ticket ticket : tickets) {
+            ticketDTOs.add(mapToDTO(ticket));
+        }
+        return ticketDTOs;
+    }
+
+    // Convertir une liste de TicketDTOs en une liste de Tickets
+    public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs) {
+        List<Ticket> tickets = new ArrayList<>();
+        for (TicketDTO ticketDTO : ticketDTOs) {
+            tickets.add(mapToEntity(ticketDTO));
+        }
+        return tickets;
+    }
+
 }

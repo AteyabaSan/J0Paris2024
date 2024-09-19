@@ -16,6 +16,12 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private TicketService ticketService;
+
+    @Autowired
+    private UserService userService;
+
     // Récupérer tous les événements avec boucle for
     public List<EventDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
@@ -49,8 +55,8 @@ public class EventService {
     }
 
     // Mettre à jour un événement
-    public Event updateEvent(String eventName, EventDTO eventDTO) throws Exception {
-        Optional<Event> existingEvent = eventRepository.findByEventName(eventName);
+    public Event updateEvent(Long eventId, EventDTO eventDTO) throws Exception {
+        Optional<Event> existingEvent = eventRepository.findById(eventId);
         if (!existingEvent.isPresent()) {
             throw new Exception("Événement non trouvé");
         }
@@ -64,12 +70,17 @@ public class EventService {
         event.setDescription(eventDTO.getDescription());
         event.setSoldOut(eventDTO.isSoldOut());
 
+        // Mise à jour des relations
+        event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
+        event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+
         return eventRepository.save(event);
     }
 
     // Mapper l'entité Event vers un DTO EventDTO
     public EventDTO mapToDTO(Event event) {
         return new EventDTO(
+                event.getId(),
                 event.getEventName(),
                 event.getDate(),
                 event.getLocation(),
@@ -77,13 +88,16 @@ public class EventService {
                 event.getPriceRange(),
                 event.getAvailableTickets(),
                 event.getDescription(),
-                event.isSoldOut()
+                event.isSoldOut(),
+                ticketService.mapToDTOs(event.getTickets()),
+                userService.mapToDTO(event.getOrganizer())
         );
     }
 
     // Mapper le DTO EventDTO vers l'entité Event
     public Event mapToEntity(EventDTO eventDTO) {
         Event event = new Event();
+        event.setId(eventDTO.getId());
         event.setEventName(eventDTO.getEventName());
         event.setDate(eventDTO.getDate());
         event.setLocation(eventDTO.getLocation());
@@ -92,6 +106,11 @@ public class EventService {
         event.setAvailableTickets(eventDTO.getAvailableTickets());
         event.setDescription(eventDTO.getDescription());
         event.setSoldOut(eventDTO.isSoldOut());
+
+        // Ajout des relations
+        event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
+        event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+
         return event;
     }
 
