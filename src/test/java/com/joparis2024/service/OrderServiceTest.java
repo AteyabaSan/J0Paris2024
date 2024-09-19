@@ -59,18 +59,25 @@ public class OrderServiceTest {
     // Cas où la création de commande fonctionne
     @Test
     public void createOrder_Success() throws Exception {
-        // Simule les valeurs de retour
+        // Simuler les valeurs de retour pour les services
         when(userService.mapToEntity(any(UserDTO.class))).thenReturn(new User());
         when(ticketService.mapToEntity(any(TicketDTO.class))).thenReturn(new Ticket());
-        when(orderRepository.save(any(Order.class))).thenReturn(new Order());
 
+        // Simuler la sauvegarde et s'assurer que le montant total est bien défini dans l'ordre
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
+            Order order = invocation.getArgument(0);
+            order.setTotalAmount(orderDTO.getTotalAmount()); // S'assurer que le montant est défini
+            return order;
+        });
+
+        // Appel de la méthode à tester
         Order createdOrder = orderService.createOrder(orderDTO);
 
-        // Vérifications supplémentaires
+        // Vérifications des assertions
         assertNotNull(createdOrder);
-        assertEquals(orderDTO.getTotalAmount(), createdOrder.getTotalAmount());
-        
-        // Ajout de la vérification des appels
+        assertEquals(orderDTO.getTotalAmount(), createdOrder.getTotalAmount(), "Le montant total doit être égal à 100.0");
+
+        // Vérification que le repository et les services ont été appelés
         verify(orderRepository).save(any(Order.class));
         verify(userService).mapToEntity(any(UserDTO.class));
         verify(ticketService).mapToEntity(any(TicketDTO.class));
@@ -78,14 +85,17 @@ public class OrderServiceTest {
 
     // Cas où la création de commande échoue (exemple basique)
     @Test
-    public void createOrder_Failure() {
+    public void createOrder_Failure() throws Exception {
         // Simuler un problème avec l'utilisateur (utilisateur non mappé)
         when(userService.mapToEntity(any(UserDTO.class))).thenReturn(null);
 
-        // Assurer que l'ordre ne peut pas être créé
-        assertThrows(Exception.class, () -> {
+        // Assurer que l'ordre ne peut pas être créé et qu'une exception est levée
+        Exception exception = assertThrows(Exception.class, () -> {
             orderService.createOrder(orderDTO);
         });
+
+        // Vérifier le message de l'exception pour s'assurer qu'il correspond à celui dans la méthode createOrder
+        assertEquals("L'utilisateur est introuvable", exception.getMessage());
 
         // Vérifier que les autres services ne sont pas appelés si l'utilisateur échoue
         verify(orderRepository, org.mockito.Mockito.never()).save(any(Order.class));

@@ -26,9 +26,12 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     // Créer une commande
-    public Order createOrder(OrderDTO orderDTO) {
+    public Order createOrder(OrderDTO orderDTO) throws Exception {
         Order order = new Order();
         order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
+        if (order.getUser() == null) {
+            throw new Exception("L'utilisateur est introuvable");
+        }
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setPaymentDate(orderDTO.getPaymentDate());
