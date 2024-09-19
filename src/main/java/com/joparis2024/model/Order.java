@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,7 +38,7 @@ public class Order {
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Ticket> tickets;
+    private List<Ticket> tickets = new ArrayList<>();
 
     @Column(nullable = false)
     private Double totalAmount;
