@@ -4,6 +4,7 @@ import com.joparis2024.dto.EventDTO;
 import com.joparis2024.model.Event;
 import com.joparis2024.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class EventService {
     private EventRepository eventRepository;
 
     @Autowired
+    @Lazy // Injection différée pour casser la dépendance circulaire
     private TicketService ticketService;
 
     @Autowired

@@ -4,6 +4,7 @@ import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,6 +18,7 @@ public class TicketService {
     private TicketRepository ticketRepository;
 
     @Autowired
+    @Lazy // Injection différée pour éviter la boucle
     private EventService eventService;
 
     @Autowired
