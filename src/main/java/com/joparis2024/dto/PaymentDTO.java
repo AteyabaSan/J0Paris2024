@@ -1,52 +1,66 @@
 package com.joparis2024.dto;
 
+import java.time.LocalDateTime;
+
 public class PaymentDTO {
+    private OrderDTO order;
+    private String paymentMethod;
+    private LocalDateTime paymentDate;
+    private double amount;
+    private boolean confirmed;
 
-    private Long id;
-    private Long orderId;
-    private Double amount;
-    private String status;
+    // Constructeur sans paramètres
+    public PaymentDTO() {
+    }
 
-    // Constructors
-    public PaymentDTO() {}
-
-    public PaymentDTO(Long id, Long orderId, Double amount, String status) {
-        this.id = id;
-        this.orderId = orderId;
+    // Constructeur avec tous les paramètres
+    public PaymentDTO(OrderDTO order, String paymentMethod, LocalDateTime paymentDate, double amount, boolean confirmed) {
+        this.order = order;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = paymentDate;
         this.amount = amount;
-        this.status = status;
+        this.confirmed = confirmed;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    // Getters et setters
+    public OrderDTO getOrder() {
+        return order;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setOrder(OrderDTO order) {
+        this.order = order;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public String getPaymentMethod() {
+        return paymentMethod;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
-    public Double getAmount() {
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isConfirmed() {
+        return confirmed;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
     }
 }
+
