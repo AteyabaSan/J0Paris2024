@@ -10,6 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: mowgli
+          POSTGRES_PASSWORD: EspritNwaar74!
+          POSTGRES_DB: jo_paris
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U mowgli"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     # Checkout the repository to the runner
     - uses: actions/checkout@v3
@@ -27,9 +42,9 @@ jobs:
     - name: Check Maven Version
       run: mvn -version
 
-    # Build and test the project with Maven, enabling detailed logs and using the test profile
+    # Build and test the project with Maven
     - name: Build and Test with Maven
-      run: mvn -B clean install -U -X -Dspring.profiles.active=test --file pom.xml
+      run: mvn -B clean install -U -X --file pom.xml
 
   deploy:
     needs: build  # Ensure the build job is completed successfully before deploying
@@ -54,13 +69,18 @@ jobs:
       run: |
         curl https://cli-assets.heroku.com/install.sh | sh
 
+    # Ensure Heroku remote is added only if not already present
+    - name: Ensure Heroku remote is added
+      run: |
+        git remote | grep heroku || git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/jeux-olympiques-paris-2024.git
+
     # Deploy the application to Heroku
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Use GitHub Secrets to securely store your Heroku API Key
         SPRING_PROFILES_ACTIVE: prod  # Set the profile to prod for Heroku
       run: |
-        git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/jeux-olympiques-paris-2024.git
         git push heroku main
+
 
 
