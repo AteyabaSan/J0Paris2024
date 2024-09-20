@@ -28,9 +28,18 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         try {
+            System.out.println("Tentative de création d'un utilisateur : " + userDTO.getEmail()); // Log pour vérifier les données reçues
             UserDTO createdUser = userService.createUser(userDTO);
+            
+            if (createdUser == null) {
+                System.out.println("Création de l'utilisateur échouée : aucune donnée retournée."); // Log pour voir si la création échoue
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            System.out.println("Utilisateur créé avec succès : " + createdUser.getId()); // Log pour confirmer la création
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
+            e.printStackTrace(); // Log de l'erreur pour la traçabilité
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

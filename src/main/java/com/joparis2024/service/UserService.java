@@ -29,13 +29,19 @@ public class UserService {
 
     // Créer un utilisateur
     public UserDTO createUser(UserDTO userDTO) throws Exception {
-        validateUserDTO(userDTO);
+        // Log pour vérifier si le UserDTO arrive bien
+        System.out.println("Tentative de création d'un utilisateur : " + userDTO.getEmail());
 
+        // Validation du DTO
+        validateUserDTO(userDTO);
+        
         // Vérifier si l'email existe déjà
         if (userRepository.existsByEmail(userDTO.getEmail())) {
+            System.out.println("Email déjà utilisé : " + userDTO.getEmail()); // Log pour voir si l'email est déjà utilisé
             throw new Exception("Email déjà utilisé");
         }
 
+        // Création de l'objet User
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
@@ -43,8 +49,13 @@ public class UserService {
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
 
-        // Sauvegarde et conversion en DTO
+        // Sauvegarde dans la base de données
         User savedUser = userRepository.save(user);
+        
+        // Log pour confirmer que l'utilisateur a bien été sauvegardé
+        System.out.println("Utilisateur sauvegardé avec succès : " + savedUser.getId());
+
+        // Conversion en DTO et retour
         return mapToDTO(savedUser);
     }
 
