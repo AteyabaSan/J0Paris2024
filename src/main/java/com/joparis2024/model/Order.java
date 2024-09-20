@@ -36,10 +36,11 @@ public class Order {
     private String status;  // en attente, payé, confirmé
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
     private List<Ticket> tickets = new ArrayList<>();
 
     @Column(nullable = false)

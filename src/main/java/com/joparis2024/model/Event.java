@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -44,5 +45,6 @@ public class Event {
 
     // Relation avec User: Un événement peut être organisé par un utilisateur (organisateur)
     @ManyToOne
+    @JoinColumn(name = "organizer_id")
     private User organizer;
 }
