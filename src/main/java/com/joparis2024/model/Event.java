@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "event")
+@Table(name = "events")
 @Getter
 @Setter
 @NoArgsConstructor
