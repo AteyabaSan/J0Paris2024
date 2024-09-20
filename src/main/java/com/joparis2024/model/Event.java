@@ -1,10 +1,13 @@
 package com.joparis2024.model;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,42 +16,33 @@ import lombok.Setter;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "events")
+@Table(name = "event")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {
 	
-	public Event(Long id) {
-	    this.id = id;
-	}
-
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
+    private Long id;  // Ajout de l'id
+    private String eventName;
+    private LocalDateTime date;
     private String location;
-
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false)
     private String category;
-
-    @Column(length = 1000)
+    private double priceRange;
+    private int availableTickets;
     private String description;
+    private boolean isSoldOut;
     
-    @Column(nullable = false)
-    private String session;
+ // Relation avec Ticket: Un événement peut avoir plusieurs tickets
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Ticket> tickets;
 
+    // Relation avec User: Un événement peut être organisé par un utilisateur (organisateur)
+    @ManyToOne
+    private User organizer;
 }

@@ -17,38 +17,37 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "order")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
 	
-	public Order(Long id) {
-	    this.id = id;
-	}
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Ajout de l'id avec auto-incrément
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @Column(nullable = false)
+    private String status;  // en attente, payé, confirmé
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn
     private User user;
 
-    @Column(name = "order_date", nullable = false)
-    private LocalDateTime orderDate;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Ticket> tickets = new ArrayList<>();
 
-    @Column(name = "total_amount", nullable = false)
+    @Column(nullable = false)
     private Double totalAmount;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Ticket> tickets;
-    
     @Column(nullable = false)
-    private String status;
+    private LocalDateTime orderDate;
 
+    @Column(nullable = false)
+    private LocalDateTime paymentDate;
 }

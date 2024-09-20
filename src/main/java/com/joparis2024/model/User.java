@@ -17,15 +17,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Ajout de l'ID
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -48,10 +48,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
-    
-    public User(Long id) {
-        this.id = id;
+
+    // Constructeur avec uniquement les attributs nécessaires
+    public User(String username, String email, String role, Boolean enabled, String phoneNumber) {
+        this.username = username;
+        this.email = email;
+        this.role = role;
+        this.enabled = enabled;
+        this.phoneNumber = phoneNumber;
     }
-
-
 }
