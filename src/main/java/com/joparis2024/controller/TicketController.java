@@ -18,7 +18,7 @@ public class TicketController {
 
     // Récupérer tous les tickets
     @GetMapping
-    public ResponseEntity<List<TicketDTO>> getAllTickets() {
+    public ResponseEntity<List<TicketDTO>> getAllTickets() throws Exception {
         System.out.println("Tentative de récupération de tous les tickets");
         List<TicketDTO> tickets = ticketService.getAllTickets();
         System.out.println("Tickets récupérés : " + tickets.size());

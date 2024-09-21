@@ -26,13 +26,17 @@ public class TicketService {
 
     // Créer un ticket
     public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
+        System.out.println("Création d'un ticket pour l'événement ID: " + ticketDTO.getEvent().getId());
         Ticket ticket = new Ticket();
         ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
         ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
-        return ticketRepository.save(ticket);
+        
+        Ticket savedTicket = ticketRepository.save(ticket);
+        System.out.println("Ticket créé avec succès, ID: " + savedTicket.getId());
+        return savedTicket;
     }
 
     // Mettre à jour un ticket
@@ -52,7 +56,7 @@ public class TicketService {
     }
 
     // Récupérer tous les tickets
-    public List<TicketDTO> getAllTickets() {
+    public List<TicketDTO> getAllTickets() throws Exception {
         List<Ticket> tickets = ticketRepository.findAll();
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         for (Ticket ticket : tickets) {
@@ -62,7 +66,7 @@ public class TicketService {
     }
 
     // Mapper Ticket -> TicketDTO
-    public TicketDTO mapToDTO(Ticket ticket) {
+    public TicketDTO mapToDTO(Ticket ticket) throws Exception {
         TicketDTO ticketDTO = new TicketDTO();
         ticketDTO.setId(ticket.getId());  // Ajout de l'ID
         ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
@@ -74,7 +78,7 @@ public class TicketService {
     }
 
     // Mapper TicketDTO -> Ticket (Entity)
-    public Ticket mapToEntity(TicketDTO ticketDTO) {
+    public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {
         Ticket ticket = new Ticket();
         ticket.setId(ticketDTO.getId());  // Ajout de l'ID
         ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
@@ -86,19 +90,27 @@ public class TicketService {
     }
     
  // Convertir une liste de Tickets en une liste de TicketDTOs
-    public List<TicketDTO> mapToDTOs(List<Ticket> tickets) {
+    public List<TicketDTO> mapToDTOs(List<Ticket> tickets) throws Exception {
         List<TicketDTO> ticketDTOs = new ArrayList<>();
-        for (Ticket ticket : tickets) {
-            ticketDTOs.add(mapToDTO(ticket));
+        if (tickets != null) {
+            for (Ticket ticket : tickets) {
+                ticketDTOs.add(mapToDTO(ticket));
+            }
+        } else {
+            throw new Exception("La liste de tickets est vide");
         }
         return ticketDTOs;
     }
 
     // Convertir une liste de TicketDTOs en une liste de Tickets
-    public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs) {
+    public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
-        for (TicketDTO ticketDTO : ticketDTOs) {
-            tickets.add(mapToEntity(ticketDTO));
+        if (ticketDTOs != null) {
+            for (TicketDTO ticketDTO : ticketDTOs) {
+                tickets.add(mapToEntity(ticketDTO));
+            }
+        } else {
+            throw new Exception("La liste de TicketDTOs est vide");
         }
         return tickets;
     }

@@ -71,7 +71,7 @@ public class OrderService {
     }
 
     // Récupérer toutes les commandes
-    public List<OrderDTO> getAllOrders() {
+    public List<OrderDTO> getAllOrders() throws Exception {
         List<Order> orders = orderRepository.findAll();
         List<OrderDTO> orderDTOs = new ArrayList<>();
         for (Order order : orders) {
@@ -82,49 +82,60 @@ public class OrderService {
 
     // Annuler une commande
     public void cancelOrder(Long orderId) throws Exception {
-        Optional<Order> existingOrder = orderRepository.findById(orderId);
-        if (!existingOrder.isPresent()) {
-            throw new Exception("Order non trouvée");
+        try {
+            Optional<Order> existingOrder = orderRepository.findById(orderId);
+            if (!existingOrder.isPresent()) {
+                throw new Exception("Order non trouvée");
+            }
+            orderRepository.delete(existingOrder.get());
+        } catch (Exception e) {
+            throw new Exception("Erreur lors de l'annulation de la commande: " + e.getMessage());
         }
-
-        orderRepository.delete(existingOrder.get());
     }
 
     // Mapper Order -> OrderDTO (pour les méthodes getAllOrders et autres)
-    public OrderDTO mapToDTO(Order order) {
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setId(order.getId());  // Ajout de l'ID ici
-        orderDTO.setUser(userService.mapToDTO(order.getUser()));  // Mapper l'utilisateur
-        orderDTO.setStatus(order.getStatus());
-        orderDTO.setTotalAmount(order.getTotalAmount());
-        orderDTO.setPaymentDate(order.getPaymentDate());
+    public OrderDTO mapToDTO(Order order) throws Exception {
+        try {
+            OrderDTO orderDTO = new OrderDTO();
+            orderDTO.setId(order.getId());  // Ajout de l'ID ici
+            orderDTO.setUser(userService.mapToDTO(order.getUser()));  // Mapper l'utilisateur
+            orderDTO.setStatus(order.getStatus());
+            orderDTO.setTotalAmount(order.getTotalAmount());
+            orderDTO.setPaymentDate(order.getPaymentDate());
 
-        List<TicketDTO> ticketDTOs = new ArrayList<>();
-        for (Ticket ticket : order.getTickets()) {
-            ticketDTOs.add(ticketService.mapToDTO(ticket));  // Mapper les tickets
+            List<TicketDTO> ticketDTOs = new ArrayList<>();
+            for (Ticket ticket : order.getTickets()) {
+                ticketDTOs.add(ticketService.mapToDTO(ticket));  // Mapper les tickets
+            }
+            orderDTO.setTickets(ticketDTOs);
+
+            return orderDTO;
+        } catch (Exception e) {
+            throw new Exception("Erreur lors du mappage Order -> OrderDTO: " + e.getMessage());
         }
-        orderDTO.setTickets(ticketDTOs);
-
-        return orderDTO;
     }
 
     // Mapper OrderDTO -> Order (Entity)
-    public Order mapToEntity(OrderDTO orderDTO) {
-        Order order = new Order();
-        order.setId(orderDTO.getId());  // Ajout de l'ID ici
-        order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
-        order.setStatus(orderDTO.getStatus());
-        order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setPaymentDate(orderDTO.getPaymentDate());
+    public Order mapToEntity(OrderDTO orderDTO) throws Exception {
+        try {
+            Order order = new Order();
+            order.setId(orderDTO.getId());  // Ajout de l'ID ici
+            order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
+            order.setStatus(orderDTO.getStatus());
+            order.setTotalAmount(orderDTO.getTotalAmount());
+            order.setPaymentDate(orderDTO.getPaymentDate());
 
-        List<Ticket> tickets = new ArrayList<>();
-        for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            Ticket ticket = ticketService.mapToEntity(ticketDTO);  // Mapper les tickets
-            tickets.add(ticket);
+            List<Ticket> tickets = new ArrayList<>();
+            for (TicketDTO ticketDTO : orderDTO.getTickets()) {
+                Ticket ticket = ticketService.mapToEntity(ticketDTO);  // Mapper les tickets
+                tickets.add(ticket);
+            }
+            order.setTickets(tickets);
+
+            return order;
+        } catch (Exception e) {
+            throw new Exception("Erreur lors du mappage OrderDTO -> Order: " + e.getMessage());
         }
-        order.setTickets(tickets);
-
-        return order;
     }
 }
 

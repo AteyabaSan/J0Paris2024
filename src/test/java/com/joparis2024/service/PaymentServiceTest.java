@@ -38,12 +38,17 @@ public class PaymentServiceTest {
         paymentDTO.setAmount(200.0);
         paymentDTO.setConfirmed(true);
         paymentDTO.setPaymentDate(java.time.LocalDateTime.now());
+
+        // Assigner un ordre valide à paymentDTO
+        OrderDTO orderDTO = new OrderDTO(); // Création d'un ordre simulé
+        orderDTO.setId(1L); // Assure-toi que l'ordre a un ID ou autres propriétés nécessaires
+        paymentDTO.setOrder(orderDTO); // Assigner cet ordre à paymentDTO
     }
 
     // Cas où la création de paiement réussit
     @Test
-    public void createPayment_Success() {
-    	when(orderService.mapToEntity(any(OrderDTO.class))).thenReturn(new Order());
+    public void createPayment_Success() throws Exception {
+        when(orderService.mapToEntity(any(OrderDTO.class))).thenReturn(new Order());
         when(paymentRepository.save(any(Payment.class))).thenReturn(new Payment());
 
         Payment createdPayment = paymentService.createPayment(paymentDTO);
@@ -51,6 +56,23 @@ public class PaymentServiceTest {
         assertNotNull(createdPayment);
         verify(paymentRepository, times(1)).save(any(Payment.class));
     }
+    
+ // Cas où la création de paiement échoue
+    @Test
+    public void createPayment_Failure_NoOrder() throws Exception {
+        // Simuler une situation où l'ordre est nul dans PaymentDTO
+        paymentDTO.setOrder(null);
+
+        // Vérifier que l'exception est levée
+        Exception exception = assertThrows(Exception.class, () -> {
+            paymentService.createPayment(paymentDTO);
+        });
+
+        // Vérifier le message de l'exception
+        String expectedMessage = "L'ordre ne peut pas être nul lors de la création du paiement.";
+        assertTrue(exception.getMessage().contains(expectedMessage));
+    }
+
 
     // Cas où la suppression de paiement réussit
     @Test

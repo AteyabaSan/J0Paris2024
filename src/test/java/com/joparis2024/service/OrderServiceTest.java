@@ -141,13 +141,13 @@ public class OrderServiceTest {
         verify(orderRepository, org.mockito.Mockito.never()).save(any(Order.class));
     }
     
-    //est de récupération de toutes les commandes
+    //Test de récupération de toutes les commandes
     @Test
-    public void getAllOrders_Success() {
+    public void getAllOrders_Success() throws Exception {  // Ajoute 'throws Exception' si nécessaire
         List<Order> orders = Collections.singletonList(new Order());
         when(orderRepository.findAll()).thenReturn(orders);
 
-        List<OrderDTO> orderDTOs = orderService.getAllOrders();
+        List<OrderDTO> orderDTOs = orderService.getAllOrders();  // Vérifie que la méthode est bien appelée sans erreur
 
         assertNotNull(orderDTOs);
         assertFalse(orderDTOs.isEmpty());
@@ -173,8 +173,10 @@ public class OrderServiceTest {
             orderService.cancelOrder(1L);
         });
 
-        assertEquals("Order non trouvée", exception.getMessage());
+        String expectedMessage = "Erreur lors de l'annulation de la commande: Order non trouvée";
+        assertEquals(expectedMessage, exception.getMessage());
     }
+
 
 }
 

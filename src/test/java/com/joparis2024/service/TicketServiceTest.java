@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.joparis2024.dto.EventDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Event;
 import com.joparis2024.model.Order;
@@ -52,8 +53,12 @@ public class TicketServiceTest {
     @Test
     public void createTicket_Success() throws Exception {
         // Simuler les mappages
-    	when(eventService.mapToEntity(any())).thenReturn(new Event());
-    	when(orderService.mapToEntity(any())).thenReturn(new Order());
+        EventDTO eventDTO = new EventDTO(); // Initialisation de l'EventDTO
+        eventDTO.setId(1L);  // Assigner un ID à l'événement pour éviter le NullPointerException
+        when(eventService.mapToEntity(any())).thenReturn(new Event());
+        when(orderService.mapToEntity(any())).thenReturn(new Order());
+
+        ticketDTO.setEvent(eventDTO); // Ajouter l'événement à ticketDTO pour éviter l'erreur
 
         when(ticketRepository.save(any(Ticket.class))).thenReturn(new Ticket());
 
@@ -96,17 +101,27 @@ public class TicketServiceTest {
     //Test pour recuperation de Tickets
     @Test
     public void getAllTickets_Success() {
-        // Simuler une liste de tickets
-        List<Ticket> tickets = new ArrayList<>();
-        tickets.add(new Ticket());
+        try {
+            // Simuler une liste de tickets
+            List<Ticket> tickets = new ArrayList<>();
+            tickets.add(new Ticket());
 
-        when(ticketRepository.findAll()).thenReturn(tickets);
+            // Simuler le comportement du repository
+            when(ticketRepository.findAll()).thenReturn(tickets);
 
-        List<TicketDTO> ticketDTOs = ticketService.getAllTickets();
+            // Appel du service
+            List<TicketDTO> ticketDTOs = ticketService.getAllTickets();
 
-        assertNotNull(ticketDTOs);
-        assertEquals(1, ticketDTOs.size());
-        verify(ticketRepository).findAll();
+            // Assertions pour vérifier le résultat
+            assertNotNull(ticketDTOs);
+            assertEquals(1, ticketDTOs.size());
+
+            // Vérification des interactions avec le mock
+            verify(ticketRepository).findAll();
+        } catch (Exception e) {
+            // Si une exception est levée, échoue le test
+            fail("Une exception inattendue a été levée: " + e.getMessage());
+        }
     }
 
 }
