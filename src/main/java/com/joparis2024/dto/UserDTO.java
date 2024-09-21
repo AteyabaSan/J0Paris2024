@@ -8,19 +8,21 @@ public class UserDTO {
     private String role;
     private Boolean enabled;
     private String phoneNumber;
+    private String password;
 
     // Constructeurs
     public UserDTO() {
     }
 
  // Constructeur avec l'ID
-    public UserDTO(Long id, String username, String email, String role, Boolean enabled, String phoneNumber) {
+    public UserDTO(Long id, String username, String email, String role, Boolean enabled, String phoneNumber, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.role = role;
         this.enabled = enabled;
         this.phoneNumber = phoneNumber;
+        this.password = password;
     }
 
     // Getters et Setters
@@ -71,6 +73,15 @@ public class UserDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    // Getter et Setter pour le mot de passe
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
 

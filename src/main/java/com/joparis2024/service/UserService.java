@@ -48,6 +48,7 @@ public class UserService {
         user.setRole(userDTO.getRole());
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setPassword(userDTO.getPassword());
 
         // Sauvegarde dans la base de données
         User savedUser = userRepository.save(user);
@@ -92,7 +93,8 @@ public class UserService {
             user.getEmail(),
             user.getRole(),
             user.getEnabled(),
-            user.getPhoneNumber()
+            user.getPhoneNumber(),
+            user.getPassword()
         );
     }
 
