@@ -127,6 +127,10 @@ public class EventService {
 
     // Mapper le DTO EventDTO vers l'entité Event
     public Event mapToEntity(EventDTO eventDTO) throws Exception {
+        if (eventDTO == null || eventDTO.getId() == null) {
+            throw new Exception("L'ID de l'événement est manquant ou invalide.");
+        }
+        
         try {
             Event event = new Event();
             event.setId(eventDTO.getId());
@@ -148,6 +152,7 @@ public class EventService {
             throw new Exception("Erreur lors du mapping du DTO en entité Event", e);
         }
     }
+
 
 
     // Supprimer un événement par nom

@@ -29,6 +29,11 @@ public class TicketController {
     @PostMapping
     public ResponseEntity<TicketDTO> createTicket(@RequestBody TicketDTO ticketDTO) {
         try {
+            // Vérification de l'ID de l'événement dans le DTO
+            if (ticketDTO.getEvent() == null || ticketDTO.getEvent().getId() == null) {
+                throw new Exception("L'événement est nul ou l'ID est manquant.");
+            }
+            
             System.out.println("Tentative de création d'un ticket pour l'événement : " + ticketDTO.getEvent().getId());
             TicketDTO createdTicket = ticketService.mapToDTO(ticketService.createTicket(ticketDTO));
             System.out.println("Ticket créé avec succès : " + createdTicket.getId());
