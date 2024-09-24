@@ -42,14 +42,28 @@ public class EventService {
     // Créer un événement
     public Event createEvent(EventDTO eventDTO) {
         try {
+            // Vérification basique des données d'entrée (exemple : vérifier si le nom de l'événement est valide)
+            if (eventDTO.getEventName() == null || eventDTO.getEventName().isEmpty()) {
+                throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
+            }
+
+            // Mappage DTO -> Entité
             Event event = mapToEntity(eventDTO);
+
+            // Sauvegarde dans la base de données
             return eventRepository.save(event);
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erreur de validation des données : " + e.getMessage());
+            throw e; // ou retourne une réponse appropriée dans une vraie application
+
         } catch (Exception e) {
             System.out.println("Erreur lors de la création de l'événement");
             e.printStackTrace();
-            return null;  // Ou déclenche une exception personnalisée si nécessaire
+            throw new RuntimeException("Erreur inconnue lors de la création de l'événement");
         }
     }
+
 
     // Récupérer un événement par nom
     public Optional<EventDTO> getEventByName(String eventName) {
@@ -125,15 +139,15 @@ public class EventService {
     }
 
 
-    // Mapper le DTO EventDTO vers l'entité Event
+ // Mapper le DTO EventDTO vers l'entité Event
     public Event mapToEntity(EventDTO eventDTO) throws Exception {
-        if (eventDTO == null || eventDTO.getId() == null) {
-            throw new Exception("L'ID de l'événement est manquant ou invalide.");
+        if (eventDTO == null) {
+            throw new Exception("L'EventDTO est manquant ou invalide.");
         }
         
         try {
             Event event = new Event();
-            event.setId(eventDTO.getId());
+            // On ne vérifie plus l'ID car il sera généré automatiquement
             event.setEventName(eventDTO.getEventName());
             event.setDate(eventDTO.getDate());
             event.setLocation(eventDTO.getLocation());
@@ -143,7 +157,7 @@ public class EventService {
             event.setDescription(eventDTO.getDescription());
             event.setSoldOut(eventDTO.isSoldOut());
 
-            // Ajout des relations
+            // Ajout des relations si nécessaire
             event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
             event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
 

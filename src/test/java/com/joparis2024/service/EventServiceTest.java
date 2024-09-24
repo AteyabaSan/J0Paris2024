@@ -64,14 +64,21 @@ public class EventServiceTest {
     // Cas où la création d'un événement fonctionne
     @Test
     public void createEvent_Success() {
+        // Arrange : Préparation des données de test
+        // On s'assure que le repository renvoie un Event correct quand save() est appelé
         when(eventRepository.save(any(Event.class))).thenReturn(event);
 
+        // Act : Appel de la méthode à tester
         Event createdEvent = eventService.createEvent(eventDTO);
 
-        assertNotNull(createdEvent);
-        assertEquals(eventDTO.getEventName(), createdEvent.getEventName());
-        verify(eventRepository).save(any(Event.class));
+        // Assert : Vérification que l'événement créé n'est pas null et que les valeurs sont correctes
+        assertNotNull(createdEvent, "L'événement créé ne doit pas être null");  // Vérifie que l'objet n'est pas null
+        assertEquals(eventDTO.getEventName(), createdEvent.getEventName(), "Le nom de l'événement doit correspondre");  // Vérifie que les données sont correctes
+        
+        // Vérification que la méthode save() a bien été appelée une fois avec n'importe quel objet Event
+        verify(eventRepository, times(1)).save(any(Event.class));
     }
+
 
     // Cas où un événement est récupéré par son nom
     @Test
