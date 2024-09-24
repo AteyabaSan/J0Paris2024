@@ -139,15 +139,20 @@ public class EventService {
     }
 
 
- // Mapper le DTO EventDTO vers l'entité Event
+    // Mapper le DTO EventDTO vers l'entité Event
     public Event mapToEntity(EventDTO eventDTO) throws Exception {
         if (eventDTO == null) {
             throw new Exception("L'EventDTO est manquant ou invalide.");
         }
-        
+
         try {
             Event event = new Event();
-            // On ne vérifie plus l'ID car il sera généré automatiquement
+            // Si l'ID est présent dans le DTO, on l'associe (dans le cas de mise à jour par exemple)
+            if (eventDTO.getId() != null) {
+                event.setId(eventDTO.getId());
+            }
+
+            // Copier les autres propriétés de base
             event.setEventName(eventDTO.getEventName());
             event.setDate(eventDTO.getDate());
             event.setLocation(eventDTO.getLocation());
@@ -157,11 +162,22 @@ public class EventService {
             event.setDescription(eventDTO.getDescription());
             event.setSoldOut(eventDTO.isSoldOut());
 
-            // Ajout des relations si nécessaire
-            event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
-            event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+            // Mapper les tickets associés
+            if (eventDTO.getTickets() != null && !eventDTO.getTickets().isEmpty()) {
+                event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
+            } else {
+                event.setTickets(new ArrayList<>()); // Si pas de tickets, initialiser une liste vide
+            }
+
+            // Mapper l'organisateur (User)
+            if (eventDTO.getOrganizer() != null && eventDTO.getOrganizer().getId() != null) {
+                event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+            } else {
+                throw new Exception("L'organisateur de l'événement est manquant ou invalide.");
+            }
 
             return event;
+
         } catch (Exception e) {
             throw new Exception("Erreur lors du mapping du DTO en entité Event", e);
         }

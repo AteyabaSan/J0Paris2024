@@ -1,6 +1,8 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.model.Event;
+import com.joparis2024.model.Order;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,16 +79,38 @@ public class TicketService {
         return ticketDTO;
     }
 
-    // Mapper TicketDTO -> Ticket (Entity)
     public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {
-        Ticket ticket = new Ticket();
-        ticket.setId(ticketDTO.getId());  // Ajout de l'ID
-        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
-        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
-        ticket.setPrice(ticketDTO.getPrice());
-        ticket.setQuantity(ticketDTO.getQuantity());
-        ticket.setAvailable(ticketDTO.isAvailable());
-        return ticket;
+        if (ticketDTO == null) {
+            throw new Exception("Le TicketDTO est manquant ou invalide.");
+        }
+
+        try {
+            Ticket ticket = new Ticket();
+            ticket.setId(ticketDTO.getId());  // Ajout de l'ID
+
+            // Vérification et mappage de l'événement associé
+            if (ticketDTO.getEvent() != null && ticketDTO.getEvent().getId() != null) {
+                Event event = eventService.mapToEntity(ticketDTO.getEvent());
+                ticket.setEvent(event);  // Associe l'événement au ticket
+            } else {
+                throw new Exception("L'événement associé au ticket est manquant ou invalide.");
+            }
+
+            // Vérification et mappage de la commande associée, si applicable
+            if (ticketDTO.getOrder() != null && ticketDTO.getOrder().getId() != null) {
+                Order order = orderService.mapToEntity(ticketDTO.getOrder());
+                ticket.setOrder(order);  // Associe la commande au ticket
+            }
+
+            ticket.setPrice(ticketDTO.getPrice());
+            ticket.setQuantity(ticketDTO.getQuantity());
+            ticket.setAvailable(ticketDTO.isAvailable());
+
+            return ticket;
+
+        } catch (Exception e) {
+            throw new Exception("Erreur lors du mapping du DTO en entité Ticket", e);
+        }
     }
     
  // Convertir une liste de Tickets en une liste de TicketDTOs
