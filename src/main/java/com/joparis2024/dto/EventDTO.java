@@ -5,39 +5,39 @@ import java.util.List;
 
 public class EventDTO {
 	
-	private Long id;  // Ajout de l'id
+    private Long id;  // Ajout de l'id
     private String eventName;
-    private LocalDateTime date;
-    private String location;
-    private String category;
-    private double priceRange;
-    private int availableTickets;
+    private LocalDateTime eventDate;
     private String description;
-    private boolean isSoldOut;
     
+    private String category;  // Relation avec Category
     private List<TicketDTO> tickets;  // Relation avec TicketDTO
     private UserDTO organizer;  // Relation avec UserDTO
 
-    // No-Args Constructor
+    // Constructeur sans arguments
     public EventDTO() {}
 
-    // All-Args Constructor
-    public EventDTO(Long id, String eventName, LocalDateTime date, String location, String category, double priceRange, int availableTickets, String description, boolean isSoldOut, List<TicketDTO> tickets, UserDTO organizer) {
+    // Constructeur avec tous les arguments
+    public EventDTO(Long id, String eventName, LocalDateTime eventDate, String description, String category, List<TicketDTO> tickets, UserDTO organizer) {
     	
-    	this.id = id;
+        this.id = id;
         this.eventName = eventName;
-        this.date = date;
-        this.location = location;
-        this.category = category;
-        this.priceRange = priceRange;
-        this.availableTickets = availableTickets;
+        this.eventDate = eventDate;
         this.description = description;
-        this.isSoldOut = isSoldOut;
+        this.category = category;
         this.tickets = tickets;
         this.organizer = organizer;
     }
 
-    // Getters and Setters
+    // Getters et Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getEventName() {
         return eventName;
@@ -47,44 +47,12 @@ public class EventDTO {
         this.eventName = eventName;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getEventDate() {
+        return eventDate;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public double getPriceRange() {
-        return priceRange;
-    }
-
-    public void setPriceRange(double priceRange) {
-        this.priceRange = priceRange;
-    }
-
-    public int getAvailableTickets() {
-        return availableTickets;
-    }
-
-    public void setAvailableTickets(int availableTickets) {
-        this.availableTickets = availableTickets;
+    public void setEventDate(LocalDateTime eventDate) {
+        this.eventDate = eventDate;
     }
 
     public String getDescription() {
@@ -95,22 +63,14 @@ public class EventDTO {
         this.description = description;
     }
 
-    public boolean isSoldOut() {
-        return isSoldOut;
+    public String getCategory() {
+        return category;
     }
 
-    public void setSoldOut(boolean soldOut) {
-        isSoldOut = soldOut;
-    }
-    
-    public Long getId() {
-        return id;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
     public List<TicketDTO> getTickets() {
         return tickets;
     }
@@ -127,5 +87,6 @@ public class EventDTO {
         this.organizer = organizer;
     }
 }
+
 
 

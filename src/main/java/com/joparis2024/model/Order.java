@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,16 +40,23 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id")
-    private List<Ticket> tickets = new ArrayList<>();
-
     @Column(nullable = false)
     private Double totalAmount;
 
     @Column(nullable = false)
     private LocalDateTime orderDate;
 
-    @Column(nullable = false)
-    private LocalDateTime paymentDate;
+    // Relation One-to-One avec Payment
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
+    // Relation Many-to-Many avec Ticket via Order_Ticket
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Order_Ticket> orderTickets = new ArrayList<>();
+
+    // Relation One-to-Many avec Transaction
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Transaction> transactions = new ArrayList<>();
 }
+

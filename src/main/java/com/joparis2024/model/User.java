@@ -9,6 +9,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,7 +28,7 @@ import lombok.Setter;
 public class User {
 	
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Ajout de l'ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
@@ -38,23 +41,27 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String role;
-
-    @Column(nullable = false)
     private Boolean enabled;
 
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(
+        name = "user_role",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles; // Relation Many-to-Many avec Role
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Order> orders;
 
     // Constructeur avec uniquement les attributs nécessaires
-    public User(String username, String email, String role, Boolean enabled, String phoneNumber) {
+    public User(String username, String email, Boolean enabled, String phoneNumber) {
         this.username = username;
         this.email = email;
-        this.role = role;
         this.enabled = enabled;
         this.phoneNumber = phoneNumber;
     }
 }
+

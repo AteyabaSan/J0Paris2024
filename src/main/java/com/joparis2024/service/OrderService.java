@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Order;
+import com.joparis2024.model.Order_Ticket;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.OrderRepository;
 
@@ -21,13 +22,13 @@ public class OrderService {
     private UserService userService;
 
     @Autowired
-    @Lazy //Injection différée pour éviter la boucle
+    @Lazy // Injection différée pour éviter la boucle
     private TicketService ticketService;
 
     @Autowired
     private OrderRepository orderRepository;
 
-    // Créer une commande
+    // Créer une commande (CREATE)
     public Order createOrder(OrderDTO orderDTO) throws Exception {
         Order order = new Order();
         order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
@@ -36,19 +37,26 @@ public class OrderService {
         }
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setPaymentDate(orderDTO.getPaymentDate());
+        order.setOrderDate(orderDTO.getOrderDate());  // Date de la commande
 
-        List<Ticket> tickets = new ArrayList<>();
+        // Gestion des tickets via Order_Ticket
+        List<Order_Ticket> orderTickets = new ArrayList<>();
         for (TicketDTO ticketDTO : orderDTO.getTickets()) {
             Ticket ticket = ticketService.mapToEntity(ticketDTO);  // Mapper les tickets
-            tickets.add(ticket);
+            
+            Order_Ticket orderTicket = new Order_Ticket();
+            orderTicket.setOrder(order);
+            orderTicket.setTicket(ticket);
+            orderTicket.setQuantity(ticketDTO.getQuantity());  // Gérer la quantité via Order_Ticket
+            
+            orderTickets.add(orderTicket);
         }
-        order.setTickets(tickets);
+        order.setOrderTickets(orderTickets);
 
         return orderRepository.save(order);
     }
 
-    // Mettre à jour une commande
+    // Mettre à jour une commande (UPDATE)
     public Order updateOrder(Long orderId, OrderDTO orderDTO) throws Exception {
         Optional<Order> existingOrder = orderRepository.findById(orderId);
         if (!existingOrder.isPresent()) {
@@ -58,19 +66,26 @@ public class OrderService {
         Order order = existingOrder.get();
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setPaymentDate(orderDTO.getPaymentDate());
+        order.setOrderDate(orderDTO.getOrderDate());  // Date de la commande
 
-        List<Ticket> tickets = new ArrayList<>();
+        // Gestion des tickets via Order_Ticket
+        List<Order_Ticket> orderTickets = new ArrayList<>();
         for (TicketDTO ticketDTO : orderDTO.getTickets()) {
             Ticket ticket = ticketService.mapToEntity(ticketDTO);  // Mapper les tickets
-            tickets.add(ticket);
+            
+            Order_Ticket orderTicket = new Order_Ticket();
+            orderTicket.setOrder(order);
+            orderTicket.setTicket(ticket);
+            orderTicket.setQuantity(ticketDTO.getQuantity());  // Gérer la quantité via Order_Ticket
+            
+            orderTickets.add(orderTicket);
         }
-        order.setTickets(tickets);
+        order.setOrderTickets(orderTickets);
 
         return orderRepository.save(order);
     }
 
-    // Récupérer toutes les commandes
+    // Récupérer toutes les commandes (READ)
     public List<OrderDTO> getAllOrders() throws Exception {
         List<Order> orders = orderRepository.findAll();
         List<OrderDTO> orderDTOs = new ArrayList<>();
@@ -80,7 +95,16 @@ public class OrderService {
         return orderDTOs;
     }
 
-    // Annuler une commande
+    // Récupérer une commande par ID (READ)
+    public OrderDTO getOrderById(Long orderId) throws Exception {
+        Optional<Order> existingOrder = orderRepository.findById(orderId);
+        if (!existingOrder.isPresent()) {
+            throw new Exception("Order non trouvée");
+        }
+        return mapToDTO(existingOrder.get());
+    }
+
+    // Annuler une commande (DELETE)
     public void cancelOrder(Long orderId) throws Exception {
         try {
             Optional<Order> existingOrder = orderRepository.findById(orderId);
@@ -101,11 +125,11 @@ public class OrderService {
             orderDTO.setUser(userService.mapToDTO(order.getUser()));  // Mapper l'utilisateur
             orderDTO.setStatus(order.getStatus());
             orderDTO.setTotalAmount(order.getTotalAmount());
-            orderDTO.setPaymentDate(order.getPaymentDate());
+            orderDTO.setOrderDate(order.getOrderDate());  // Date de la commande
 
             List<TicketDTO> ticketDTOs = new ArrayList<>();
-            for (Ticket ticket : order.getTickets()) {
-                ticketDTOs.add(ticketService.mapToDTO(ticket));  // Mapper les tickets
+            for (Order_Ticket orderTicket : order.getOrderTickets()) {
+                ticketDTOs.add(ticketService.mapToDTO(orderTicket.getTicket()));  // Mapper les tickets
             }
             orderDTO.setTickets(ticketDTOs);
 
@@ -123,14 +147,20 @@ public class OrderService {
             order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
             order.setStatus(orderDTO.getStatus());
             order.setTotalAmount(orderDTO.getTotalAmount());
-            order.setPaymentDate(orderDTO.getPaymentDate());
+            order.setOrderDate(orderDTO.getOrderDate());  // Date de la commande
 
-            List<Ticket> tickets = new ArrayList<>();
+            List<Order_Ticket> orderTickets = new ArrayList<>();
             for (TicketDTO ticketDTO : orderDTO.getTickets()) {
                 Ticket ticket = ticketService.mapToEntity(ticketDTO);  // Mapper les tickets
-                tickets.add(ticket);
+                
+                Order_Ticket orderTicket = new Order_Ticket();
+                orderTicket.setOrder(order);
+                orderTicket.setTicket(ticket);
+                orderTicket.setQuantity(ticketDTO.getQuantity());  // Gérer la quantité via Order_Ticket
+                
+                orderTickets.add(orderTicket);
             }
-            order.setTickets(tickets);
+            order.setOrderTickets(orderTickets);
 
             return order;
         } catch (Exception e) {
@@ -138,4 +168,6 @@ public class OrderService {
         }
     }
 }
+
+
 

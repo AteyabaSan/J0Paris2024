@@ -1,5 +1,7 @@
 package com.joparis2024.dto;
 
+import java.time.LocalDateTime;
+
 public class TicketDTO {
 	private Long id;          // Ajout de l'ID
     private EventDTO event;
@@ -7,18 +9,20 @@ public class TicketDTO {
     private double price;
     private int quantity;
     private boolean available;
+    private LocalDateTime eventDate;  // Ajout de la date de l'événement associé
 
     // Constructeurs
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, int quantity, boolean available) {
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, int quantity, boolean available, LocalDateTime eventDate) {
     	this.id = id;      // Ajout de l'ID dans le constructeur
     	this.event = event;
         this.order = order;
         this.price = price;
         this.quantity = quantity;
         this.available = available;
+        this.eventDate = eventDate;  // Ajout de la date de l'événement dans le constructeur
     }
 
     // Getters and Setters
@@ -61,8 +65,16 @@ public class TicketDTO {
     public void setAvailable(boolean available) {
         this.available = available;
     }
-    
- // Getters et Setters pour l'ID
+
+    public LocalDateTime getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDateTime eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    // Getters et Setters pour l'ID
     public Long getId() {
         return id;
     }

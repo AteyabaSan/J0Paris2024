@@ -19,10 +19,10 @@ public class PaymentService {
     @Autowired
     private OrderService orderService;
 
-    // Créer un nouveau paiement
+    // Créer un nouveau paiement (CREATE)
     public Payment createPayment(PaymentDTO paymentDTO) throws Exception {
         if (paymentDTO.getOrder() == null) {
-            throw new Exception("L'ordre ne peut pas être nul lors de la création du paiement.");
+            throw new Exception("La commande ne peut pas être nulle lors de la création du paiement.");
         }
 
         Payment payment = new Payment();
@@ -30,26 +30,21 @@ public class PaymentService {
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setAmount(paymentDTO.getAmount());
-        payment.setConfirmed(paymentDTO.isConfirmed());
+        payment.setPaymentStatus(paymentDTO.getPaymentStatus()); // Statut du paiement
 
         return paymentRepository.save(payment);
     }
 
-
-    // Annuler un paiement (Suppression)
-    public void cancelPayment(Long paymentId) throws Exception {
-        try {
-            Optional<Payment> payment = paymentRepository.findById(paymentId);
-            if (!payment.isPresent()) {
-                throw new Exception("Le paiement n'existe pas");
-            }
-            paymentRepository.delete(payment.get());
-        } catch (Exception e) {
-            throw new Exception("Erreur lors de l'annulation du paiement: " + e.getMessage());
+    // Récupérer un paiement par son ID (READ)
+    public PaymentDTO getPaymentById(Long paymentId) throws Exception {
+        Optional<Payment> payment = paymentRepository.findById(paymentId);
+        if (!payment.isPresent()) {
+            throw new Exception("Le paiement n'existe pas");
         }
+        return mapToDTO(payment.get());
     }
 
-    // Obtenir tous les paiements
+    // Récupérer tous les paiements (READ)
     public List<PaymentDTO> getAllPayments() throws Exception {
         try {
             List<Payment> payments = paymentRepository.findAll();
@@ -65,38 +60,56 @@ public class PaymentService {
         }
     }
 
+    // Mettre à jour un paiement (UPDATE)
+    public PaymentDTO updatePayment(Long paymentId, PaymentDTO paymentDTO) throws Exception {
+        Optional<Payment> existingPayment = paymentRepository.findById(paymentId);
+        if (!existingPayment.isPresent()) {
+            throw new Exception("Le paiement n'existe pas");
+        }
+
+        Payment payment = existingPayment.get();
+        payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+        payment.setPaymentDate(paymentDTO.getPaymentDate());
+        payment.setAmount(paymentDTO.getAmount());
+        payment.setPaymentStatus(paymentDTO.getPaymentStatus()); // Mise à jour du statut de paiement
+
+        Payment updatedPayment = paymentRepository.save(payment);
+        return mapToDTO(updatedPayment);
+    }
+
+    // Annuler un paiement (DELETE)
+    public void cancelPayment(Long paymentId) throws Exception {
+        Optional<Payment> payment = paymentRepository.findById(paymentId);
+        if (!payment.isPresent()) {
+            throw new Exception("Le paiement n'existe pas");
+        }
+        paymentRepository.delete(payment.get());
+    }
+
     // Mapper PaymentDTO -> Payment
     public Payment mapToEntity(PaymentDTO paymentDTO) throws Exception {
-        try {
-            Payment payment = new Payment();
-            payment.setId(paymentDTO.getId());  // Ajout de l'ID
-            payment.setOrder(orderService.mapToEntity(paymentDTO.getOrder()));  // Mapper l'ordre
-            payment.setPaymentMethod(paymentDTO.getPaymentMethod());
-            payment.setPaymentDate(paymentDTO.getPaymentDate());
-            payment.setAmount(paymentDTO.getAmount());
-            payment.setConfirmed(paymentDTO.isConfirmed());
+        Payment payment = new Payment();
+        payment.setId(paymentDTO.getId());  // Ajout de l'ID
+        payment.setOrder(orderService.mapToEntity(paymentDTO.getOrder()));  // Mapper la commande
+        payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+        payment.setPaymentDate(paymentDTO.getPaymentDate());
+        payment.setAmount(paymentDTO.getAmount());
+        payment.setPaymentStatus(paymentDTO.getPaymentStatus()); // Statut de paiement
 
-            return payment;
-        } catch (Exception e) {
-            throw new Exception("Erreur lors du mappage PaymentDTO -> Payment: " + e.getMessage());
-        }
+        return payment;
     }
 
- // Mapper Payment -> PaymentDTO
+    // Mapper Payment -> PaymentDTO
     public PaymentDTO mapToDTO(Payment payment) throws Exception {
-        try {
-            PaymentDTO paymentDTO = new PaymentDTO();
-            paymentDTO.setId(payment.getId());  // Ajout de l'ID
-            paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));  // Mapper l'ordre
-            paymentDTO.setPaymentMethod(payment.getPaymentMethod());
-            paymentDTO.setPaymentDate(payment.getPaymentDate());
-            paymentDTO.setAmount(payment.getAmount());
-            paymentDTO.setConfirmed(payment.isConfirmed());
+        PaymentDTO paymentDTO = new PaymentDTO();
+        paymentDTO.setId(payment.getId());  // Ajout de l'ID
+        paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));  // Mapper la commande
+        paymentDTO.setPaymentMethod(payment.getPaymentMethod());
+        paymentDTO.setPaymentDate(payment.getPaymentDate());
+        paymentDTO.setAmount(payment.getAmount());
+        paymentDTO.setPaymentStatus(payment.getPaymentStatus()); // Statut de paiement
 
-            return paymentDTO;
-        } catch (Exception e) {
-            throw new Exception("Erreur lors du mappage Payment -> PaymentDTO: " + e.getMessage());
-        }
+        return paymentDTO;
     }
-
 }
+

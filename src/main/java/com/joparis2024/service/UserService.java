@@ -1,10 +1,11 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.UserDTO;
+import com.joparis2024.model.Role;
 import com.joparis2024.model.User;
 import com.joparis2024.repository.UserRepository;
+import com.joparis2024.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,6 +17,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     // Récupérer tous les utilisateurs
     public List<UserDTO> getAllUsers() {
@@ -29,15 +33,13 @@ public class UserService {
 
     // Créer un utilisateur
     public UserDTO createUser(UserDTO userDTO) throws Exception {
-        // Log pour vérifier si le UserDTO arrive bien
         System.out.println("Tentative de création d'un utilisateur : " + userDTO.getEmail());
 
-        // Validation du DTO
         validateUserDTO(userDTO);
-        
+
         // Vérifier si l'email existe déjà
         if (userRepository.existsByEmail(userDTO.getEmail())) {
-            System.out.println("Email déjà utilisé : " + userDTO.getEmail()); // Log pour voir si l'email est déjà utilisé
+            System.out.println("Email déjà utilisé : " + userDTO.getEmail());
             throw new Exception("Email déjà utilisé");
         }
 
@@ -45,18 +47,20 @@ public class UserService {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
-        user.setRole(userDTO.getRole());
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
-        user.setPassword(userDTO.getPassword());
+
+        // Gérer les rôles - récupérer les rôles par leurs noms depuis la base de données
+        List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
+        if (roles.isEmpty()) {
+            throw new Exception("Les rôles spécifiés n'existent pas");
+        }
+        user.setRoles(roles);
 
         // Sauvegarde dans la base de données
         User savedUser = userRepository.save(user);
-        
-        // Log pour confirmer que l'utilisateur a bien été sauvegardé
         System.out.println("Utilisateur sauvegardé avec succès : " + savedUser.getId());
 
-        // Conversion en DTO et retour
         return mapToDTO(savedUser);
     }
 
@@ -66,12 +70,45 @@ public class UserService {
         return user.map(this::mapToDTO);
     }
 
-    // Vérifier si l'email existe déjà
-    public boolean emailExists(String email) {
-        return userRepository.findByEmail(email) != null;
+    // Mettre à jour un utilisateur (UPDATE)
+    public UserDTO updateUser(Long id, UserDTO userDTO) throws Exception {
+        Optional<User> existingUserOptional = userRepository.findById(id);
+        if (!existingUserOptional.isPresent()) {
+            throw new Exception("Utilisateur non trouvé");
+        }
+
+        User existingUser = existingUserOptional.get();
+        existingUser.setUsername(userDTO.getUsername());
+        existingUser.setEmail(userDTO.getEmail());
+        existingUser.setEnabled(userDTO.getEnabled());
+        existingUser.setPhoneNumber(userDTO.getPhoneNumber());
+
+        // Gérer les rôles
+        List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
+        if (roles.isEmpty()) {
+            throw new Exception("Les rôles spécifiés n'existent pas");
+        }
+        existingUser.setRoles(roles);
+
+        // Sauvegarde des modifications
+        User updatedUser = userRepository.save(existingUser);
+        return mapToDTO(updatedUser);
     }
 
-    //Methodes auxiliaires
+    	// Supprimer un utilisateur (DELETE)
+    	public void deleteUser(Long id) throws Exception {
+    		if (!userRepository.existsById(id)) {
+            throw new Exception("Utilisateur non trouvé");
+    		}
+    		userRepository.deleteById(id);
+    }
+
+    	// Vérifier si l'email existe déjà
+    	public boolean emailExists(String email) {
+    		return userRepository.existsByEmail(email);
+    }
+
+    // Méthodes auxiliaires
     private void validateUserDTO(UserDTO userDTO) throws Exception {
         if (userDTO.getEmail() == null || !isValidEmail(userDTO.getEmail())) {
             throw new Exception("Email non valide");
@@ -87,30 +124,37 @@ public class UserService {
 
     // Mapper l'entité User vers un DTO UserDTO
     public UserDTO mapToDTO(User user) {
+        List<String> roles = new ArrayList<>();
+        for (Role role : user.getRoles()) {
+            roles.add(role.getName());
+        }
         return new UserDTO(
-        	user.getId(),  // Ajout de l'ID
+        	user.getId(),
             user.getUsername(),
             user.getEmail(),
-            user.getRole(),
+            roles, // Mapping des rôles
             user.getEnabled(),
             user.getPhoneNumber(),
             user.getPassword()
         );
     }
 
-    
     public User mapToEntity(UserDTO userDTO) {
         User user = new User();
-        user.setId(userDTO.getId());  // Ajout de l'ID
+        user.setId(userDTO.getId());
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
-        user.setRole(userDTO.getRole());
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
+
+        // Gérer les rôles - récupérer les rôles par leurs noms depuis la base de données
+        List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
+        user.setRoles(roles);
+
         return user;
     }
-    
- // Convertir une liste de Users en une liste de UserDTOs
+
+    // Convertir une liste de Users en une liste de UserDTOs
     public List<UserDTO> mapToDTOs(List<User> users) {
         List<UserDTO> userDTOs = new ArrayList<>();
         for (User user : users) {
@@ -128,4 +172,6 @@ public class UserService {
         return users;
     }
 }
+
+
 

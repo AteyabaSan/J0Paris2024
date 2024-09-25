@@ -1,11 +1,13 @@
 package com.joparis2024.dto;
 
+import java.util.List;
+
 public class UserDTO {
 	
-	private Long id;  // Ajout de l'identifiant
+	private Long id;
     private String username;
     private String email;
-    private String role;
+    private List<String> roles;  // Liste de rôles
     private Boolean enabled;
     private String phoneNumber;
     private String password;
@@ -14,12 +16,12 @@ public class UserDTO {
     public UserDTO() {
     }
 
- // Constructeur avec l'ID
-    public UserDTO(Long id, String username, String email, String role, Boolean enabled, String phoneNumber, String password) {
+    // Constructeur avec l'ID et les rôles
+    public UserDTO(Long id, String username, String email, List<String> roles, Boolean enabled, String phoneNumber, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
-        this.role = role;
+        this.roles = roles;  // Liste de rôles
         this.enabled = enabled;
         this.phoneNumber = phoneNumber;
         this.password = password;
@@ -42,12 +44,12 @@ public class UserDTO {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
+    public List<String> getRoles() {
+        return roles;  // Liste de rôles
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(List<String> roles) {
+        this.roles = roles;  // Liste de rôles
     }
 
     public Boolean getEnabled() {
@@ -66,7 +68,7 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
     }
     
- // Getters et Setters pour l'ID
+    // Getters et Setters pour l'ID
     public Long getId() {
         return id;
     }
@@ -75,7 +77,7 @@ public class UserDTO {
         this.id = id;
     }
     
-    // Getter et Setter pour le mot de passe
+    // Getters et Setters pour le mot de passe
     public String getPassword() {
         return password;
     }
@@ -84,4 +86,5 @@ public class UserDTO {
         this.password = password;
     }
 }
+
 

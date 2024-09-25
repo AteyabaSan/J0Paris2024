@@ -6,25 +6,27 @@ import java.util.List;
 public class OrderDTO {
 
     private Long id;
-	private String status;
+    private String status;
     private UserDTO user;
-    private List<TicketDTO> tickets;
+    private List<TicketDTO> tickets; // Tickets via Order_Ticket
     private Double totalAmount;
     private LocalDateTime orderDate;
-    private LocalDateTime paymentDate;
+    private PaymentDTO payment; // Relation One-to-One avec Payment
+    private List<TransactionDTO> transactions; // Relation One-to-Many avec Transaction
 
     // Constructeur sans argument
     public OrderDTO() {}
 
     // Constructeur avec tous les arguments
-    public OrderDTO(Long id, String status, UserDTO user, List<TicketDTO> tickets, Double totalAmount, LocalDateTime orderDate, LocalDateTime paymentDate) {
+    public OrderDTO(Long id, String status, UserDTO user, List<TicketDTO> tickets, Double totalAmount, LocalDateTime orderDate, PaymentDTO payment, List<TransactionDTO> transactions) {
         this.id = id;
-    	this.status = status;
+        this.status = status;
         this.user = user;
         this.tickets = tickets;
         this.totalAmount = totalAmount;
         this.orderDate = orderDate;
-        this.paymentDate = paymentDate;
+        this.payment = payment;
+        this.transactions = transactions;
     }
 
     // Getters et Setters
@@ -68,14 +70,22 @@ public class OrderDTO {
         this.orderDate = orderDate;
     }
 
-    public LocalDateTime getPaymentDate() {
-        return paymentDate;
+    public PaymentDTO getPayment() {
+        return payment;
     }
 
-    public void setPaymentDate(LocalDateTime paymentDate) {
-        this.paymentDate = paymentDate;
+    public void setPayment(PaymentDTO payment) {
+        this.payment = payment;
     }
-    
+
+    public List<TransactionDTO> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<TransactionDTO> transactions) {
+        this.transactions = transactions;
+    }
+
     // Getters et Setters pour l'ID
     public Long getId() {
         return id;

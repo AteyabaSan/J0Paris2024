@@ -24,7 +24,7 @@ public class EventService {
     @Autowired
     private UserService userService;
 
-    // Récupérer tous les événements avec boucle for
+    // Récupérer tous les événements
     public List<EventDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
         List<EventDTO> eventDTOs = new ArrayList<>();
@@ -33,7 +33,7 @@ public class EventService {
                 eventDTOs.add(mapToDTO(event));
             } catch (Exception e) {
                 System.out.println("Erreur lors du mapping de l'événement : " + event.getId());
-                e.printStackTrace();  // Log l'erreur pour debug
+                e.printStackTrace();  // Log de l'erreur pour debug
             }
         }
         return eventDTOs;
@@ -42,7 +42,7 @@ public class EventService {
     // Créer un événement
     public Event createEvent(EventDTO eventDTO) {
         try {
-            // Vérification basique des données d'entrée (exemple : vérifier si le nom de l'événement est valide)
+            // Validation des données d'entrée
             if (eventDTO.getEventName() == null || eventDTO.getEventName().isEmpty()) {
                 throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
             }
@@ -53,17 +53,12 @@ public class EventService {
             // Sauvegarde dans la base de données
             return eventRepository.save(event);
 
-        } catch (IllegalArgumentException e) {
-            System.out.println("Erreur de validation des données : " + e.getMessage());
-            throw e; // ou retourne une réponse appropriée dans une vraie application
-
         } catch (Exception e) {
             System.out.println("Erreur lors de la création de l'événement");
             e.printStackTrace();
             throw new RuntimeException("Erreur inconnue lors de la création de l'événement");
         }
     }
-
 
     // Récupérer un événement par nom
     public Optional<EventDTO> getEventByName(String eventName) {
@@ -79,40 +74,22 @@ public class EventService {
         });
     }
 
-    // Récupérer les événements par catégorie avec boucle for
-    public List<EventDTO> getEventsByCategory(String category) {
-        List<Event> events = eventRepository.findByCategory(category);
-        List<EventDTO> eventDTOs = new ArrayList<>();
-        for (Event event : events) {
-            try {
-                eventDTOs.add(mapToDTO(event));
-            } catch (Exception e) {
-                System.out.println("Erreur lors du mapping de l'événement : " + event.getId());
-                e.printStackTrace();
-            }
-        }
-        return eventDTOs;
-    }
-
     // Mettre à jour un événement
     public Event updateEvent(Long eventId, EventDTO eventDTO) throws Exception {
         Optional<Event> existingEvent = eventRepository.findById(eventId);
         if (!existingEvent.isPresent()) {
             throw new Exception("Événement non trouvé");
         }
+
         Event event = existingEvent.get();
         event.setEventName(eventDTO.getEventName());
-        event.setDate(eventDTO.getDate());
-        event.setLocation(eventDTO.getLocation());
-        event.setCategory(eventDTO.getCategory());
-        event.setPriceRange(eventDTO.getPriceRange());
-        event.setAvailableTickets(eventDTO.getAvailableTickets());
+        event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
-        event.setSoldOut(eventDTO.isSoldOut());
 
         // Mise à jour des relations
         event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
         event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+        event.setCategory(eventDTO.getCategory());
 
         return eventRepository.save(event);
     }
@@ -123,21 +100,16 @@ public class EventService {
             return new EventDTO(
                     event.getId(),
                     event.getEventName(),
-                    event.getDate(),
-                    event.getLocation(),
-                    event.getCategory(),
-                    event.getPriceRange(),
-                    event.getAvailableTickets(),
+                    event.getEventDate(),
                     event.getDescription(),
-                    event.isSoldOut(),
-                    ticketService.mapToDTOs(event.getTickets()), // Le mapping peut lancer une exception
-                    userService.mapToDTO(event.getOrganizer())
+                    ticketService.mapToDTOs(event.getTickets()), // Mapping des tickets
+                    userService.mapToDTO(event.getOrganizer()),
+                    event.getCategory()  // Catégorie de l'événement
             );
         } catch (Exception e) {
             throw new Exception("Erreur lors du mapping de l'événement en DTO", e);
         }
     }
-
 
     // Mapper le DTO EventDTO vers l'entité Event
     public Event mapToEntity(EventDTO eventDTO) throws Exception {
@@ -147,34 +119,27 @@ public class EventService {
 
         try {
             Event event = new Event();
-            // Si l'ID est présent dans le DTO, on l'associe (dans le cas de mise à jour par exemple)
             if (eventDTO.getId() != null) {
                 event.setId(eventDTO.getId());
             }
 
-            // Copier les autres propriétés de base
             event.setEventName(eventDTO.getEventName());
-            event.setDate(eventDTO.getDate());
-            event.setLocation(eventDTO.getLocation());
-            event.setCategory(eventDTO.getCategory());
-            event.setPriceRange(eventDTO.getPriceRange());
-            event.setAvailableTickets(eventDTO.getAvailableTickets());
+            event.setEventDate(eventDTO.getEventDate());
             event.setDescription(eventDTO.getDescription());
-            event.setSoldOut(eventDTO.isSoldOut());
 
-            // Mapper les tickets associés
             if (eventDTO.getTickets() != null && !eventDTO.getTickets().isEmpty()) {
                 event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
             } else {
-                event.setTickets(new ArrayList<>()); // Si pas de tickets, initialiser une liste vide
+                event.setTickets(new ArrayList<>());  // Initialiser une liste vide si pas de tickets
             }
 
-            // Mapper l'organisateur (User)
             if (eventDTO.getOrganizer() != null && eventDTO.getOrganizer().getId() != null) {
                 event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
             } else {
                 throw new Exception("L'organisateur de l'événement est manquant ou invalide.");
             }
+
+            event.setCategory(eventDTO.getCategory());
 
             return event;
 
@@ -182,8 +147,6 @@ public class EventService {
             throw new Exception("Erreur lors du mapping du DTO en entité Event", e);
         }
     }
-
-
 
     // Supprimer un événement par nom
     public void deleteEvent(String eventName) throws Exception {
@@ -194,3 +157,4 @@ public class EventService {
         eventRepository.delete(event.get());
     }
 }
+

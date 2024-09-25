@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,12 +27,12 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  // ID de paiement
 	
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order; // Lien avec la commande
-    
+
     private String paymentMethod; // Méthode de paiement
     private LocalDateTime paymentDate; // Date et heure du paiement
     private double amount; // Montant du paiement
-    private boolean confirmed; // Statut du paiement (confirmé ou non)
+    private String paymentStatus; // Statut du paiement (en attente, échoué, réussi, etc.)
 }

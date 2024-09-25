@@ -1,12 +1,8 @@
 package com.joparis2024.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,16 +21,23 @@ public class Ticket {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "event_id")
-    private Event event;
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;  // Chaque ticket est lié à un événement
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private Order order;
+    private Order order;  // Chaque ticket peut être lié à une commande
 
-    private double price;
+    @Column(nullable = false)
+    private double price;  // Prix du ticket
 
-    private int quantity;
+    @Column(nullable = false)
+    private int quantity;  // Quantité disponible pour ce ticket
 
-    private boolean isAvailable;
+    @Column(nullable = false)
+    private boolean isAvailable;  // Disponibilité du ticket
+
+    @Column(name = "event_date", nullable = false)
+    private LocalDateTime eventDate;  // Date de l'événement associé à ce ticket
 }
+
