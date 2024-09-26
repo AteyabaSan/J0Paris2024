@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:14.13  # Utilise la même version que celle que tu as déjà
-    container_name: postgres_test_db
+    container_name: postgres_jo_paris
     environment:
       POSTGRES_USER: mowgli
       POSTGRES_PASSWORD: EspritNwaar74!
-      POSTGRES_DB: testdb
+      POSTGRES_DB: jo_paris
     ports:
       - "5432:5432"
     volumes:
