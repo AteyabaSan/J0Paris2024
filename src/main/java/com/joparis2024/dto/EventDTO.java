@@ -10,7 +10,7 @@ public class EventDTO {
     private LocalDateTime eventDate;
     private String description;
     
-    private String category;  // Relation avec Category
+    private CategoryDTO category;  // Utiliser CategoryDTO ici
     private List<TicketDTO> tickets;  // Relation avec TicketDTO
     private UserDTO organizer;  // Relation avec UserDTO
 
@@ -18,7 +18,7 @@ public class EventDTO {
     public EventDTO() {}
 
     // Constructeur avec tous les arguments
-    public EventDTO(Long id, String eventName, LocalDateTime eventDate, String description, String category, List<TicketDTO> tickets, UserDTO organizer) {
+    public EventDTO(Long id, String eventName, LocalDateTime eventDate, String description, CategoryDTO category, List<TicketDTO> tickets, UserDTO organizer) {
     	
         this.id = id;
         this.eventName = eventName;
@@ -63,11 +63,11 @@ public class EventDTO {
         this.description = description;
     }
 
-    public String getCategory() {
+    public CategoryDTO getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(CategoryDTO category) {
         this.category = category;
     }
 

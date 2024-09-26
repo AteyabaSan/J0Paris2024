@@ -39,5 +39,11 @@ public class Ticket {
 
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;  // Date de l'événement associé à ce ticket
+    
+    // Ajouter ce constructeur pour accepter uniquement l'ID
+    public Ticket(Long id) {
+        this.id = id;
+    }
+
 }
 

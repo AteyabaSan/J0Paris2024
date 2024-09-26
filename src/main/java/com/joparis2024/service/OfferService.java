@@ -69,17 +69,23 @@ public class OfferService {
     }
 
     // Mapper Offer -> OfferDTO
-    private OfferDTO mapToDTO(Offer offer) {
-        return new OfferDTO(
-            offer.getId(),
-            offer.getName(),
-            offer.getNumberOfSeats(),
-            eventService.mapToDTOs(offer.getEvents())
-        );
+    public OfferDTO mapToDTO(Offer offer) {
+        try {
+            return new OfferDTO(
+                offer.getId(),
+                offer.getName(),
+                offer.getNumberOfSeats(),
+                eventService.mapToDTOs(offer.getEvents())  // Peut lever une exception
+            );
+        } catch (Exception e) {
+            // Gestion de l'erreur ici, peut-être en lançant une RuntimeException ou en renvoyant une valeur par défaut
+            throw new RuntimeException("Erreur lors du mapping des événements dans l'offre", e);
+        }
     }
 
+
     // Mapper OfferDTO -> Offer
-    private Offer mapToEntity(OfferDTO offerDTO) throws Exception {
+    public Offer mapToEntity(OfferDTO offerDTO) throws Exception {
         Offer offer = new Offer();
         offer.setId(offerDTO.getId());
         offer.setName(offerDTO.getName());

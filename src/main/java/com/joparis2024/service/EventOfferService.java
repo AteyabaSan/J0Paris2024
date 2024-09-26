@@ -3,8 +3,6 @@ package com.joparis2024.service;
 import com.joparis2024.dto.EventOfferDTO;
 import com.joparis2024.model.EventOffer;
 import com.joparis2024.repository.EventOfferRepository;
-import com.joparis2024.model.Event;
-import com.joparis2024.model.Offer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +30,18 @@ public class EventOfferService {
         return eventOfferRepository.save(eventOffer);
     }
 
-    // Récupérer toutes les associations EventOffer
+ // Récupérer toutes les associations EventOffer
     public List<EventOfferDTO> getAllEventOffers() {
-        List<EventOffer> eventOffers = eventOfferRepository.findAll();
         List<EventOfferDTO> eventOfferDTOs = new ArrayList<>();
-        for (EventOffer eventOffer : eventOffers) {
-            eventOfferDTOs.add(mapToDTO(eventOffer));
+        try {
+            List<EventOffer> eventOffers = eventOfferRepository.findAll();
+            for (EventOffer eventOffer : eventOffers) {
+                eventOfferDTOs.add(mapToDTO(eventOffer));
+            }
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la récupération des associations EventOffer.");
+            e.printStackTrace(); // Affiche l'erreur dans la console pour faciliter le débogage
+            // Optionnel : tu peux ajouter une gestion personnalisée ou un retour spécifique en cas d'erreur.
         }
         return eventOfferDTOs;
     }

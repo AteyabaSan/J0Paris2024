@@ -58,5 +58,11 @@ public class Order {
     // Relation One-to-Many avec Transaction
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions = new ArrayList<>();
+    
+    // Ajouter ce constructeur pour accepter uniquement l'ID
+    public Order(Long id) {
+        this.id = id;
+    }
+
 }
 
