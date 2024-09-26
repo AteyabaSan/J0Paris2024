@@ -63,7 +63,15 @@ public class UserService {
             System.out.println("Les rôles spécifiés n'existent pas : " + userDTO.getRoles());
             throw new Exception("Les rôles spécifiés n'existent pas");
         }
-        user.setRoles(roles);
+
+        // Attacher les rôles à l'EntityManager (important pour éviter les erreurs detached)
+        List<Role> attachedRoles = new ArrayList<>();
+        for (Role role : roles) {
+            Role attachedRole = roleRepository.findById(role.getId())
+                              .orElseThrow(() -> new Exception("Rôle introuvable"));
+            attachedRoles.add(attachedRole);
+        }
+        user.setRoles(attachedRoles);
 
         // Sauvegarde dans la base de données
         try {
