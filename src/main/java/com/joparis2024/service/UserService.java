@@ -4,6 +4,10 @@ import com.joparis2024.dto.UserDTO;
 import com.joparis2024.model.Role;
 import com.joparis2024.model.User;
 import com.joparis2024.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 import com.joparis2024.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,9 @@ public class UserService {
 
     @Autowired
     private RoleRepository roleRepository;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     // Récupérer tous les utilisateurs
     public List<UserDTO> getAllUsers() {
@@ -57,32 +64,31 @@ public class UserService {
         user.setPhoneNumber(userDTO.getPhoneNumber());
         user.setPassword(userDTO.getPassword()); // Assigne le mot de passe
 
-        // Gérer les rôles - récupérer les rôles par leurs noms depuis la base de données
+        // Récupérer les rôles par leurs noms depuis la base de données
         List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
         if (roles.isEmpty()) {
-            System.out.println("Les rôles spécifiés n'existent pas : " + userDTO.getRoles());
             throw new Exception("Les rôles spécifiés n'existent pas");
         }
 
-        // Attacher les rôles à l'EntityManager (important pour éviter les erreurs detached)
+        // Réattacher les rôles à la session Hibernate active
         List<Role> attachedRoles = new ArrayList<>();
         for (Role role : roles) {
-            Role attachedRole = roleRepository.findById(role.getId())
-                              .orElseThrow(() -> new Exception("Rôle introuvable"));
+            Role attachedRole = entityManager.merge(role);  // Merge pour attacher chaque rôle
             attachedRoles.add(attachedRole);
         }
         user.setRoles(attachedRoles);
 
         // Sauvegarde dans la base de données
         try {
-            User savedUser = userRepository.save(user);
-            System.out.println("Utilisateur sauvegardé avec succès : " + savedUser.getId());
+            User savedUser = userRepository.save(user); 
             return mapToDTO(savedUser);
         } catch (Exception e) {
-            System.out.println("Erreur lors de la sauvegarde de l'utilisateur : " + e.getMessage());
-            throw new Exception("Erreur lors de la création de l'utilisateur");
+            e.printStackTrace();  // Affiche l'erreur complète dans les logs
+            throw new Exception("Erreur lors de la création de l'utilisateur : " + e.getMessage());
         }
+
     }
+
 
     // Récupérer un utilisateur par email
     public Optional<UserDTO> getUserByEmail(String email) {
