@@ -49,6 +49,11 @@ public class UserService {
         user.setEmail(userDTO.getEmail());
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
+        	// Gérer le mot de passe
+        if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+            throw new Exception("Le mot de passe est obligatoire");
+        }
+        user.setPassword(userDTO.getPassword()); // Assigne le mot de passe
 
         // Gérer les rôles - récupérer les rôles par leurs noms depuis la base de données
         List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
