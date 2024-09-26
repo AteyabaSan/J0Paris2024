@@ -31,10 +31,11 @@ public class UserService {
         return userDTOs;
     }
 
-    // Créer un utilisateur
+ // Créer un utilisateur
     public UserDTO createUser(UserDTO userDTO) throws Exception {
         System.out.println("Tentative de création d'un utilisateur : " + userDTO.getEmail());
 
+        // Valider les données du DTO utilisateur
         validateUserDTO(userDTO);
 
         // Vérifier si l'email existe déjà
@@ -43,30 +44,36 @@ public class UserService {
             throw new Exception("Email déjà utilisé");
         }
 
-        // Création de l'objet User
+        // Vérifier que le mot de passe est présent
+        if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
+            throw new Exception("Le mot de passe est obligatoire");
+        }
+
+        // Créer un nouvel utilisateur
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
-        	// Gérer le mot de passe
-        if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
-            throw new Exception("Le mot de passe est obligatoire");
-        }
         user.setPassword(userDTO.getPassword()); // Assigne le mot de passe
 
         // Gérer les rôles - récupérer les rôles par leurs noms depuis la base de données
         List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
         if (roles.isEmpty()) {
+            System.out.println("Les rôles spécifiés n'existent pas : " + userDTO.getRoles());
             throw new Exception("Les rôles spécifiés n'existent pas");
         }
         user.setRoles(roles);
 
         // Sauvegarde dans la base de données
-        User savedUser = userRepository.save(user);
-        System.out.println("Utilisateur sauvegardé avec succès : " + savedUser.getId());
-
-        return mapToDTO(savedUser);
+        try {
+            User savedUser = userRepository.save(user);
+            System.out.println("Utilisateur sauvegardé avec succès : " + savedUser.getId());
+            return mapToDTO(savedUser);
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la sauvegarde de l'utilisateur : " + e.getMessage());
+            throw new Exception("Erreur lors de la création de l'utilisateur");
+        }
     }
 
     // Récupérer un utilisateur par email
