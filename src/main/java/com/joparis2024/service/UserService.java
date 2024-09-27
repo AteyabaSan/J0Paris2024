@@ -7,6 +7,7 @@ import com.joparis2024.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import com.joparis2024.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class UserService {
     }
 
  // Créer un utilisateur
+    @Transactional
     public UserDTO createUser(UserDTO userDTO) throws Exception {
         System.out.println("Tentative de création d'un utilisateur : " + userDTO.getEmail());
 
@@ -96,11 +98,11 @@ public class UserService {
         return user.map(this::mapToDTO);
     }
 
-    // Mettre à jour un utilisateur (UPDATE)
-    public UserDTO updateUser(Long id, UserDTO userDTO) throws Exception {
-        Optional<User> existingUserOptional = userRepository.findById(id);
+ // Mettre à jour un utilisateur par son email (UPDATE)
+    public UserDTO updateUserByEmail(String email, UserDTO userDTO) throws Exception {
+        Optional<User> existingUserOptional = userRepository.findByEmail(email);
         if (!existingUserOptional.isPresent()) {
-            throw new Exception("Utilisateur non trouvé");
+            throw new Exception("Utilisateur non trouvé avec cet email");
         }
 
         User existingUser = existingUserOptional.get();
@@ -109,25 +111,34 @@ public class UserService {
         existingUser.setEnabled(userDTO.getEnabled());
         existingUser.setPhoneNumber(userDTO.getPhoneNumber());
 
-        // Gérer les rôles
-        List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
-        if (roles.isEmpty()) {
-            throw new Exception("Les rôles spécifiés n'existent pas");
+        // Gérer les rôles seulement s'ils sont présents dans le DTO
+        if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
+            List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
+            if (roles.isEmpty()) {
+                throw new Exception("Les rôles spécifiés n'existent pas");
+            }
+            existingUser.setRoles(roles);
         }
-        existingUser.setRoles(roles);
 
-        // Sauvegarde des modifications
+        // Sauvegarder les modifications
         User updatedUser = userRepository.save(existingUser);
         return mapToDTO(updatedUser);
     }
 
+
+
+
+
     	// Supprimer un utilisateur (DELETE)
-    	public void deleteUser(Long id) throws Exception {
-    		if (!userRepository.existsById(id)) {
-            throw new Exception("Utilisateur non trouvé");
-    		}
-    		userRepository.deleteById(id);
+    @Transactional
+    public void deleteUserByEmail(String email) throws Exception {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (!user.isPresent()) {
+            throw new Exception("Utilisateur non trouvé avec cet email");
+        }
+        userRepository.delete(user.get());
     }
+
 
     	// Vérifier si l'email existe déjà
     	public boolean emailExists(String email) {

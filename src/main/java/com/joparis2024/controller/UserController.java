@@ -58,29 +58,30 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 
-    // Mettre à jour un utilisateur avec ses rôles (UPDATE)
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+ // Mettre à jour un utilisateur avec son email (UPDATE)
+    @PutMapping("/email/{email}")
+    public ResponseEntity<UserDTO> updateUserByEmail(@PathVariable String email, @RequestBody UserDTO userDTO) {
         try {
-            UserDTO updatedUser = userService.updateUser(id, userDTO);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            UserDTO updateUserByEmail = userService.updateUserByEmail(email, userDTO);
+            return new ResponseEntity<>(updateUserByEmail, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    // Supprimer un utilisateur (DELETE)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+ // Supprimer un utilisateur par email
+    @DeleteMapping("/email/{email}")
+    public ResponseEntity<Void> deleteUserByEmail(@PathVariable String email) {
         try {
-            userService.deleteUser(id);
+            userService.deleteUserByEmail(email);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 }
 
 

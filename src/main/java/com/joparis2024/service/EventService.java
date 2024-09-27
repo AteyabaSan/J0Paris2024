@@ -78,9 +78,9 @@ public class EventService {
         });
     }
 
- // Mettre à jour un événement
-    public Event updateEvent(Long eventId, EventDTO eventDTO) throws Exception {
-        Optional<Event> existingEvent = eventRepository.findById(eventId);
+ // Mettre à jour un événement via son nom (UPDATE)
+    public EventDTO updateEventByName(String eventName, EventDTO eventDTO) throws Exception {
+        Optional<Event> existingEvent = eventRepository.findByEventName(eventName);
         if (!existingEvent.isPresent()) {
             throw new Exception("Événement non trouvé");
         }
@@ -93,13 +93,18 @@ public class EventService {
         // Mise à jour des relations
         event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
         event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+        event.setCategory(categoryService.mapToEntity(eventDTO.getCategory()));
 
-        // Utilisation de CategoryService pour mapper CategoryDTO -> Category
-        Category category = categoryService.mapToEntity(eventDTO.getCategory());
-        event.setCategory(category);
+        // Sauvegarde de l'événement mis à jour
+        Event updatedEvent = eventRepository.save(event);
 
-        return eventRepository.save(event);
+        // Retourne un DTO après la mise à jour
+        return mapToDTO(updatedEvent);  // Conversion de l'entité en DTO
     }
+
+
+
+
 
  // Mapper l'entité Event vers un DTO EventDTO
     public EventDTO mapToDTO(Event event) throws Exception {
