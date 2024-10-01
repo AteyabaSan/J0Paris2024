@@ -3,7 +3,6 @@ package com.joparis2024.service;
 import com.joparis2024.dto.EventDTO;
 import com.joparis2024.model.Category;
 import com.joparis2024.model.Event;
-import com.joparis2024.model.User;
 import com.joparis2024.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -161,31 +160,12 @@ public class EventService {
 
         // Gestion de l'organisateur
         if (eventDTO.getOrganizer() != null) {
+            // Si un ID est fourni, on cherche l'organisateur avec cet ID
             if (eventDTO.getOrganizer().getId() != null) {
-                // Si un ID est fourni, on cherche l'organisateur avec cet ID
                 event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
             } else {
-                // Si pas d'ID, on cherche par nom (username)
-                User existingOrganizer = userService.findByUsername(eventDTO.getOrganizer().getUsername());
-                if (existingOrganizer != null) {
-                    // Si l'organisateur existe déjà, on l'utilise
-                    event.setOrganizer(existingOrganizer);
-                } else {
-                    // Sinon, on crée un nouvel organisateur
-                    if (eventDTO.getOrganizer().getUsername() == null || eventDTO.getOrganizer().getUsername().isEmpty()) {
-                        throw new Exception("Le nom d'utilisateur de l'organisateur est manquant ou invalide.");
-                    }
-
-                    User newOrganizer = new User();
-                    newOrganizer.setUsername(eventDTO.getOrganizer().getUsername());
-
-                    // Vérifier si un email est disponible avant de l'ajouter
-                    if (eventDTO.getOrganizer().getEmail() != null && !eventDTO.getOrganizer().getEmail().isEmpty()) {
-                        newOrganizer.setEmail(eventDTO.getOrganizer().getEmail());
-                    }
-
-                    event.setOrganizer(userService.createUser(newOrganizer)); // Créer et associer l'organisateur
-                }
+                // Si pas d'ID, on lève une exception
+                throw new Exception("L'organisateur de l'événement doit être fourni avec un ID valide.");
             }
         } else {
             throw new Exception("L'organisateur de l'événement est manquant ou invalide.");
@@ -193,9 +173,7 @@ public class EventService {
 
         return event;
     }
-
-
-
+    
     
  // Mappage d'une liste de EventDTO en liste d'entités Event
     public List<Event> mapToEntities(List<EventDTO> eventDTOs) throws Exception {

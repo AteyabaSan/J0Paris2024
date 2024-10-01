@@ -85,35 +85,6 @@ public class UserService {
         }
     }
 
-    // Surcharge de createUser pour gérer les utilisateurs dans l'ajout d'un événement
-    @Transactional
-    public User createUser(User user) throws Exception {
-        System.out.println("Tentative de création d'un utilisateur avec username : " + user.getUsername());
-
-        // Vérifier si un utilisateur avec le même nom d'utilisateur existe déjà
-        User existingUser = userRepository.findByUsername(user.getUsername());
-        if (existingUser != null) {
-            System.out.println("Utilisateur déjà existant avec ce nom : " + user.getUsername());
-            return existingUser; // Si l'utilisateur existe déjà, on le renvoie
-        }
-
-        // Si l'utilisateur n'existe pas, on le crée avec un nom d'utilisateur seulement
-        user.setEnabled(true); // Par défaut, activé
-        user.setRoles(new ArrayList<>()); // Pas de rôles définis pour l'instant
-
-        // Sauvegarde dans la base de données
-        try {
-            User savedUser = userRepository.save(user);
-            System.out.println("Nouvel utilisateur créé avec username : " + user.getUsername());
-            return savedUser;
-        } catch (Exception e) {
-            e.printStackTrace();  // Affiche l'erreur complète dans les logs
-            throw new Exception("Erreur lors de la création de l'utilisateur : " + e.getMessage());
-        }
-    }
-
-
-
     // Récupérer un utilisateur par email
     public Optional<UserDTO> getUserByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
@@ -228,14 +199,11 @@ public class UserService {
         return users;
     }
     
-    // Rechercher un utilisateur par nom d'utilisateur (username)
-    public User findByUsername(String username) throws Exception {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new Exception("Utilisateur non trouvé avec ce nom d'utilisateur");
-        }
-        return user;
+ // Rechercher un utilisateur par nom d'utilisateur (username)
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username); // Retourne null si non trouvé
     }
+
 
 
 }
