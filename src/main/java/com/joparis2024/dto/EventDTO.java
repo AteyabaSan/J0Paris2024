@@ -1,13 +1,13 @@
 package com.joparis2024.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 public class EventDTO {
 	
     private Long id;  // Ajout de l'id
     private String eventName;
-    private LocalDateTime eventDate;
+    private LocalDate eventDate;
     private String description;
     
     private CategoryDTO category;  // Utiliser CategoryDTO ici
@@ -18,7 +18,7 @@ public class EventDTO {
     public EventDTO() {}
 
     // Constructeur avec tous les arguments
-    public EventDTO(Long id, String eventName, LocalDateTime eventDate, String description, CategoryDTO category, List<TicketDTO> tickets, UserDTO organizer) {
+    public EventDTO(Long id, String eventName, LocalDate eventDate, String description, CategoryDTO category, List<TicketDTO> tickets, UserDTO organizer) {
     	
         this.id = id;
         this.eventName = eventName;
@@ -47,11 +47,11 @@ public class EventDTO {
         this.eventName = eventName;
     }
 
-    public LocalDateTime getEventDate() {
+    public LocalDate getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(LocalDateTime eventDate) {
+    public void setEventDate(LocalDate eventDate) {
         this.eventDate = eventDate;
     }
 

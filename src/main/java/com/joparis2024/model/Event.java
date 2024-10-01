@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -25,7 +25,7 @@ public class Event {
     private String eventName;  // Nom de l'événement
 
     @Column(nullable = false)
-    private LocalDateTime eventDate;  // Date et heure de l'événement
+    private LocalDate eventDate;  // Date et heure de l'événement
 
     @Column(nullable = false)
     private String description;  // Description de l'événement

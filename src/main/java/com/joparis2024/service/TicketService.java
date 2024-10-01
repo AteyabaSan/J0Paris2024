@@ -95,7 +95,8 @@ public class TicketService {
         ticketDTO.setEventDate(ticket.getEventDate());  // Ajout de la date de l'événement
         return ticketDTO;
     }
-
+    
+    //Pour la mise a jour ou autre usage
     public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {
         if (ticketDTO == null) {
             throw new Exception("Le TicketDTO est manquant ou invalide.");
@@ -104,11 +105,10 @@ public class TicketService {
         Ticket ticket = new Ticket();
         ticket.setId(ticketDTO.getId());  // Ajout de l'ID
 
+        // Enlever la validation stricte sur l'événement si on est en création
         if (ticketDTO.getEvent() != null && ticketDTO.getEvent().getId() != null) {
             Event event = eventService.mapToEntity(ticketDTO.getEvent());
             ticket.setEvent(event);  // Associe l'événement au ticket
-        } else {
-            throw new Exception("L'événement associé au ticket est manquant ou invalide.");
         }
 
         if (ticketDTO.getOrder() != null && ticketDTO.getOrder().getId() != null) {
@@ -123,6 +123,27 @@ public class TicketService {
 
         return ticket;
     }
+
+    
+    // Pour la creation d'evenements 
+    public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs, Event event) throws Exception {
+        List<Ticket> tickets = new ArrayList<>();
+        if (ticketDTOs != null) {
+            for (TicketDTO ticketDTO : ticketDTOs) {
+                Ticket ticket = new Ticket();
+                ticket.setPrice(ticketDTO.getPrice());
+                ticket.setQuantity(ticketDTO.getQuantity());
+                ticket.setAvailable(ticketDTO.isAvailable());
+                ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
+                ticket.setEvent(event);  // Associer l'événement nouvellement créé
+                tickets.add(ticket);
+            }
+        } else {
+            throw new Exception("La liste de TicketDTOs est vide");
+        }
+        return tickets;
+    }
+
 
     // Convertir une liste de Tickets en une liste de TicketDTOs
     public List<TicketDTO> mapToDTOs(List<Ticket> tickets) throws Exception {
