@@ -39,7 +39,7 @@ public class UserService {
         return userDTOs;
     }
 
- // Créer un utilisateur
+ // Créer un utilisateur à partir d'un UserDTO complet (scénario normal)
     @Transactional
     public UserDTO createUser(UserDTO userDTO) throws Exception {
         System.out.println("Tentative de création d'un utilisateur : " + userDTO.getEmail());
@@ -51,11 +51,6 @@ public class UserService {
         if (userRepository.existsByEmail(userDTO.getEmail())) {
             System.out.println("Email déjà utilisé : " + userDTO.getEmail());
             throw new Exception("Email déjà utilisé");
-        }
-
-        // Vérifier que le mot de passe est présent
-        if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
-            throw new Exception("Le mot de passe est obligatoire");
         }
 
         // Créer un nouvel utilisateur
@@ -88,8 +83,35 @@ public class UserService {
             e.printStackTrace();  // Affiche l'erreur complète dans les logs
             throw new Exception("Erreur lors de la création de l'utilisateur : " + e.getMessage());
         }
-
     }
+
+    // Surcharge de createUser pour gérer les utilisateurs dans l'ajout d'un événement
+    @Transactional
+    public User createUser(User user) throws Exception {
+        System.out.println("Tentative de création d'un utilisateur avec username : " + user.getUsername());
+
+        // Vérifier si un utilisateur avec le même nom d'utilisateur existe déjà
+        User existingUser = userRepository.findByUsername(user.getUsername());
+        if (existingUser != null) {
+            System.out.println("Utilisateur déjà existant avec ce nom : " + user.getUsername());
+            return existingUser; // Si l'utilisateur existe déjà, on le renvoie
+        }
+
+        // Si l'utilisateur n'existe pas, on le crée avec un nom d'utilisateur seulement
+        user.setEnabled(true); // Par défaut, activé
+        user.setRoles(new ArrayList<>()); // Pas de rôles définis pour l'instant
+
+        // Sauvegarde dans la base de données
+        try {
+            User savedUser = userRepository.save(user);
+            System.out.println("Nouvel utilisateur créé avec username : " + user.getUsername());
+            return savedUser;
+        } catch (Exception e) {
+            e.printStackTrace();  // Affiche l'erreur complète dans les logs
+            throw new Exception("Erreur lors de la création de l'utilisateur : " + e.getMessage());
+        }
+    }
+
 
 
     // Récupérer un utilisateur par email
@@ -124,9 +146,6 @@ public class UserService {
         User updatedUser = userRepository.save(existingUser);
         return mapToDTO(updatedUser);
     }
-
-
-
 
 
     	// Supprimer un utilisateur (DELETE)
@@ -208,6 +227,17 @@ public class UserService {
         }
         return users;
     }
+    
+    // Rechercher un utilisateur par nom d'utilisateur (username)
+    public User findByUsername(String username) throws Exception {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new Exception("Utilisateur non trouvé avec ce nom d'utilisateur");
+        }
+        return user;
+    }
+
+
 }
 
 
