@@ -2,7 +2,6 @@ package com.joparis2024.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.joparis2024.model.Ticket;
-import com.joparis2024.model.Category;
 import com.joparis2024.model.Event;
 import com.joparis2024.model.Order;
 
@@ -20,9 +19,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     // Récupérer les tickets disponibles pour un événement
     List<Ticket> findByEventAndIsAvailableTrue(Event event);
-    
-    //Recuperer les tickets par category
-    List<Ticket> findByCategory(Category category);
-
 }
 
