@@ -15,8 +15,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "tickets")
 public class Ticket {
-	
-	@Id
+    
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -27,6 +27,10 @@ public class Ticket {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;  // Chaque ticket peut être lié à une commande
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false) // Ajout de la relation avec Category
+    private Category category; // Chaque ticket est lié à une catégorie
 
     @Column(nullable = false)
     private double price;  // Prix du ticket
@@ -44,6 +48,6 @@ public class Ticket {
     public Ticket(Long id) {
         this.id = id;
     }
-
 }
+
 

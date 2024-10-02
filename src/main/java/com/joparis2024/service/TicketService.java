@@ -26,11 +26,15 @@ public class TicketService {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private CategoryService categoryService; // Ajouter le service pour Category
+
     // Créer un ticket (CREATE)
     public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
         Ticket ticket = new Ticket();
-        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
-        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
+        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));
+        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));
+        ticket.setCategory(categoryService.mapToEntity(ticketDTO.getCategory())); // Mapper la catégorie
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
@@ -46,8 +50,9 @@ public class TicketService {
         }
 
         Ticket ticket = existingTicket.get();
-        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));  // Mapper l'événement
-        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
+        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));
+        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));
+        ticket.setCategory(categoryService.mapToEntity(ticketDTO.getCategory())); // Mapper la catégorie
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
@@ -89,6 +94,7 @@ public class TicketService {
         ticketDTO.setId(ticket.getId());  // Ajout de l'ID
         ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
         ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
+        ticketDTO.setCategory(categoryService.mapToDTO(ticket.getCategory())); // Mapper la catégorie
         ticketDTO.setPrice(ticket.getPrice());
         ticketDTO.setQuantity(ticket.getQuantity());
         ticketDTO.setAvailable(ticket.isAvailable());
@@ -96,7 +102,7 @@ public class TicketService {
         return ticketDTO;
     }
     
-    //Pour la mise a jour ou autre usage
+    // Pour la mise à jour ou autre usage
     public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {
         if (ticketDTO == null) {
             throw new Exception("Le TicketDTO est manquant ou invalide.");
@@ -124,8 +130,7 @@ public class TicketService {
         return ticket;
     }
 
-    
-    // Pour la creation d'evenements 
+    // Pour la création d'événements 
     public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs, Event event) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
         if (ticketDTOs != null) {
@@ -143,7 +148,6 @@ public class TicketService {
         }
         return tickets;
     }
-
 
     // Convertir une liste de Tickets en une liste de TicketDTOs
     public List<TicketDTO> mapToDTOs(List<Ticket> tickets) throws Exception {
@@ -171,4 +175,3 @@ public class TicketService {
         return tickets;
     }
 }
-
