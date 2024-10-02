@@ -4,6 +4,10 @@ import com.joparis2024.dto.EventDTO;
 import com.joparis2024.model.Category;
 import com.joparis2024.model.Event;
 import com.joparis2024.repository.EventRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,8 @@ public class EventService {
     private CategoryService categoryService;
 
     // Récupérer tous les événements
+    // Ajouter @Transactional ici pour garder la session active
+    @Transactional
     public List<EventDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
         List<EventDTO> eventDTOs = new ArrayList<>();
@@ -65,6 +71,7 @@ public class EventService {
     }
 
     // Récupérer un événement par nom
+    @Transactional
     public Optional<EventDTO> getEventByName(String eventName) {
         Optional<Event> event = eventRepository.findByEventName(eventName);
         return event.map(t -> {
@@ -78,22 +85,33 @@ public class EventService {
         });
     }
 
- // Mettre à jour un événement via son nom (UPDATE)
-    public EventDTO updateEventByName(String eventName, EventDTO eventDTO) throws Exception {
+    // Mettre à jour un événement via son nom (UPDATE)
+    public EventDTO updateEventByName(String eventName, EventDTO eventDTO) throws EntityNotFoundException, Exception {
+        // Recherche de l'événement par son nom
         Optional<Event> existingEvent = eventRepository.findByEventName(eventName);
         if (!existingEvent.isPresent()) {
-            throw new Exception("Événement non trouvé");
+            throw new EntityNotFoundException("Événement non trouvé avec le nom : " + eventName);
         }
 
         Event event = existingEvent.get();
+        
+        // Mise à jour des attributs de base
         event.setEventName(eventDTO.getEventName());
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
 
-        // Mise à jour des relations
-        event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
-        event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
-        event.setCategory(categoryService.mapToEntity(eventDTO.getCategory()));
+        // Mise à jour des relations (tickets, organizer, category)
+        if (eventDTO.getTickets() != null) {
+            event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
+        }
+        
+        if (eventDTO.getOrganizer() != null) {
+            event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+        }
+        
+        if (eventDTO.getCategory() != null) {
+            event.setCategory(categoryService.mapToEntity(eventDTO.getCategory()));
+        }
 
         // Sauvegarde de l'événement mis à jour
         Event updatedEvent = eventRepository.save(event);
@@ -104,7 +122,9 @@ public class EventService {
 
 
 
+
  // Mapper l'entité Event vers un DTO EventDTO
+    @Transactional
     public EventDTO mapToDTO(Event event) throws Exception {
         try {
             return new EventDTO(

@@ -51,19 +51,30 @@ public class EventController {
         }
     }
 
- // Mettre à jour un événement par son nom
+    // Mettre à jour un événement par son nom
     @PutMapping("/update")
-    public ResponseEntity<EventDTO> updateEvent(@RequestBody EventDTO eventDTO) {
+    public ResponseEntity<?> updateEvent(@RequestBody EventDTO eventDTO) {
         try {
-            // Utilise le nom de l'événement provenant du corps (eventDTO)
+            // Log pour voir les données reçues
+            System.out.println("Mise à jour de l'événement: " + eventDTO.getEventName());
+
+            // Appeler le service pour mettre à jour l'événement par nom
             EventDTO updatedEvent = eventService.updateEventByName(eventDTO.getEventName(), eventDTO);
-            return ResponseEntity.ok(updatedEvent);  // Retourner le DTO mis à jour
+
+            // Si l'événement est bien mis à jour, retourner un code 200 OK avec les détails
+            return ResponseEntity.ok(updatedEvent);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Si l'événement n'est pas trouvé
+            // Si l'événement n'est pas trouvé, retourner un 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Événement non trouvé: " + eventDTO.getEventName());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // En cas d'autres erreurs
+            // Log de l'erreur pour faciliter le débogage
+            System.err.println("Erreur lors de la mise à jour de l'événement: " + e.getMessage());
+
+            // Retourner un code 500 en cas d'erreur interne
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur interne lors de la mise à jour de l'événement.");
         }
     }
+
 
 
     // Supprimer un événement par son nom (DELETE)

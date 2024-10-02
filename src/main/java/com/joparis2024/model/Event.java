@@ -35,12 +35,12 @@ public class Event {
     private List<Ticket> tickets;
 
     // Relation avec User: Un événement peut être organisé par un utilisateur (organisateur)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "organizer_id")
     private User organizer;
 
     // Relation avec Category: Un événement appartient à une catégorie
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
 }
