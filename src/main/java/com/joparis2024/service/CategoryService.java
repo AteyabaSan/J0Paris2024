@@ -23,8 +23,7 @@ public class CategoryService {
             throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être vide");
         }
 
-
-     // Mapper le DTO vers l'entité
+        // Mapper le DTO vers l'entité
         Category category = mapToEntity(categoryDTO);
 
         // Sauvegarder l'entité dans la base de données
@@ -36,53 +35,50 @@ public class CategoryService {
 
     // Récupérer toutes les catégories
     public List<CategoryDTO> getAllCategories() {
-        // Récupérer toutes les catégories dans la base de données
         List<Category> categories = categoryRepository.findAll();
 
-        // Initialiser une liste pour stocker les DTOs
+        // Mapper chaque entité vers un DTO et retourner la liste
         List<CategoryDTO> categoryDTOs = new ArrayList<>();
-
-        // Mapper chaque entité vers un DTO et l'ajouter à la liste
         for (Category category : categories) {
             categoryDTOs.add(mapToDTO(category));
         }
 
-        // Retourner la liste des DTOs
         return categoryDTOs;
     }
 
- // Récupérer une catégorie par ID
+    // Récupérer une catégorie par ID
     public Optional<CategoryDTO> getCategoryById(Long id) {
-        // Récupérer l'entité par son ID
         Optional<Category> category = categoryRepository.findById(id);
 
         // Mapper l'entité vers un DTO si elle existe
         return category.map(this::mapToDTO);
     }
 
- // Mettre à jour une catégorie
+    // Mettre à jour une catégorie
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) throws Exception {
-        // Vérifier si la catégorie existe dans la base de données
         Optional<Category> existingCategory = categoryRepository.findById(id);
         if (!existingCategory.isPresent()) {
             throw new Exception("Catégorie non trouvée");
         }
 
-     // Mise à jour de l'entité avec les données du DTO
+        // Validation des champs à mettre à jour
+        if (categoryDTO.getName() == null || categoryDTO.getName().isEmpty()) {
+            throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être vide.");
+        }
+
         Category category = existingCategory.get();
         category.setName(categoryDTO.getName());
         category.setLocation(categoryDTO.getLocation());
 
-     // Sauvegarder les modifications dans la base de données
+        // Sauvegarder les modifications dans la base de données
         Category updatedCategory = categoryRepository.save(category);
 
         // Retourner le DTO mis à jour
         return mapToDTO(updatedCategory);
     }
 
- // Supprimer une catégorie
+    // Supprimer une catégorie
     public void deleteCategory(Long id) throws Exception {
-        // Vérifier si la catégorie existe avant de la supprimer
         if (!categoryRepository.existsById(id)) {
             throw new Exception("Catégorie non trouvée");
         }
@@ -91,8 +87,15 @@ public class CategoryService {
         categoryRepository.deleteById(id);
     }
 
- // Méthode pour mapper l'entité Category vers un DTO CategoryDTO
+    // Méthode pour mapper l'entité Category vers un DTO CategoryDTO
     public CategoryDTO mapToDTO(Category category) {
+        if (category == null) {
+            System.out.println("Impossible de mapper Category car il est nul");
+            return null;
+        }
+
+        System.out.println("Mapping Category vers CategoryDTO: " + category);
+
         return new CategoryDTO(
             category.getId(),
             category.getName(),
@@ -100,12 +103,20 @@ public class CategoryService {
         );
     }
 
-    // Mapper le DTO CategoryDTO vers l'entité Category
+    // Méthode pour mapper un DTO CategoryDTO vers une entité Category
     public Category mapToEntity(CategoryDTO categoryDTO) {
+        if (categoryDTO == null) {
+            throw new IllegalArgumentException("CategoryDTO est nul, impossible de mapper vers Category.");
+        }
+
+        System.out.println("Mapping CategoryDTO vers Category : " + categoryDTO);
+
         Category category = new Category();
         category.setId(categoryDTO.getId());
         category.setName(categoryDTO.getName());
         category.setLocation(categoryDTO.getLocation());
+
         return category;
     }
 }
+

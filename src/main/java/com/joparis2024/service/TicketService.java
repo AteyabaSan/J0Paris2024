@@ -26,23 +26,31 @@ public class TicketService {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private CategoryService categoryService; // Ajouter le service pour Category
 
-    // Créer un ticket (CREATE)
     public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
+        System.out.println("Tentative de création d'un ticket avec les informations suivantes : " + ticketDTO);
+
+        // Mapping des autres entités
+        Event event = eventService.mapToEntity(ticketDTO.getEvent());
+        Order order = orderService.mapToEntity(ticketDTO.getOrder());
+
+        // Création du ticket sans la catégorie
         Ticket ticket = new Ticket();
-        ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));
-        ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));
-        ticket.setCategory(categoryService.mapToEntity(ticketDTO.getCategory())); // Mapper la catégorie
+        ticket.setEvent(event);
+        ticket.setOrder(order);
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
-        
+        ticket.setEventDate(ticketDTO.getEventDate());
+
+        System.out.println("Ticket créé avec succès : " + ticket);
+
+        // Sauvegarder le ticket dans la base de données
         return ticketRepository.save(ticket);
     }
 
-    // Mettre à jour un ticket (UPDATE)
+
+ // Mettre à jour un ticket sans `CategoryDTO`
     public Ticket updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
         Optional<Ticket> existingTicket = ticketRepository.findById(ticketId);
         if (!existingTicket.isPresent()) {
@@ -52,13 +60,13 @@ public class TicketService {
         Ticket ticket = existingTicket.get();
         ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));
         ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));
-        ticket.setCategory(categoryService.mapToEntity(ticketDTO.getCategory())); // Mapper la catégorie
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
 
         return ticketRepository.save(ticket);
     }
+
 
     // Récupérer un ticket par ID (READ)
     public TicketDTO getTicketById(Long ticketId) throws Exception {
@@ -88,19 +96,19 @@ public class TicketService {
         ticketRepository.delete(ticket.get());
     }
 
-    // Mapper Ticket -> TicketDTO
+ // Mapper Ticket -> TicketDTO sans la catégorie
     public TicketDTO mapToDTO(Ticket ticket) throws Exception {
         TicketDTO ticketDTO = new TicketDTO();
         ticketDTO.setId(ticket.getId());  // Ajout de l'ID
         ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
         ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
-        ticketDTO.setCategory(categoryService.mapToDTO(ticket.getCategory())); // Mapper la catégorie
         ticketDTO.setPrice(ticket.getPrice());
         ticketDTO.setQuantity(ticket.getQuantity());
         ticketDTO.setAvailable(ticket.isAvailable());
         ticketDTO.setEventDate(ticket.getEventDate());  // Ajout de la date de l'événement
         return ticketDTO;
     }
+
     
     // Pour la mise à jour ou autre usage
     public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {

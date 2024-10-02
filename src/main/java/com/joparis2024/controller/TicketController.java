@@ -1,8 +1,10 @@
 package com.joparis2024.controller;
 
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.model.Ticket;
 import com.joparis2024.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +21,19 @@ public class TicketController {
     @PostMapping
     public ResponseEntity<TicketDTO> createTicket(@RequestBody TicketDTO ticketDTO) {
         try {
-            System.out.println("Tentative de création d'un ticket avec les informations suivantes : " + ticketDTO);
-            TicketDTO createdTicket = ticketService.mapToDTO(ticketService.createTicket(ticketDTO));
-            System.out.println("Ticket créé avec succès : " + createdTicket);
-            return ResponseEntity.ok(createdTicket);
+            System.out.println("TicketDTO reçu : " + ticketDTO);
+
+            // Appel au service pour créer le ticket
+            Ticket createdTicket = ticketService.createTicket(ticketDTO);
+
+            // Mapper le ticket créé en DTO et le renvoyer
+            TicketDTO createdTicketDTO = ticketService.mapToDTO(createdTicket);
+            return ResponseEntity.ok(createdTicketDTO);
+
         } catch (Exception e) {
-            System.out.println("Erreur lors de la création du ticket : " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            // Capture des erreurs et renvoi d'une réponse avec le message d'erreur
+            System.err.println("Erreur lors de la création du ticket : " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
