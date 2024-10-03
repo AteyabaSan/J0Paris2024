@@ -27,33 +27,40 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
-
-    // Créer une commande (CREATE)
+ // Créer une commande (CREATE)
     public Order createOrder(OrderDTO orderDTO) throws Exception {
         Order order = new Order();
         order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
+        
         if (order.getUser() == null) {
             throw new Exception("L'utilisateur est introuvable");
         }
+
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setOrderDate(orderDTO.getOrderDate());  // Date de la commande
 
-        // Gestion des tickets via Order_Ticket
+        // Vérifier que la commande contient au moins un ticket
+        if (orderDTO.getTickets() == null || orderDTO.getTickets().isEmpty()) {
+            throw new Exception("La commande doit contenir au moins un ticket.");
+        }
+
+        // Gérer les tickets
         List<Order_Ticket> orderTickets = new ArrayList<>();
         for (TicketDTO ticketDTO : orderDTO.getTickets()) {
             Ticket ticket = ticketService.mapToEntity(ticketDTO);  // Mapper les tickets
-            
+
             Order_Ticket orderTicket = new Order_Ticket();
             orderTicket.setOrder(order);
             orderTicket.setTicket(ticket);
             orderTicket.setQuantity(ticketDTO.getQuantity());  // Gérer la quantité via Order_Ticket
-            
+
             orderTickets.add(orderTicket);
         }
-        order.setOrderTickets(orderTickets);
+        
+        order.setOrderTickets(orderTickets);  // Associer les tickets à la commande
 
-        return orderRepository.save(order);
+        return orderRepository.save(order);  // Sauvegarder la commande et retourner le résultat
     }
 
     // Mettre à jour une commande (UPDATE)
