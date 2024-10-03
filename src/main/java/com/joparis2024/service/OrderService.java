@@ -31,6 +31,7 @@ public class OrderService {
     private OrderRepository orderRepository;
     
     @Autowired
+    @Lazy 
     private PaymentService paymentService;
     
  // Créer une commande (CREATE)
