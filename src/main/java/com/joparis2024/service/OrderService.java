@@ -9,6 +9,7 @@ import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Order;
 import com.joparis2024.model.Order_Ticket;
 import com.joparis2024.model.Ticket;
+import com.joparis2024.model.User;
 import com.joparis2024.repository.OrderRepository;
 
 import java.util.ArrayList;
@@ -27,15 +28,19 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+    
  // Créer une commande (CREATE)
     public Order createOrder(OrderDTO orderDTO) throws Exception {
         Order order = new Order();
-        order.setUser(userService.mapToEntity(orderDTO.getUser()));  // Mapper l'utilisateur
         
-        if (order.getUser() == null) {
+        // Charger l'utilisateur à partir de la base de données par son ID
+        User user = userService.findById(orderDTO.getUser().getId());  // Assurez-vous que `findById` existe dans `UserService`
+        if (user == null) {
             throw new Exception("L'utilisateur est introuvable");
         }
+        order.setUser(user);  // Associer l'utilisateur à la commande
 
+        // Définir les autres attributs de la commande
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setOrderDate(orderDTO.getOrderDate());  // Date de la commande
@@ -57,11 +62,14 @@ public class OrderService {
 
             orderTickets.add(orderTicket);
         }
-        
-        order.setOrderTickets(orderTickets);  // Associer les tickets à la commande
 
-        return orderRepository.save(order);  // Sauvegarder la commande et retourner le résultat
+        // Associer les tickets à la commande
+        order.setOrderTickets(orderTickets);
+
+        // Sauvegarder la commande et retourner le résultat
+        return orderRepository.save(order);
     }
+
 
     // Mettre à jour une commande (UPDATE)
     public Order updateOrder(Long orderId, OrderDTO orderDTO) throws Exception {

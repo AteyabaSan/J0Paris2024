@@ -203,6 +203,11 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username); // Retourne null si non trouvé
     }
+    
+    public User findById(Long id) throws Exception {
+        return userRepository.findById(id).orElseThrow(() -> new Exception("Utilisateur introuvable"));
+    }
+
 
 
 
