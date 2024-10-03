@@ -13,7 +13,7 @@ import com.joparis2024.repository.TicketRepository;
 import com.joparis2024.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -122,7 +122,7 @@ public class OrderService {
 
 
 
-
+    @Transactional
     public Order updateOrder(Long orderId, OrderDTO orderDTO) throws Exception {
         Optional<Order> existingOrder = orderRepository.findById(orderId);
         if (!existingOrder.isPresent()) {
@@ -149,6 +149,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional(readOnly = true)
     public List<OrderDTO> getAllOrders() throws Exception {
         List<Order> orders = orderRepository.findAll();
         List<OrderDTO> orderDTOs = new ArrayList<>();
@@ -158,6 +159,7 @@ public class OrderService {
         return orderDTOs;
     }
 
+    @Transactional(readOnly = true)
     public OrderDTO getOrderById(Long orderId) throws Exception {
         Optional<Order> existingOrder = orderRepository.findById(orderId);
         if (!existingOrder.isPresent()) {
@@ -166,6 +168,7 @@ public class OrderService {
         return mapToDTO(existingOrder.get());
     }
 
+    @Transactional
     public void cancelOrder(Long orderId) throws Exception {
         Optional<Order> existingOrder = orderRepository.findById(orderId);
         if (!existingOrder.isPresent()) {

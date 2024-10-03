@@ -11,6 +11,7 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class PaymentService {
 	    private OrderService orderService;
 
 	    // Créer un nouveau paiement (CREATE)
+	    @Transactional
 	    public Payment createPayment(PaymentDTO paymentDTO) throws Exception {
 	        if (paymentDTO.getOrder() == null) {
 	            throw new Exception("La commande ne peut pas être nulle lors de la création du paiement.");
@@ -60,6 +62,7 @@ public class PaymentService {
 	
 
     // Récupérer un paiement par son ID (READ)
+	@Transactional(readOnly = true)
     public PaymentDTO getPaymentById(Long paymentId) throws Exception {
         Optional<Payment> payment = paymentRepository.findById(paymentId);
         if (!payment.isPresent()) {
@@ -69,6 +72,7 @@ public class PaymentService {
     }
 
     // Récupérer tous les paiements (READ)
+    @Transactional(readOnly = true)
     public List<PaymentDTO> getAllPayments() throws Exception {
         try {
             List<Payment> payments = paymentRepository.findAll();
@@ -85,6 +89,7 @@ public class PaymentService {
     }
 
     // Mettre à jour un paiement (UPDATE)
+    @Transactional(readOnly = true)
     public PaymentDTO updatePayment(Long paymentId, PaymentDTO paymentDTO) throws Exception {
         Optional<Payment> existingPayment = paymentRepository.findById(paymentId);
         if (!existingPayment.isPresent()) {
@@ -102,6 +107,7 @@ public class PaymentService {
     }
 
     // Annuler un paiement (DELETE)
+    @Transactional(readOnly = true)
     public void cancelPayment(Long paymentId) throws Exception {
         Optional<Payment> payment = paymentRepository.findById(paymentId);
         if (!payment.isPresent()) {
@@ -110,6 +116,7 @@ public class PaymentService {
         paymentRepository.delete(payment.get());
     }
 
+    @Transactional(readOnly = true)
     public Payment mapToEntity(PaymentDTO paymentDTO) throws Exception {
         if (paymentDTO == null) {
             throw new Exception("Le PaymentDTO est nul.");
@@ -149,7 +156,8 @@ public class PaymentService {
 
 
   // Mapper Payment -> PaymentDTO
- public PaymentDTO mapToDTO(Payment payment) throws Exception {
+    @Transactional(readOnly = true)
+    public PaymentDTO mapToDTO(Payment payment) throws Exception {
      PaymentDTO paymentDTO = new PaymentDTO();
      paymentDTO.setId(payment.getId());
      paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));

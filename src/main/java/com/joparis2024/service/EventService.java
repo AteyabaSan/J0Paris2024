@@ -5,7 +5,7 @@ import com.joparis2024.model.Event;
 import com.joparis2024.repository.EventRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -35,7 +35,7 @@ public class EventService {
     @Autowired
     private CategoryService categoryService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EventDTO> getAllEvents() {
         List<Event> events = eventRepository.findAll();
         List<EventDTO> eventDTOs = new ArrayList<>();
@@ -48,7 +48,8 @@ public class EventService {
         }
         return eventDTOs;
     }
-
+    
+    @Transactional
     public Event createEvent(EventDTO eventDTO) throws Exception {
         validateEventDTO(eventDTO);
 
@@ -63,7 +64,7 @@ public class EventService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Optional<EventDTO> getEventByName(String eventName) {
         return eventRepository.findByEventName(eventName)
                 .map(t -> {
@@ -76,6 +77,7 @@ public class EventService {
                 });
     }
 
+    @Transactional
     public EventDTO updateEventByName(String eventName, EventDTO eventDTO) throws Exception {
         Event event = eventRepository.findByEventName(eventName)
                 .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé avec le nom : " + eventName));
@@ -102,7 +104,8 @@ public class EventService {
             event.setCategory(categoryService.mapToEntity(eventDTO.getCategory()));
         }
     }
-
+    
+    @Transactional(readOnly = true)
     public EventDTO mapToDTO(Event event) throws Exception {
         return new EventDTO(
                 event.getId(),
@@ -138,13 +141,14 @@ public class EventService {
         return event;
     }
 
+    @Transactional
     public void deleteEvent(String eventName) throws Exception {
         Event event = eventRepository.findByEventName(eventName)
                 .orElseThrow(() -> new Exception("Événement non trouvé"));
         eventRepository.delete(event);
     }
     
- // Méthode pour convertir une liste d'EventDTO en une liste d'Event
+    @Transactional(readOnly = true)
     public List<Event> mapToEntities(List<EventDTO> eventDTOs) throws Exception {
         List<Event> events = new ArrayList<>();
         if (eventDTOs != null) {
@@ -157,7 +161,7 @@ public class EventService {
         return events;
     }
 
-    // Méthode pour convertir une liste d'Event en une liste d'EventDTO
+    @Transactional(readOnly = true)
     public List<EventDTO> mapToDTOs(List<Event> events) throws Exception {
         List<EventDTO> eventDTOs = new ArrayList<>();
         if (events != null) {
@@ -171,3 +175,4 @@ public class EventService {
     }
 
 }
+

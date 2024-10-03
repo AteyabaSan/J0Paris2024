@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class TicketService {
     @Autowired
     private OrderService orderService;
 
+    @Transactional
     public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
         logger.info("Tentative de création d'un ticket : {}", ticketDTO);
 
@@ -46,6 +48,7 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
+    @Transactional
     public Ticket updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new Exception("Ticket non trouvé"));
@@ -59,6 +62,7 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
+    @Transactional(readOnly = true)
     public TicketDTO getTicketById(Long ticketId) throws Exception {
         return ticketRepository.findById(ticketId)
                 .map(ticket -> {
@@ -72,6 +76,7 @@ public class TicketService {
                 .orElseThrow(() -> new Exception("Ticket non trouvé"));
     }
 
+    @Transactional(readOnly = true)
     public List<TicketDTO> getAllTickets() throws Exception {
         List<Ticket> tickets = ticketRepository.findAll();
         List<TicketDTO> ticketDTOs = new ArrayList<>();
@@ -85,6 +90,7 @@ public class TicketService {
         return ticketDTOs;
     }
 
+    @Transactional
     public void deleteTicket(Long ticketId) throws Exception {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new Exception("Ticket non trouvé"));

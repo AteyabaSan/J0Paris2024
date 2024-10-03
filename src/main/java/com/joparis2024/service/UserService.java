@@ -7,7 +7,7 @@ import com.joparis2024.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.joparis2024.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +30,7 @@ public class UserService {
     private EntityManager entityManager;
 
     // Récupérer tous les utilisateurs
+    @Transactional(readOnly = true)
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         List<UserDTO> userDTOs = new ArrayList<>();
@@ -86,12 +87,14 @@ public class UserService {
     }
 
     // Récupérer un utilisateur par email
+    @Transactional(readOnly = true)
     public Optional<UserDTO> getUserByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         return user.map(this::mapToDTO);
     }
 
  // Mettre à jour un utilisateur par son email (UPDATE)
+    @Transactional
     public UserDTO updateUserByEmail(String email, UserDTO userDTO) throws Exception {
         Optional<User> existingUserOptional = userRepository.findByEmail(email);
         if (!existingUserOptional.isPresent()) {
