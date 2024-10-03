@@ -36,7 +36,7 @@ public class Order {
     @Column(nullable = false)
     private String status;  // en attente, payé, confirmé
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
