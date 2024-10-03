@@ -8,7 +8,7 @@ public class OrderDTO {
     private Long id;
     private String status;
     private UserDTO user;
-    private List<TicketDTO> tickets; // Tickets via Order_Ticket
+    private List<TicketDTO> tickets; // Relation Many-to-Many avec Ticket via Order_Ticket
     private Double totalAmount;
     private LocalDateTime orderDate;
     private PaymentDTO payment; // Relation One-to-One avec Payment
@@ -30,6 +30,14 @@ public class OrderDTO {
     }
 
     // Getters et Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -85,15 +93,4 @@ public class OrderDTO {
     public void setTransactions(List<TransactionDTO> transactions) {
         this.transactions = transactions;
     }
-
-    // Getters et Setters pour l'ID
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
-
-

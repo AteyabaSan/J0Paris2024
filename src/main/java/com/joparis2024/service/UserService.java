@@ -151,12 +151,18 @@ public class UserService {
 
     // Mapper l'entité User vers un DTO UserDTO
     public UserDTO mapToDTO(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("L'utilisateur à mapper est nul.");
+        }
+
         List<String> roles = new ArrayList<>();
         for (Role role : user.getRoles()) {
             roles.add(role.getName());
         }
-        return new UserDTO(
-        	user.getId(),
+
+        // Log pour vérifier le contenu de UserDTO après mapping
+        UserDTO userDTO = new UserDTO(
+            user.getId(),
             user.getUsername(),
             user.getEmail(),
             roles, // Mapping des rôles
@@ -164,9 +170,23 @@ public class UserService {
             user.getPhoneNumber(),
             user.getPassword()
         );
+        
+        System.out.println("Utilisateur mappé en UserDTO avec succès: " + userDTO);
+        return userDTO;
     }
 
-    public User mapToEntity(UserDTO userDTO) {
+
+    public User mapToEntity(UserDTO userDTO) throws Exception {
+        if (userDTO == null) {
+            throw new IllegalArgumentException("Le UserDTO à mapper est nul.");
+        }
+
+        // Vérification de l'ID de l'utilisateur
+        if (userDTO.getId() == null) {
+            throw new Exception("L'ID de l'utilisateur dans UserDTO est manquant.");
+        }
+
+        // Création de l'entité User
         User user = new User();
         user.setId(userDTO.getId());
         user.setUsername(userDTO.getUsername());
@@ -174,30 +194,51 @@ public class UserService {
         user.setEnabled(userDTO.getEnabled());
         user.setPhoneNumber(userDTO.getPhoneNumber());
 
-        // Gérer les rôles - récupérer les rôles par leurs noms depuis la base de données
+        // Vérification des rôles dans UserDTO
+        if (userDTO.getRoles() == null || userDTO.getRoles().isEmpty()) {
+            throw new Exception("Les rôles de l'utilisateur sont manquants ou incomplets.");
+        }
+
+        // Récupération des rôles par leurs noms depuis la base de données
         List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
+        if (roles.isEmpty()) {
+            throw new Exception("Aucun rôle correspondant trouvé dans la base de données.");
+        }
+
+        // Log pour vérifier les rôles avant d'ajouter à l'utilisateur
+        System.out.println("Rôles trouvés pour l'utilisateur: " + roles);
+
         user.setRoles(roles);
 
+        // Log pour vérifier le contenu de User après mapping
+        System.out.println("Utilisateur mappé avec succès: " + user);
         return user;
     }
 
-    // Convertir une liste de Users en une liste de UserDTOs
+
     public List<UserDTO> mapToDTOs(List<User> users) {
         List<UserDTO> userDTOs = new ArrayList<>();
         for (User user : users) {
             userDTOs.add(mapToDTO(user));
         }
+
+        // Log pour vérifier la conversion de la liste
+        System.out.println("Conversion de la liste d'utilisateurs en UserDTOs terminée: " + userDTOs);
         return userDTOs;
     }
 
-    // Convertir une liste de UserDTOs en une liste de Users
-    public List<User> mapToEntities(List<UserDTO> userDTOs) {
+
+    public List<User> mapToEntities(List<UserDTO> userDTOs) throws Exception {
         List<User> users = new ArrayList<>();
         for (UserDTO userDTO : userDTOs) {
             users.add(mapToEntity(userDTO));
         }
+
+        // Log pour vérifier la conversion de la liste
+        System.out.println("Conversion de la liste de UserDTOs en entités User terminée: " + users);
         return users;
     }
+
     
  // Rechercher un utilisateur par nom d'utilisateur (username)
     public User findByUsername(String username) {

@@ -16,17 +16,40 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // Créer une commande (CREATE)
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO) {
         try {
+            // Log de vérification du contenu de OrderDTO reçu
+            System.out.println("OrderDTO reçu: " + orderDTO);
+
+            // Vérification si le DTO est bien présent
+            if (orderDTO == null) {
+                throw new IllegalArgumentException("Le DTO de commande est nul.");
+            }
+
+            // Ajoutez le log ici pour voir le contenu de OrderDTO avant le mappage
+            System.out.println("Contenu de OrderDTO avant mappage : " + orderDTO);
+
+            // Création de la commande à partir du service
             OrderDTO createdOrder = orderService.mapToDTO(orderService.createOrder(orderDTO));
+
+            // Log de confirmation de la création
+            System.out.println("Commande créée avec succès: " + createdOrder.getId());
+
+            // Retourner la réponse avec le statut HTTP 201 (Created)
             return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+
+        } catch (IllegalArgumentException e) {
+            // Log de l'exception si le DTO est nul ou un autre argument est incorrect
+            System.err.println("Erreur: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            // Log détaillé en cas d'autre exception pour le debug
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 
     // Récupérer toutes les commandes (READ)
     @GetMapping

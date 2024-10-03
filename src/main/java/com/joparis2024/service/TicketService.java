@@ -96,12 +96,19 @@ public class TicketService {
         ticketRepository.delete(ticket.get());
     }
 
- // Mapper Ticket -> TicketDTO sans la catégorie
+ // Mapper Ticket -> TicketDTO
     public TicketDTO mapToDTO(Ticket ticket) throws Exception {
         TicketDTO ticketDTO = new TicketDTO();
         ticketDTO.setId(ticket.getId());  // Ajout de l'ID
         ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
-        ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
+
+        // Log pour vérifier l'Order dans Ticket
+        if (ticket.getOrder() != null) {
+            ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
+        } else {
+            System.err.println("Order est nul dans Ticket : " + ticket);
+        }
+
         ticketDTO.setPrice(ticket.getPrice());
         ticketDTO.setQuantity(ticket.getQuantity());
         ticketDTO.setAvailable(ticket.isAvailable());
@@ -109,8 +116,9 @@ public class TicketService {
         return ticketDTO;
     }
 
+
     
-    // Pour la mise à jour ou autre usage
+ // Mapper TicketDTO -> Ticket
     public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {
         if (ticketDTO == null) {
             throw new Exception("Le TicketDTO est manquant ou invalide.");
@@ -119,15 +127,20 @@ public class TicketService {
         Ticket ticket = new Ticket();
         ticket.setId(ticketDTO.getId());  // Ajout de l'ID
 
-        // Enlever la validation stricte sur l'événement si on est en création
+        // Log pour vérifier l'Event dans TicketDTO
         if (ticketDTO.getEvent() != null && ticketDTO.getEvent().getId() != null) {
             Event event = eventService.mapToEntity(ticketDTO.getEvent());
-            ticket.setEvent(event);  // Associe l'événement au ticket
+            ticket.setEvent(event);  // Associer l'événement au ticket
+        } else {
+            System.err.println("Event est nul ou incomplet dans TicketDTO : " + ticketDTO);
         }
 
+        // Log pour vérifier l'Order dans TicketDTO
         if (ticketDTO.getOrder() != null && ticketDTO.getOrder().getId() != null) {
             Order order = orderService.mapToEntity(ticketDTO.getOrder());
-            ticket.setOrder(order);  // Associe la commande au ticket
+            ticket.setOrder(order);  // Associer la commande au ticket
+        } else {
+            System.err.println("Order est nul ou incomplet dans TicketDTO : " + ticketDTO);
         }
 
         ticket.setPrice(ticketDTO.getPrice());
@@ -137,6 +150,7 @@ public class TicketService {
 
         return ticket;
     }
+
 
     // Pour la création d'événements 
     public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs, Event event) throws Exception {

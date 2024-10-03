@@ -1,6 +1,7 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.PaymentDTO;
+import com.joparis2024.model.Order;
 import com.joparis2024.model.Payment;
 import com.joparis2024.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,11 +89,35 @@ public class PaymentService {
         paymentRepository.delete(payment.get());
     }
 
-    // Mapper PaymentDTO -> Payment
+ // Mapper PaymentDTO -> Payment
     public Payment mapToEntity(PaymentDTO paymentDTO) throws Exception {
+        if (paymentDTO == null) {
+            throw new Exception("Le PaymentDTO est nul.");
+        }
+
         Payment payment = new Payment();
         payment.setId(paymentDTO.getId());  // Ajout de l'ID
-        payment.setOrder(orderService.mapToEntity(paymentDTO.getOrder()));  // Mapper la commande
+
+        // Log pour vérifier l'Order dans PaymentDTO
+        if (paymentDTO.getOrder() == null) {
+            System.err.println("Order dans PaymentDTO est nul : " + paymentDTO);
+            throw new Exception("Le paiement nécessite une commande valide.");
+        }
+
+        // Charger la commande associée
+        Order order = orderService.mapToEntity(paymentDTO.getOrder());  // Mapper la commande
+        if (order == null) {
+            System.err.println("Commande introuvable pour l'ID : " + paymentDTO.getOrder().getId());
+            throw new Exception("Commande non trouvée pour le paiement.");
+        }
+        payment.setOrder(order);
+
+        // Logs pour les autres champs
+        System.out.println("Méthode de paiement : " + paymentDTO.getPaymentMethod());
+        System.out.println("Date de paiement : " + paymentDTO.getPaymentDate());
+        System.out.println("Montant : " + paymentDTO.getAmount());
+        System.out.println("Statut du paiement : " + paymentDTO.getPaymentStatus());
+
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setAmount(paymentDTO.getAmount());
@@ -100,6 +125,8 @@ public class PaymentService {
 
         return payment;
     }
+
+
 
     // Mapper Payment -> PaymentDTO
     public PaymentDTO mapToDTO(Payment payment) throws Exception {
