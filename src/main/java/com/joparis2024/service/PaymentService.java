@@ -1,11 +1,9 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.PaymentDTO;
-import com.joparis2024.model.Order;
 import com.joparis2024.model.Payment;
 import com.joparis2024.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,23 +16,20 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    @Autowired
-    @Lazy  // Injection différée pour éviter la boucle
-    private OrderService orderService;
 
     // Créer un nouveau paiement (CREATE)
     public Payment createPayment(PaymentDTO paymentDTO) throws Exception {
-        if (paymentDTO.getOrder() == null) {
-            throw new Exception("La commande ne peut pas être nulle lors de la création du paiement.");
+        if (paymentDTO == null || paymentDTO.getPaymentMethod() == null || paymentDTO.getAmount() == 0) {
+            throw new Exception("Les informations de paiement sont incomplètes.");
         }
 
         Payment payment = new Payment();
-        payment.setOrder(orderService.mapToEntity(paymentDTO.getOrder()));
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setAmount(paymentDTO.getAmount());
-        payment.setPaymentStatus(paymentDTO.getPaymentStatus()); // Statut du paiement
+        payment.setPaymentStatus(paymentDTO.getPaymentStatus());
 
+        // Aucune nécessité de mapper l'ordre ici car l'entité Payment est créée dans Order
         return paymentRepository.save(payment);
     }
 
@@ -89,7 +84,7 @@ public class PaymentService {
         paymentRepository.delete(payment.get());
     }
 
- // Mapper PaymentDTO -> Payment
+    // Mapper PaymentDTO -> Payment
     public Payment mapToEntity(PaymentDTO paymentDTO) throws Exception {
         if (paymentDTO == null) {
             throw new Exception("Le PaymentDTO est nul.");
@@ -98,21 +93,7 @@ public class PaymentService {
         Payment payment = new Payment();
         payment.setId(paymentDTO.getId());  // Ajout de l'ID
 
-        // Log pour vérifier l'Order dans PaymentDTO
-        if (paymentDTO.getOrder() == null) {
-            System.err.println("Order dans PaymentDTO est nul : " + paymentDTO);
-            throw new Exception("Le paiement nécessite une commande valide.");
-        }
-
-        // Charger la commande associée
-        Order order = orderService.mapToEntity(paymentDTO.getOrder());  // Mapper la commande
-        if (order == null) {
-            System.err.println("Commande introuvable pour l'ID : " + paymentDTO.getOrder().getId());
-            throw new Exception("Commande non trouvée pour le paiement.");
-        }
-        payment.setOrder(order);
-
-        // Logs pour les autres champs
+        // On ne mappe pas l'ordre ici, car il doit être géré par Order
         System.out.println("Méthode de paiement : " + paymentDTO.getPaymentMethod());
         System.out.println("Date de paiement : " + paymentDTO.getPaymentDate());
         System.out.println("Montant : " + paymentDTO.getAmount());
@@ -128,11 +109,10 @@ public class PaymentService {
 
 
 
-    // Mapper Payment -> PaymentDTO
+ // Mapper Payment -> PaymentDTO
     public PaymentDTO mapToDTO(Payment payment) throws Exception {
         PaymentDTO paymentDTO = new PaymentDTO();
         paymentDTO.setId(payment.getId());  // Ajout de l'ID
-        paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));  // Mapper la commande
         paymentDTO.setPaymentMethod(payment.getPaymentMethod());
         paymentDTO.setPaymentDate(payment.getPaymentDate());
         paymentDTO.setAmount(payment.getAmount());
