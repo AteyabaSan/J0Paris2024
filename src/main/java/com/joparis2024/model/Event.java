@@ -19,28 +19,25 @@ public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Ajout de l'ID
+    private Long id;
 
     @Column(nullable = false)
-    private String eventName;  // Nom de l'événement
+    private String eventName;
 
     @Column(nullable = false)
-    private LocalDate eventDate;  // Date et heure de l'événement
+    private LocalDate eventDate;
 
     @Column(nullable = false)
-    private String description;  // Description de l'événement
+    private String description;
 
-    // Relation avec Ticket: Un événement peut avoir plusieurs tickets
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ticket> tickets;
 
-    // Relation avec User: Un événement peut être organisé par un utilisateur (organisateur)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
     private User organizer;
 
-    // Relation avec Category: Un événement appartient à une catégorie
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 }

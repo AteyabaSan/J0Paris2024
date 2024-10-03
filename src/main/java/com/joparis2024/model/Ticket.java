@@ -20,27 +20,26 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
-    private Event event;  // Chaque ticket est lié à un événement
+    private Event event;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private Order order;  // Chaque ticket peut être lié à une commande
+    private Order order;
 
     @Column(nullable = false)
-    private double price;  // Prix du ticket
+    private double price;
 
     @Column(nullable = false)
-    private int quantity;  // Quantité disponible pour ce ticket
+    private int quantity;
 
     @Column(nullable = false)
-    private boolean isAvailable;  // Disponibilité du ticket
+    private boolean isAvailable;
 
     @Column(name = "event_date", nullable = false)
-    private LocalDateTime eventDate;  // Date de l'événement associé à ce ticket
+    private LocalDateTime eventDate;
     
-    // Ajouter ce constructeur pour accepter uniquement l'ID
     public Ticket(Long id) {
         this.id = id;
     }

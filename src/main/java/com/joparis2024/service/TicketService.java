@@ -8,33 +8,33 @@ import com.joparis2024.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TicketService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
+
     @Autowired
     private TicketRepository ticketRepository;
 
     @Autowired
-    @Lazy // Injection différée pour éviter la boucle
+    @Lazy // Pour éviter la dépendance circulaire
     private EventService eventService;
 
     @Autowired
     private OrderService orderService;
 
-
     public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
-        System.out.println("Tentative de création d'un ticket avec les informations suivantes : " + ticketDTO);
+        logger.info("Tentative de création d'un ticket : {}", ticketDTO);
 
-        // Mapping des autres entités
         Event event = eventService.mapToEntity(ticketDTO.getEvent());
         Order order = orderService.mapToEntity(ticketDTO.getOrder());
 
-        // Création du ticket sans la catégorie
         Ticket ticket = new Ticket();
         ticket.setEvent(event);
         ticket.setOrder(order);
@@ -43,21 +43,13 @@ public class TicketService {
         ticket.setAvailable(ticketDTO.isAvailable());
         ticket.setEventDate(ticketDTO.getEventDate());
 
-        System.out.println("Ticket créé avec succès : " + ticket);
-
-        // Sauvegarder le ticket dans la base de données
         return ticketRepository.save(ticket);
     }
 
-
- // Mettre à jour un ticket sans `CategoryDTO`
     public Ticket updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
-        Optional<Ticket> existingTicket = ticketRepository.findById(ticketId);
-        if (!existingTicket.isPresent()) {
-            throw new Exception("Ticket non trouvé");
-        }
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new Exception("Ticket non trouvé"));
 
-        Ticket ticket = existingTicket.get();
         ticket.setEvent(eventService.mapToEntity(ticketDTO.getEvent()));
         ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));
         ticket.setPrice(ticketDTO.getPrice());
@@ -67,92 +59,87 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
-
-    // Récupérer un ticket par ID (READ)
     public TicketDTO getTicketById(Long ticketId) throws Exception {
-        Optional<Ticket> ticket = ticketRepository.findById(ticketId);
-        if (!ticket.isPresent()) {
-            throw new Exception("Ticket non trouvé");
-        }
-        return mapToDTO(ticket.get());
+        return ticketRepository.findById(ticketId)
+                .map(ticket -> {
+                    try {
+                        return mapToDTO(ticket);
+                    } catch (Exception e) {
+                        logger.error("Erreur lors de la conversion du ticket en DTO", e);
+                        return null;
+                    }
+                })
+                .orElseThrow(() -> new Exception("Ticket non trouvé"));
     }
 
-    // Récupérer tous les tickets (READ)
     public List<TicketDTO> getAllTickets() throws Exception {
         List<Ticket> tickets = ticketRepository.findAll();
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         for (Ticket ticket : tickets) {
-            ticketDTOs.add(mapToDTO(ticket));
+            try {
+                ticketDTOs.add(mapToDTO(ticket));
+            } catch (Exception e) {
+                logger.error("Erreur lors du mapping d'un ticket", e);
+            }
         }
         return ticketDTOs;
     }
 
-    // Supprimer un ticket (DELETE)
     public void deleteTicket(Long ticketId) throws Exception {
-        Optional<Ticket> ticket = ticketRepository.findById(ticketId);
-        if (!ticket.isPresent()) {
-            throw new Exception("Ticket non trouvé");
-        }
-        ticketRepository.delete(ticket.get());
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new Exception("Ticket non trouvé"));
+        ticketRepository.delete(ticket);
     }
 
- // Mapper Ticket -> TicketDTO
     public TicketDTO mapToDTO(Ticket ticket) throws Exception {
         TicketDTO ticketDTO = new TicketDTO();
-        ticketDTO.setId(ticket.getId());  // Ajout de l'ID
-        ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));  // Mapper l'événement
+        ticketDTO.setId(ticket.getId());
+        ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));
 
-        // Log pour vérifier l'Order dans Ticket
         if (ticket.getOrder() != null) {
-            ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));  // Mapper la commande
+            ticketDTO.setOrder(orderService.mapToDTO(ticket.getOrder()));
         } else {
-            System.err.println("Order est nul dans Ticket : " + ticket);
+            logger.warn("La commande est nulle pour le ticket ID : {}", ticket.getId());
         }
 
         ticketDTO.setPrice(ticket.getPrice());
         ticketDTO.setQuantity(ticket.getQuantity());
         ticketDTO.setAvailable(ticket.isAvailable());
-        ticketDTO.setEventDate(ticket.getEventDate());  // Ajout de la date de l'événement
+        ticketDTO.setEventDate(ticket.getEventDate());
+
         return ticketDTO;
     }
 
-
-    
- // Mapper TicketDTO -> Ticket
     public Ticket mapToEntity(TicketDTO ticketDTO) throws Exception {
         if (ticketDTO == null) {
             throw new Exception("Le TicketDTO est manquant ou invalide.");
         }
 
         Ticket ticket = new Ticket();
-        ticket.setId(ticketDTO.getId());  // Ajout de l'ID
+        ticket.setId(ticketDTO.getId());
 
-        // Log pour vérifier l'Event dans TicketDTO
         if (ticketDTO.getEvent() != null && ticketDTO.getEvent().getId() != null) {
             Event event = eventService.mapToEntity(ticketDTO.getEvent());
-            ticket.setEvent(event);  // Associer l'événement au ticket
+            ticket.setEvent(event);
         } else {
-            System.err.println("Event est nul ou incomplet dans TicketDTO : " + ticketDTO);
+            logger.warn("L'événement est nul ou incomplet dans TicketDTO : {}", ticketDTO);
         }
 
-        // Log pour vérifier l'Order dans TicketDTO
         if (ticketDTO.getOrder() != null && ticketDTO.getOrder().getId() != null) {
             Order order = orderService.mapToEntity(ticketDTO.getOrder());
-            ticket.setOrder(order);  // Associer la commande au ticket
+            ticket.setOrder(order);
         } else {
-            System.err.println("Order est nul ou incomplet dans TicketDTO : " + ticketDTO);
+            logger.warn("La commande est nulle ou incomplète dans TicketDTO : {}", ticketDTO);
         }
 
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
-        ticket.setEventDate(ticketDTO.getEventDate());  // Ajout de la date de l'événement
+        ticket.setEventDate(ticketDTO.getEventDate());
 
         return ticket;
     }
 
-
-    // Pour la création d'événements 
     public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs, Event event) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
         if (ticketDTOs != null) {
@@ -161,8 +148,8 @@ public class TicketService {
                 ticket.setPrice(ticketDTO.getPrice());
                 ticket.setQuantity(ticketDTO.getQuantity());
                 ticket.setAvailable(ticketDTO.isAvailable());
-                ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));  // Mapper la commande
-                ticket.setEvent(event);  // Associer l'événement nouvellement créé
+                ticket.setOrder(orderService.mapToEntity(ticketDTO.getOrder()));
+                ticket.setEvent(event);
                 tickets.add(ticket);
             }
         } else {
@@ -171,7 +158,6 @@ public class TicketService {
         return tickets;
     }
 
-    // Convertir une liste de Tickets en une liste de TicketDTOs
     public List<TicketDTO> mapToDTOs(List<Ticket> tickets) throws Exception {
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         if (tickets != null) {
@@ -179,12 +165,11 @@ public class TicketService {
                 ticketDTOs.add(mapToDTO(ticket));
             }
         } else {
-            throw new Exception("La liste de tickets est vide");
+            throw new Exception("La liste des tickets est vide");
         }
         return ticketDTOs;
     }
 
-    // Convertir une liste de TicketDTOs en une liste de Tickets
     public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
         if (ticketDTOs != null) {
@@ -192,8 +177,9 @@ public class TicketService {
                 tickets.add(mapToEntity(ticketDTO));
             }
         } else {
-            throw new Exception("La liste de TicketDTOs est vide");
+            throw new Exception("La liste des TicketDTOs est vide");
         }
         return tickets;
     }
 }
+

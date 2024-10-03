@@ -1,6 +1,7 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.OrderDTO;
+import com.joparis2024.dto.PaymentDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Order;
 import com.joparis2024.model.Order_Ticket;
@@ -8,6 +9,12 @@ import com.joparis2024.model.Payment;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.model.User;
 import com.joparis2024.repository.OrderRepository;
+import com.joparis2024.repository.TicketRepository;
+import com.joparis2024.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -20,67 +27,101 @@ import java.util.Optional;
 public class OrderService {
 
     @Autowired
-    private UserService userService;
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @Autowired
     @Lazy
     private TicketService ticketService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private TicketRepository ticketRepository;
 
     @Autowired
-    @Lazy
-    private PaymentService paymentService;
+    private EntityManager entityManager; // Pour utiliser merge sur les entités détachées
 
+    @Transactional
     public Order createOrder(OrderDTO orderDTO) throws Exception {
         System.out.println("Tentative de création de la commande avec OrderDTO : " + orderDTO);
 
-        if (orderDTO == null) {
-            throw new Exception("Le DTO de la commande est nul.");
-        }
-
+        // Mapping de OrderDTO à l'entité Order
         Order order = new Order();
-
-        if (orderDTO.getUser() == null || orderDTO.getUser().getId() == null) {
-            throw new Exception("L'utilisateur est manquant ou incomplet.");
-        }
-
-        User user = userService.findById(orderDTO.getUser().getId());
-        if (user == null) {
-            throw new Exception("L'utilisateur est introuvable");
-        }
-        order.setUser(user);
-
         order.setStatus(orderDTO.getStatus());
-        order.setTotalAmount(orderDTO.getTotalAmount());
         order.setOrderDate(orderDTO.getOrderDate());
+        order.setTotalAmount(orderDTO.getTotalAmount());
+        System.out.println("Order mappée: " + order);
 
-        if (orderDTO.getPayment() != null) {
-            Payment payment = paymentService.mapToEntity(orderDTO.getPayment());
-            order.setPayment(payment);
+        // Récupération de l'utilisateur
+        Optional<User> optionalUser = userRepository.findById(orderDTO.getUser().getId());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            order.setUser(user);
+            System.out.println("Utilisateur trouvé: " + user);
         } else {
-            throw new Exception("Le paiement est obligatoire.");
+            throw new Exception("Utilisateur non trouvé.");
         }
 
-        if (orderDTO.getTickets() == null || orderDTO.getTickets().isEmpty()) {
-            throw new Exception("La commande doit contenir au moins un ticket.");
-        }
-
+        // Mapping des Order_Ticket (tickets liés à la commande)
         List<Order_Ticket> orderTickets = new ArrayList<>();
         for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            Ticket ticket = ticketService.mapToEntity(ticketDTO);
+            System.out.println("Traitement du TicketDTO : " + ticketDTO);
+            
+            // Création d'un Order_Ticket pour chaque TicketDTO
             Order_Ticket orderTicket = new Order_Ticket();
-            orderTicket.setOrder(order);
-            orderTicket.setTicket(ticket);
-            orderTicket.setQuantity(ticketDTO.getQuantity());
-
-            orderTickets.add(orderTicket);
+            Optional<Ticket> optionalTicket = ticketRepository.findById(ticketDTO.getId());
+            if (optionalTicket.isPresent()) {
+                Ticket ticket = optionalTicket.get();
+                orderTicket.setTicket(ticket);
+                orderTicket.setQuantity(ticketDTO.getQuantity());
+                orderTicket.setOrder(order); // Lier le ticket à la commande
+                orderTickets.add(orderTicket);
+                System.out.println("Order_Ticket ajouté : " + orderTicket);
+            } else {
+                throw new Exception("Ticket non trouvé.");
+            }
         }
         order.setOrderTickets(orderTickets);
+        System.out.println("Liste des Order_Tickets associés à la commande : " + orderTickets);
 
-        return orderRepository.save(order);
+        // Mapping de PaymentDTO à l'entité Payment
+        PaymentDTO paymentDTO = orderDTO.getPayment();
+        Payment payment = new Payment();
+        payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+        payment.setPaymentDate(paymentDTO.getPaymentDate());
+        payment.setAmount(paymentDTO.getAmount());
+        payment.setPaymentStatus(paymentDTO.getPaymentStatus());
+        System.out.println("Payment mappé : " + payment);
+
+        // Associer le paiement à la commande
+        payment.setOrder(order);
+        order.setPayment(payment);
+        System.out.println("Payment après association à la commande: " + payment);
+        System.out.println("Order après association du paiement: " + order);
+
+        // Sauvegarder la commande et gérer les entités détachées
+        if (entityManager.contains(order)) {
+            System.out.println("Merging order entity as it is managed.");
+            entityManager.merge(order);
+        } else {
+            System.out.println("Persisting a new order entity.");
+            orderRepository.save(order);
+        }
+
+        System.out.println("Commande persistée avec succès : " + order);
+
+        return order;
     }
+
+
+
 
     public Order updateOrder(Long orderId, OrderDTO orderDTO) throws Exception {
         Optional<Order> existingOrder = orderRepository.findById(orderId);

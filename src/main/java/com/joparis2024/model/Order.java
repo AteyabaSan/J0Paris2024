@@ -49,6 +49,9 @@ public class Order {
     public Order(Long id) {
         this.id = id;
     }
+
+    // Ajoute la méthode setOrderTickets si elle n'existe pas encore
+    public void setOrderTickets(List<Order_Ticket> orderTickets) {
+        this.orderTickets = orderTickets;
+    }
 }
-
-
