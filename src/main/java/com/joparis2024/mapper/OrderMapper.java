@@ -6,6 +6,7 @@ import com.joparis2024.model.Order;
 import com.joparis2024.model.Order_Ticket;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class OrderMapper {
     private UserMapper userMapper;
 
     @Autowired
+    @Lazy
     private TicketMapper ticketMapper;
 
     @Autowired

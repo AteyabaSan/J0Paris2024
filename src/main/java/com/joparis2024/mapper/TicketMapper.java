@@ -18,6 +18,7 @@ public class TicketMapper {
     private EventMapper eventMapper;
 
     @Autowired
+    @Lazy
     private OrderMapper orderMapper;
 
     public TicketDTO toDTO(Ticket ticket) throws Exception {
