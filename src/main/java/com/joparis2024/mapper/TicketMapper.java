@@ -2,6 +2,7 @@ package com.joparis2024.mapper;
 
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Ticket;
+import org.springframework.context.annotation.Lazy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.List;
 public class TicketMapper {
 
     @Autowired
+    @Lazy
     private EventMapper eventMapper;
 
     @Autowired

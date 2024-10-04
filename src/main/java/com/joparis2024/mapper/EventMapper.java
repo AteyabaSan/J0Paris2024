@@ -1,10 +1,12 @@
 package com.joparis2024.mapper;
 
+
 import com.joparis2024.dto.EventDTO;
 import com.joparis2024.model.Event;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ public class EventMapper {
     private CategoryMapper categoryMapper;
 
     @Autowired
+    @Lazy
     private TicketMapper ticketMapper;
 
     @Autowired
