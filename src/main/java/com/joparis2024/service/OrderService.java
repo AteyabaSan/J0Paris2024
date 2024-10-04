@@ -1,25 +1,15 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.OrderDTO;
-import com.joparis2024.dto.PaymentDTO;
-import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.mapper.OrderMapper;
 import com.joparis2024.model.Order;
-import com.joparis2024.model.Order_Ticket;
-import com.joparis2024.model.Payment;
-import com.joparis2024.model.Ticket;
-import com.joparis2024.model.User;
 import com.joparis2024.repository.OrderRepository;
-import com.joparis2024.repository.TicketRepository;
-import com.joparis2024.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,83 +20,19 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private PaymentService paymentService;
+    private OrderMapper orderMapper; // Utilisation de OrderMapper
 
     @Autowired
-    @Lazy
-    private TicketService ticketService;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private TicketRepository ticketRepository;
-
-    @Autowired
-    private EntityManager entityManager; // Pour utiliser merge sur les entités détachées
+    private EntityManager entityManager;
 
     @Transactional
-    public Order createOrder(OrderDTO orderDTO) throws Exception {
+    public OrderDTO createOrder(OrderDTO orderDTO) throws Exception {
         System.out.println("Tentative de création de la commande avec OrderDTO : " + orderDTO);
 
-        // Mapping de OrderDTO à l'entité Order
-        Order order = new Order();
-        order.setStatus(orderDTO.getStatus());
-        order.setOrderDate(orderDTO.getOrderDate());
-        order.setTotalAmount(orderDTO.getTotalAmount());
-        System.out.println("Order mappée: " + order);
+        // Utilisation du mapper pour transformer OrderDTO en Order
+        Order order = orderMapper.toEntity(orderDTO);
 
-        // Récupération de l'utilisateur
-        Optional<User> optionalUser = userRepository.findById(orderDTO.getUser().getId());
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            order.setUser(user);
-            System.out.println("Utilisateur trouvé: " + user);
-        } else {
-            throw new Exception("Utilisateur non trouvé.");
-        }
-
-        // Mapping des Order_Ticket (tickets liés à la commande)
-        List<Order_Ticket> orderTickets = new ArrayList<>();
-        for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            System.out.println("Traitement du TicketDTO : " + ticketDTO);
-            
-            // Création d'un Order_Ticket pour chaque TicketDTO
-            Order_Ticket orderTicket = new Order_Ticket();
-            Optional<Ticket> optionalTicket = ticketRepository.findById(ticketDTO.getId());
-            if (optionalTicket.isPresent()) {
-                Ticket ticket = optionalTicket.get();
-                orderTicket.setTicket(ticket);
-                orderTicket.setQuantity(ticketDTO.getQuantity());
-                orderTicket.setOrder(order); // Lier le ticket à la commande
-                orderTickets.add(orderTicket);
-                System.out.println("Order_Ticket ajouté : " + orderTicket);
-            } else {
-                throw new Exception("Ticket non trouvé.");
-            }
-        }
-        order.setOrderTickets(orderTickets);
-        System.out.println("Liste des Order_Tickets associés à la commande : " + orderTickets);
-
-        // Mapping de PaymentDTO à l'entité Payment
-        PaymentDTO paymentDTO = orderDTO.getPayment();
-        Payment payment = new Payment();
-        payment.setPaymentMethod(paymentDTO.getPaymentMethod());
-        payment.setPaymentDate(paymentDTO.getPaymentDate());
-        payment.setAmount(paymentDTO.getAmount());
-        payment.setPaymentStatus(paymentDTO.getPaymentStatus());
-        System.out.println("Payment mappé : " + payment);
-
-        // Associer le paiement à la commande
-        payment.setOrder(order);
-        order.setPayment(payment);
-        System.out.println("Payment après association à la commande: " + payment);
-        System.out.println("Order après association du paiement: " + order);
-
-        // Sauvegarder la commande et gérer les entités détachées
+        // Sauvegarde de la commande
         if (entityManager.contains(order)) {
             System.out.println("Merging order entity as it is managed.");
             entityManager.merge(order);
@@ -117,50 +43,27 @@ public class OrderService {
 
         System.out.println("Commande persistée avec succès : " + order);
 
-        return order;
+        return orderMapper.toDTO(order); // Utilisation du mapper pour transformer Order en DTO
     }
 
-
-
     @Transactional
-    public Order updateOrder(Long orderId, OrderDTO orderDTO) throws Exception {
+    public OrderDTO updateOrder(Long orderId, OrderDTO orderDTO) throws Exception {
         Optional<Order> existingOrder = orderRepository.findById(orderId);
         if (!existingOrder.isPresent()) {
             throw new Exception("Order non trouvée");
         }
 
         Order order = existingOrder.get();
-        order.setStatus(orderDTO.getStatus());
-        order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setOrderDate(orderDTO.getOrderDate());
+        // Mettre à jour les attributs de la commande via le mapper
+        order = orderMapper.toEntity(orderDTO);
 
-        List<Order_Ticket> orderTickets = new ArrayList<>();
-        for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            Ticket ticket = ticketService.mapToEntity(ticketDTO);
-            Order_Ticket orderTicket = new Order_Ticket();
-            orderTicket.setOrder(order);
-            orderTicket.setTicket(ticket);
-            orderTicket.setQuantity(ticketDTO.getQuantity());
-
-            orderTickets.add(orderTicket);
-        }
-        order.setOrderTickets(orderTickets);
-
-        return orderRepository.save(order);
+        return orderMapper.toDTO(orderRepository.save(order)); // Renvoi du DTO
     }
 
     @Transactional(readOnly = true)
     public List<OrderDTO> getAllOrders() throws Exception {
         List<Order> orders = orderRepository.findAll();
-        List<OrderDTO> orderDTOs = new ArrayList<>();
-        for (Order order : orders) {
-            // Initialisation des relations paresseuses pour chaque commande
-            Hibernate.initialize(order.getOrderTickets());
-            Hibernate.initialize(order.getPayment());
-
-            orderDTOs.add(mapToDTO(order));
-        }
-        return orderDTOs;
+        return orderMapper.toDTOs(orders); // Utilisation du mapper pour transformer les entités en DTO
     }
 
     @Transactional(readOnly = true)
@@ -170,11 +73,7 @@ public class OrderService {
             throw new Exception("Order non trouvée");
         }
 
-        // Initialisation des relations paresseuses avant de retourner le DTO
-        Hibernate.initialize(existingOrder.get().getOrderTickets());
-        Hibernate.initialize(existingOrder.get().getPayment());
-
-        return mapToDTO(existingOrder.get());
+        return orderMapper.toDTO(existingOrder.get()); // Utilisation du mapper
     }
 
     @Transactional
@@ -186,70 +85,10 @@ public class OrderService {
         orderRepository.delete(existingOrder.get());
     }
 
-    public OrderDTO mapToDTO(Order order) throws Exception {
-        if (order == null) {
-            throw new Exception("L'ordre à mapper est nul.");
-        }
-
-        // Initialisation des relations paresseuses
-        Hibernate.initialize(order.getOrderTickets());  // Initialiser la relation avec les tickets
-        Hibernate.initialize(order.getPayment());       // Initialiser la relation avec le paiement
-
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setId(order.getId());
-        orderDTO.setUser(userService.mapToDTO(order.getUser()));
-        orderDTO.setStatus(order.getStatus());
-        orderDTO.setTotalAmount(order.getTotalAmount());
-        orderDTO.setOrderDate(order.getOrderDate());
-
-        List<TicketDTO> ticketDTOs = new ArrayList<>();
-        for (Order_Ticket orderTicket : order.getOrderTickets()) {
-            ticketDTOs.add(ticketService.mapToDTO(orderTicket.getTicket()));
-        }
-        orderDTO.setTickets(ticketDTOs);
-
-        return orderDTO;
-    }
-
-
-    public Order mapToEntity(OrderDTO orderDTO) throws Exception {
-        if (orderDTO == null) {
-            throw new Exception("Le DTO de commande à mapper est nul.");
-        }
-
-        Order order = new Order();
-        order.setId(orderDTO.getId());
-
-        if (orderDTO.getUser() == null || orderDTO.getUser().getId() == null) {
-            throw new Exception("L'utilisateur dans OrderDTO est manquant ou incomplet.");
-        }
-        order.setUser(userService.mapToEntity(orderDTO.getUser()));
-
-        order.setStatus(orderDTO.getStatus());
-        order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setOrderDate(orderDTO.getOrderDate());
-
-        if (orderDTO.getTickets() == null || orderDTO.getTickets().isEmpty()) {
-            throw new Exception("La commande doit contenir au moins un ticket.");
-        }
-
-        List<Order_Ticket> orderTickets = new ArrayList<>();
-        for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            Ticket ticket = ticketService.mapToEntity(ticketDTO);
-            Order_Ticket orderTicket = new Order_Ticket();
-            orderTicket.setOrder(order);
-            orderTicket.setTicket(ticket);
-            orderTicket.setQuantity(ticketDTO.getQuantity());
-
-            orderTickets.add(orderTicket);
-        }
-        order.setOrderTickets(orderTickets);
-
-        if (orderDTO.getPayment() == null || orderDTO.getPayment().getId() == null) {
-            throw new Exception("Le paiement est obligatoire.");
-        }
-        order.setPayment(paymentService.mapToEntity(orderDTO.getPayment()));
-
-        return order;
+    // Méthode pour récupérer une commande par son ID
+    @Transactional(readOnly = true)
+    public Order findById(Long id) throws Exception {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new Exception("Commande non trouvée avec l'id : " + id));
     }
 }

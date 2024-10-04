@@ -1,21 +1,19 @@
 package com.joparis2024.service;
 
-//import com.joparis2024.dto.EventDTO;
-import com.joparis2024.model.Event;
-import com.joparis2024.repository.EventRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+//import com.joparis2024.repository.EventRepository;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
+//import org.mockito.InjectMocks;
+//import org.mockito.Mock;
+//import org.mockito.MockitoAnnotations;
+//
+//import java.util.Optional;
+//import java.util.Arrays;
+//import java.util.List;
+//
+//import static org.junit.jupiter.api.Assertions.*;
+//import static org.mockito.ArgumentMatchers.any;
+//import static org.mockito.Mockito.*;
 
 public class EventServiceTest {
 

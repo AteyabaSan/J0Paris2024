@@ -1,28 +1,43 @@
 package com.joparis2024.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class TicketDTO {
+
+    @NotNull
     private Long id;          // Ajout de l'ID
+    
+    @NotNull
     private EventDTO event;
+    
+    @NotNull
     private OrderDTO order;
+    
+    @Min(0)
     private double price;
+    
+    @Min(1)
     private int quantity;
-    private boolean available;
+    
+    private boolean isAvailable; // Utilisation de 'isAvailable' au lieu de 'available'
+    
+    @NotNull
     private LocalDateTime eventDate;  // Ajout de la date de l'événement associé
 
     // Constructeurs
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, int quantity, boolean available, LocalDateTime eventDate) {
-        this.id = id;      
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, int quantity, boolean isAvailable, LocalDateTime eventDate) {
+        this.id = id;
         this.event = event;
         this.order = order;
         this.price = price;
         this.quantity = quantity;
-        this.available = available;
-        this.eventDate = eventDate;  
+        this.isAvailable = isAvailable;
+        this.eventDate = eventDate;
     }
 
     // Getters and Setters
@@ -58,12 +73,12 @@ public class TicketDTO {
         this.quantity = quantity;
     }
 
-    public boolean isAvailable() {
-        return available;
+    public boolean isAvailable() {  // Getter avec 'is'
+        return isAvailable;
     }
 
-    public void setAvailable(boolean available) {
-        this.available = available;
+    public void setAvailable(boolean available) {  // Setter sans 'is'
+        this.isAvailable = available;
     }
 
     public LocalDateTime getEventDate() {
@@ -74,7 +89,6 @@ public class TicketDTO {
         this.eventDate = eventDate;
     }
 
-    // Getters et Setters pour l'ID
     public Long getId() {
         return id;
     }

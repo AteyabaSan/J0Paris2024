@@ -1,6 +1,7 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.CategoryDTO;
+import com.joparis2024.mapper.CategoryMapper;
 import com.joparis2024.model.Category;
 import com.joparis2024.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private CategoryMapper categoryMapper; // Injecter le CategoryMapper
+
     // Créer une catégorie
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         // Validation du DTO avant de créer la catégorie
@@ -23,26 +27,24 @@ public class CategoryService {
             throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être vide");
         }
 
-        // Mapper le DTO vers l'entité
-        Category category = mapToEntity(categoryDTO);
+        // Mapper le DTO vers l'entité via le mapper
+        Category category = categoryMapper.toEntity(categoryDTO);
 
         // Sauvegarder l'entité dans la base de données
         Category savedCategory = categoryRepository.save(category);
 
         // Mapper l'entité sauvegardée vers un DTO et le retourner
-        return mapToDTO(savedCategory);
+        return categoryMapper.toDTO(savedCategory);
     }
 
     // Récupérer toutes les catégories
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
-
-        // Mapper chaque entité vers un DTO et retourner la liste
         List<CategoryDTO> categoryDTOs = new ArrayList<>();
+        // Utilisation d'une boucle classique pour transformer les entités en DTOs
         for (Category category : categories) {
-            categoryDTOs.add(mapToDTO(category));
+            categoryDTOs.add(categoryMapper.toDTO(category));
         }
-
         return categoryDTOs;
     }
 
@@ -51,7 +53,7 @@ public class CategoryService {
         Optional<Category> category = categoryRepository.findById(id);
 
         // Mapper l'entité vers un DTO si elle existe
-        return category.map(this::mapToDTO);
+        return category.map(categoryMapper::toDTO);
     }
 
     // Mettre à jour une catégorie
@@ -73,8 +75,8 @@ public class CategoryService {
         // Sauvegarder les modifications dans la base de données
         Category updatedCategory = categoryRepository.save(category);
 
-        // Retourner le DTO mis à jour
-        return mapToDTO(updatedCategory);
+        // Retourner le DTO mis à jour via le mapper
+        return categoryMapper.toDTO(updatedCategory);
     }
 
     // Supprimer une catégorie
@@ -86,37 +88,4 @@ public class CategoryService {
         // Supprimer la catégorie de la base de données
         categoryRepository.deleteById(id);
     }
-
-    // Méthode pour mapper l'entité Category vers un DTO CategoryDTO
-    public CategoryDTO mapToDTO(Category category) {
-        if (category == null) {
-            System.out.println("Impossible de mapper Category car il est nul");
-            return null;
-        }
-
-        System.out.println("Mapping Category vers CategoryDTO: " + category);
-
-        return new CategoryDTO(
-            category.getId(),
-            category.getName(),
-            category.getLocation()
-        );
-    }
-
-    // Méthode pour mapper un DTO CategoryDTO vers une entité Category
-    public Category mapToEntity(CategoryDTO categoryDTO) {
-        if (categoryDTO == null) {
-            throw new IllegalArgumentException("CategoryDTO est nul, impossible de mapper vers Category.");
-        }
-
-        System.out.println("Mapping CategoryDTO vers Category : " + categoryDTO);
-
-        Category category = new Category();
-        category.setId(categoryDTO.getId());
-        category.setName(categoryDTO.getName());
-        category.setLocation(categoryDTO.getLocation());
-
-        return category;
-    }
 }
-

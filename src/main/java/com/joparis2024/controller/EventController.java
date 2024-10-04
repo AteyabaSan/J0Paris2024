@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,19 +20,13 @@ public class EventController {
     @Autowired
     private EventService eventService;
 
-    // Récupérer tous les événements (READ)
-    @GetMapping
-    public ResponseEntity<List<EventDTO>> getAllEvents() {
-        List<EventDTO> events = eventService.getAllEvents();
-        return ResponseEntity.ok(events);
-    }
-
     // Créer un nouvel événement (CREATE)
     @PostMapping
     public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
         try {
-            EventDTO createdEvent = eventService.mapToDTO(eventService.createEvent(eventDTO));
-            return ResponseEntity.ok(createdEvent);
+            // Appel du service avec le DTO directement
+            EventDTO createdEventDTO = eventService.createEvent(eventDTO);
+            return ResponseEntity.ok(createdEventDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -74,8 +67,6 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur interne lors de la mise à jour de l'événement.");
         }
     }
-
-
 
     // Supprimer un événement par son nom (DELETE)
     @DeleteMapping("/name/{eventName}")

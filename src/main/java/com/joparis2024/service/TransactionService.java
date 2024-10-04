@@ -1,6 +1,7 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.TransactionDTO;
+import com.joparis2024.mapper.TransactionMapper;
 import com.joparis2024.model.Transaction;
 import com.joparis2024.model.Order;
 import com.joparis2024.repository.TransactionRepository;
@@ -21,13 +22,16 @@ public class TransactionService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private TransactionMapper transactionMapper; // Injection du mapper
+
     // Récupérer une transaction par ID (Détails d'une transaction)
     public TransactionDTO getTransactionById(Long transactionId) throws Exception {
         Optional<Transaction> transaction = transactionRepository.findById(transactionId);
         if (!transaction.isPresent()) {
             throw new Exception("Transaction introuvable");
         }
-        return mapToDTO(transaction.get());
+        return transactionMapper.toDTO(transaction.get());
     }
 
     // Récupérer toutes les transactions d'une commande (Lister les transactions)
@@ -38,25 +42,10 @@ public class TransactionService {
         }
 
         List<Transaction> transactions = transactionRepository.findByOrder(order.get());
-        return mapToDTOs(transactions);
-    }
-
-    // Mapper Transaction -> TransactionDTO
-    public TransactionDTO mapToDTO(Transaction transaction) {
-        return new TransactionDTO(
-            transaction.getId(),
-            transaction.getOrder().getId(),
-            transaction.getTransactionType(),
-            transaction.getTransactionStatus(),
-            transaction.getTransactionDate()
-        );
-    }
-
-    // Mapper une liste de Transactions -> Liste de TransactionDTOs
-    public List<TransactionDTO> mapToDTOs(List<Transaction> transactions) {
         List<TransactionDTO> transactionDTOs = new ArrayList<>();
+        // Utilisation d'une boucle pour transformer chaque transaction en DTO
         for (Transaction transaction : transactions) {
-            transactionDTOs.add(mapToDTO(transaction));
+            transactionDTOs.add(transactionMapper.toDTO(transaction));
         }
         return transactionDTOs;
     }

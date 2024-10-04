@@ -1,6 +1,10 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.EventDTO;
+import com.joparis2024.mapper.CategoryMapper;
+import com.joparis2024.mapper.EventMapper;
+import com.joparis2024.mapper.TicketMapper;
+import com.joparis2024.mapper.UserMapper;
 import com.joparis2024.model.Event;
 import com.joparis2024.repository.EventRepository;
 
@@ -8,9 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,169 +29,118 @@ public class EventService {
     private EventRepository eventRepository;
 
     @Autowired
-    @Lazy
-    private TicketService ticketService;
+    private EventMapper eventMapper;
 
     @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private CategoryService categoryService;
+    private TicketMapper ticketMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
+
+    // Récupérer tous les événements
     @Transactional(readOnly = true)
     public List<EventDTO> getAllEvents() {
+        logger.info("Récupération de tous les événements");
         List<Event> events = eventRepository.findAll();
         List<EventDTO> eventDTOs = new ArrayList<>();
         for (Event event : events) {
             try {
-                // Initialiser les relations Lazy avant de mapper en DTO
-                Hibernate.initialize(event.getTickets());
-                Hibernate.initialize(event.getOrganizer());
-                
-                eventDTOs.add(mapToDTO(event));
+                eventDTOs.add(eventMapper.toDTO(event));
             } catch (Exception e) {
-                logger.error("Erreur lors du mapping de l'événement avec ID: {}", event.getId(), e);
+                logger.error("Erreur lors du mapping de l'événement : {}", event.getEventName(), e);
             }
         }
+        logger.info("Nombre d'événements récupérés: {}", eventDTOs.size());
         return eventDTOs;
     }
-    
+
+    // Créer un nouvel événement
     @Transactional
-    public Event createEvent(EventDTO eventDTO) throws Exception {
+    public EventDTO createEvent(EventDTO eventDTO) throws Exception {
+        logger.info("Tentative de création d'un nouvel événement : {}", eventDTO.getEventName());
         validateEventDTO(eventDTO);
-
-        Event event = mapToEntity(eventDTO);
-
-        return eventRepository.save(event);
+        Event event = eventMapper.toEntity(eventDTO);
+        Event savedEvent = eventRepository.save(event);
+        logger.info("Événement créé avec succès : {}", savedEvent.getEventName());
+        return eventMapper.toDTO(savedEvent);
     }
 
+    // Valider les données de l'événement
     private void validateEventDTO(EventDTO eventDTO) {
         if (eventDTO.getEventName() == null || eventDTO.getEventName().isEmpty()) {
+            logger.error("Le nom de l'événement est manquant");
             throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
         }
     }
 
+    // Récupérer un événement par son nom
     @Transactional(readOnly = true)
     public Optional<EventDTO> getEventByName(String eventName) {
+        logger.info("Recherche de l'événement par nom : {}", eventName);
         return eventRepository.findByEventName(eventName)
-                .map(t -> {
+                .map(event -> {
                     try {
-                        // Initialiser les relations Lazy avant de mapper en DTO
-                        Hibernate.initialize(t.getTickets());
-                        Hibernate.initialize(t.getOrganizer());
-                        
-                        return mapToDTO(t);
+                        return eventMapper.toDTO(event);
                     } catch (Exception e) {
-                        logger.error("Erreur lors du mapping de l'événement avec nom : {}", eventName, e);
+                        logger.error("Erreur lors du mapping de l'événement : {}", eventName, e);
                         return null;
                     }
                 });
     }
 
+    // Mettre à jour un événement par son nom
     @Transactional
     public EventDTO updateEventByName(String eventName, EventDTO eventDTO) throws Exception {
+        logger.info("Mise à jour de l'événement : {}", eventName);
         Event event = eventRepository.findByEventName(eventName)
                 .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé avec le nom : " + eventName));
 
         updateEventAttributes(event, eventDTO);
-
-        return mapToDTO(eventRepository.save(event));
+        Event updatedEvent = eventRepository.save(event);
+        logger.info("Événement mis à jour avec succès : {}", updatedEvent.getEventName());
+        return eventMapper.toDTO(updatedEvent);
     }
 
+    // Mise à jour des attributs de l'événement
     private void updateEventAttributes(Event event, EventDTO eventDTO) throws Exception {
         event.setEventName(eventDTO.getEventName());
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
-        
+
         if (eventDTO.getTickets() != null) {
-            event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
+            event.setTickets(ticketMapper.toEntities(eventDTO.getTickets()));
+            logger.info("Mise à jour des tickets pour l'événement : {}", event.getEventName());
         }
-        
+
         if (eventDTO.getOrganizer() != null) {
-            event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
+            event.setOrganizer(userMapper.toEntity(eventDTO.getOrganizer()));
+            logger.info("Mise à jour de l'organisateur pour l'événement : {}", event.getEventName());
         }
-        
+
         if (eventDTO.getCategory() != null) {
-            event.setCategory(categoryService.mapToEntity(eventDTO.getCategory()));
+            event.setCategory(categoryMapper.toEntity(eventDTO.getCategory()));
+            logger.info("Mise à jour de la catégorie pour l'événement : {}", event.getEventName());
         }
     }
-    
-    @Transactional(readOnly = true)
-    public EventDTO mapToDTO(Event event) throws Exception {
-        // Initialiser les relations Lazy avant de mapper en DTO
-        Hibernate.initialize(event.getTickets());
-        Hibernate.initialize(event.getOrganizer());
-        
-        return new EventDTO(
-                event.getId(),
-                event.getEventName(),
-                event.getEventDate(),
-                event.getDescription(),
-                categoryService.mapToDTO(event.getCategory()),
-                ticketService.mapToDTOs(event.getTickets()),
-                userService.mapToDTO(event.getOrganizer())
-        );
-    }
 
-    public Event mapToEntity(EventDTO eventDTO) throws Exception {
-        Event event = new Event();
-        if (eventDTO.getId() != null) {
-            event.setId(eventDTO.getId());
-        }
-
-        event.setEventName(eventDTO.getEventName());
-        event.setEventDate(eventDTO.getEventDate());
-        event.setDescription(eventDTO.getDescription());
-
-        event.setCategory(categoryService.mapToEntity(eventDTO.getCategory()));
-
-        if (eventDTO.getTickets() != null) {
-            event.setTickets(ticketService.mapToEntities(eventDTO.getTickets()));
-        }
-
-        if (eventDTO.getOrganizer() != null) {
-            event.setOrganizer(userService.mapToEntity(eventDTO.getOrganizer()));
-        }
-
-        return event;
-    }
-
+    // Supprimer un événement par son nom
     @Transactional
     public void deleteEvent(String eventName) throws Exception {
+        logger.info("Tentative de suppression de l'événement : {}", eventName);
         Event event = eventRepository.findByEventName(eventName)
                 .orElseThrow(() -> new Exception("Événement non trouvé"));
         eventRepository.delete(event);
-    }
-    
-    @Transactional(readOnly = true)
-    public List<Event> mapToEntities(List<EventDTO> eventDTOs) throws Exception {
-        List<Event> events = new ArrayList<>();
-        if (eventDTOs != null) {
-            for (EventDTO eventDTO : eventDTOs) {
-                events.add(mapToEntity(eventDTO));  // Utilise la méthode mapToEntity déjà présente
-            }
-        } else {
-            throw new Exception("La liste des EventDTOs est vide");
-        }
-        return events;
+        logger.info("Événement supprimé avec succès : {}", eventName);
     }
 
+    // Récupérer un événement par son ID
     @Transactional(readOnly = true)
-    public List<EventDTO> mapToDTOs(List<Event> events) throws Exception {
-        List<EventDTO> eventDTOs = new ArrayList<>();
-        if (events != null) {
-            for (Event event : events) {
-                // Initialiser les relations Lazy avant de mapper en DTO
-                Hibernate.initialize(event.getTickets());
-                Hibernate.initialize(event.getOrganizer());
-                
-                eventDTOs.add(mapToDTO(event));  // Utilise la méthode mapToDTO déjà présente
-            }
-        } else {
-            throw new Exception("La liste des événements est vide");
-        }
-        return eventDTOs;
+    public Event findById(Long id) throws Exception {
+        logger.info("Recherche de l'événement avec l'ID : {}", id);
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new Exception("Événement non trouvé avec l'id : " + id));
     }
 }
-
-

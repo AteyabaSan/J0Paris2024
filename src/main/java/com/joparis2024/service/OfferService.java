@@ -1,14 +1,16 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.OfferDTO;
+import com.joparis2024.mapper.EventMapper;
+import com.joparis2024.mapper.OfferMapper;
 import com.joparis2024.model.Offer;
 import com.joparis2024.repository.OfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class OfferService {
@@ -17,28 +19,34 @@ public class OfferService {
     private OfferRepository offerRepository;
 
     @Autowired
-    private EventService eventService;
+    private OfferMapper offerMapper;
+    
+    @Autowired
+    private EventMapper eventMapper;
 
     // Récupérer toutes les offres
-    public List<OfferDTO> getAllOffers() {
+    public List<OfferDTO> getAllOffers() throws Exception {
         List<Offer> offers = offerRepository.findAll();
-        return offers.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        List<OfferDTO> offerDTOs = new ArrayList<>();
+        // Utilisation d'une boucle classique pour transformer les entités en DTO
+        for (Offer offer : offers) {
+            offerDTOs.add(offerMapper.toDTO(offer)); // Peut lever une exception
+        }
+        return offerDTOs;
     }
 
     // Créer une offre
     public OfferDTO createOffer(OfferDTO offerDTO) throws Exception {
-        Offer offer = mapToEntity(offerDTO);
+        Offer offer = offerMapper.toEntity(offerDTO);
         Offer savedOffer = offerRepository.save(offer);
-        return mapToDTO(savedOffer);
+        return offerMapper.toDTO(savedOffer);
     }
 
     // Récupérer une offre par ID
     public OfferDTO getOfferById(Long id) throws Exception {
         Optional<Offer> offer = offerRepository.findById(id);
         if (offer.isPresent()) {
-            return mapToDTO(offer.get());
+            return offerMapper.toDTO(offer.get());
         } else {
             throw new Exception("Offer non trouvée");
         }
@@ -54,10 +62,12 @@ public class OfferService {
         Offer offer = existingOffer.get();
         offer.setName(offerDTO.getName());
         offer.setNumberOfSeats(offerDTO.getNumberOfSeats());
-        offer.setEvents(eventService.mapToEntities(offerDTO.getEvents()));
+
+        // Utiliser le EventMapper pour convertir la liste d'événements
+        offer.setEvents(eventMapper.toEntities(offerDTO.getEvents()));
 
         Offer updatedOffer = offerRepository.save(offer);
-        return mapToDTO(updatedOffer);
+        return offerMapper.toDTO(updatedOffer);
     }
 
     // Supprimer une offre
@@ -66,31 +76,5 @@ public class OfferService {
             throw new Exception("Offer non trouvée");
         }
         offerRepository.deleteById(id);
-    }
-
-    // Mapper Offer -> OfferDTO
-    public OfferDTO mapToDTO(Offer offer) {
-        try {
-            return new OfferDTO(
-                offer.getId(),
-                offer.getName(),
-                offer.getNumberOfSeats(),
-                eventService.mapToDTOs(offer.getEvents())  // Peut lever une exception
-            );
-        } catch (Exception e) {
-            // Gestion de l'erreur ici, peut-être en lançant une RuntimeException ou en renvoyant une valeur par défaut
-            throw new RuntimeException("Erreur lors du mapping des événements dans l'offre", e);
-        }
-    }
-
-
-    // Mapper OfferDTO -> Offer
-    public Offer mapToEntity(OfferDTO offerDTO) throws Exception {
-        Offer offer = new Offer();
-        offer.setId(offerDTO.getId());
-        offer.setName(offerDTO.getName());
-        offer.setNumberOfSeats(offerDTO.getNumberOfSeats());
-        offer.setEvents(eventService.mapToEntities(offerDTO.getEvents()));
-        return offer;
     }
 }

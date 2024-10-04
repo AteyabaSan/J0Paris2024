@@ -1,14 +1,17 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.EventOfferDTO;
+import com.joparis2024.mapper.EventOfferMapper;
 import com.joparis2024.model.EventOffer;
 import com.joparis2024.repository.EventOfferRepository;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.ArrayList;
 
 @Service
 public class EventOfferService {
@@ -17,33 +20,32 @@ public class EventOfferService {
     private EventOfferRepository eventOfferRepository;
 
     @Autowired
-    private EventService eventService;
-
-    @Autowired
-    private OfferService offerService;
+    private EventOfferMapper eventOfferMapper;
 
     // Créer un EventOffer
-    public EventOffer createEventOffer(EventOfferDTO eventOfferDTO) throws Exception {
-        EventOffer eventOffer = new EventOffer();
-        eventOffer.setEvent(eventService.mapToEntity(eventOfferDTO.getEvent()));  // Mapper Event
-        eventOffer.setOffer(offerService.mapToEntity(eventOfferDTO.getOffer()));  // Mapper Offer
-        return eventOfferRepository.save(eventOffer);
+    public EventOfferDTO createEventOffer(EventOfferDTO eventOfferDTO) throws Exception {
+        if (eventOfferDTO.getEvent() == null || eventOfferDTO.getOffer() == null) {
+            throw new IllegalArgumentException("L'événement et l'offre doivent être spécifiés");
+        }
+        // Utilisation du mappage pour convertir DTO en entité
+        EventOffer eventOffer = eventOfferMapper.toEntity(eventOfferDTO);
+        return eventOfferMapper.toDTO(eventOfferRepository.save(eventOffer)); // Renvoi du DTO après sauvegarde
     }
 
- // Récupérer toutes les associations EventOffer
+    // Récupérer toutes les associations EventOffer
     public List<EventOfferDTO> getAllEventOffers() {
+        List<EventOffer> eventOffers = eventOfferRepository.findAll();
         List<EventOfferDTO> eventOfferDTOs = new ArrayList<>();
-        try {
-            List<EventOffer> eventOffers = eventOfferRepository.findAll();
-            for (EventOffer eventOffer : eventOffers) {
-                eventOfferDTOs.add(mapToDTO(eventOffer));
+        // Gestion des erreurs avec try-catch lors du mapping
+        for (EventOffer eventOffer : eventOffers) {
+            try {
+                eventOfferDTOs.add(eventOfferMapper.toDTO(eventOffer));
+            } catch (Exception e) {
+                // Log de l'erreur en cas de problème
+                LoggerFactory.getLogger(EventOfferService.class).error("Erreur lors du mapping de l'EventOffer", e);
             }
-        } catch (Exception e) {
-            System.out.println("Erreur lors de la récupération des associations EventOffer.");
-            e.printStackTrace(); // Affiche l'erreur dans la console pour faciliter le débogage
-            // Optionnel : tu peux ajouter une gestion personnalisée ou un retour spécifique en cas d'erreur.
         }
-        return eventOfferDTOs;
+        return eventOfferDTOs; // Retour de la liste des DTOs
     }
 
     // Supprimer une association EventOffer
@@ -53,23 +55,5 @@ public class EventOfferService {
             throw new Exception("L'association Event-Offer n'existe pas");
         }
         eventOfferRepository.delete(eventOffer.get());
-    }
-
-    // Mapper EventOffer -> EventOfferDTO
-    public EventOfferDTO mapToDTO(EventOffer eventOffer) throws Exception {
-        EventOfferDTO dto = new EventOfferDTO();
-        dto.setId(eventOffer.getId());
-        dto.setEvent(eventService.mapToDTO(eventOffer.getEvent()));
-        dto.setOffer(offerService.mapToDTO(eventOffer.getOffer()));
-        return dto;
-    }
-
-    // Mapper EventOfferDTO -> EventOffer
-    public EventOffer mapToEntity(EventOfferDTO dto) throws Exception {
-        EventOffer eventOffer = new EventOffer();
-        eventOffer.setId(dto.getId());
-        eventOffer.setEvent(eventService.mapToEntity(dto.getEvent()));
-        eventOffer.setOffer(offerService.mapToEntity(dto.getOffer()));
-        return eventOffer;
     }
 }
