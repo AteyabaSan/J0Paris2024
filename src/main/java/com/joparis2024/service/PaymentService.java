@@ -8,6 +8,7 @@ import com.joparis2024.repository.PaymentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -62,31 +63,34 @@ public class PaymentService {
 	
 
     // Récupérer un paiement par son ID (READ)
-	@Transactional(readOnly = true)
-    public PaymentDTO getPaymentById(Long paymentId) throws Exception {
-        Optional<Payment> payment = paymentRepository.findById(paymentId);
-        if (!payment.isPresent()) {
-            throw new Exception("Le paiement n'existe pas");
-        }
-        return mapToDTO(payment.get());
-    }
+	    @Transactional(readOnly = true)
+	    public PaymentDTO getPaymentById(Long paymentId) throws Exception {
+	        Optional<Payment> payment = paymentRepository.findById(paymentId);
+	        if (!payment.isPresent()) {
+	            throw new Exception("Le paiement n'existe pas");
+	        }
+
+	        // Initialisation de la relation paresseuse Order avant de retourner le DTO
+	        Hibernate.initialize(payment.get().getOrder());
+
+	        return mapToDTO(payment.get());
+	    }
 
     // Récupérer tous les paiements (READ)
-    @Transactional(readOnly = true)
-    public List<PaymentDTO> getAllPayments() throws Exception {
-        try {
-            List<Payment> payments = paymentRepository.findAll();
-            List<PaymentDTO> paymentDTOs = new ArrayList<>();
-            
-            for (Payment payment : payments) {
-                paymentDTOs.add(mapToDTO(payment));
-            }
-            
-            return paymentDTOs;
-        } catch (Exception e) {
-            throw new Exception("Erreur lors de la récupération des paiements: " + e.getMessage());
-        }
-    }
+	@Transactional(readOnly = true)
+	public List<PaymentDTO> getAllPayments() throws Exception {
+	    List<Payment> payments = paymentRepository.findAll();
+	    List<PaymentDTO> paymentDTOs = new ArrayList<>();
+
+	    for (Payment payment : payments) {
+	        // Initialisation de la relation paresseuse Order pour chaque paiement
+	        Hibernate.initialize(payment.getOrder());
+
+	        paymentDTOs.add(mapToDTO(payment));
+	    }
+
+	    return paymentDTOs;
+	}
 
     // Mettre à jour un paiement (UPDATE)
     @Transactional(readOnly = true)
@@ -158,15 +162,22 @@ public class PaymentService {
   // Mapper Payment -> PaymentDTO
     @Transactional(readOnly = true)
     public PaymentDTO mapToDTO(Payment payment) throws Exception {
-     PaymentDTO paymentDTO = new PaymentDTO();
-     paymentDTO.setId(payment.getId());
-     paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));
-     paymentDTO.setPaymentMethod(payment.getPaymentMethod());
-     paymentDTO.setPaymentDate(payment.getPaymentDate());
-     paymentDTO.setAmount(payment.getAmount());
-     paymentDTO.setPaymentStatus(payment.getPaymentStatus());
+        if (payment == null) {
+            throw new Exception("Le paiement à mapper est nul.");
+        }
 
-     return paymentDTO;
- }
+        // Initialisation de la relation paresseuse Order
+        Hibernate.initialize(payment.getOrder());
+
+        PaymentDTO paymentDTO = new PaymentDTO();
+        paymentDTO.setId(payment.getId());
+        paymentDTO.setOrder(orderService.mapToDTO(payment.getOrder()));
+        paymentDTO.setPaymentMethod(payment.getPaymentMethod());
+        paymentDTO.setPaymentDate(payment.getPaymentDate());
+        paymentDTO.setAmount(payment.getAmount());
+        paymentDTO.setPaymentStatus(payment.getPaymentStatus());
+
+        return paymentDTO;
+    }
 }
 

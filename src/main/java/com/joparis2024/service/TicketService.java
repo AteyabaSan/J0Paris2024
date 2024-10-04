@@ -8,6 +8,7 @@ import com.joparis2024.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +68,10 @@ public class TicketService {
         return ticketRepository.findById(ticketId)
                 .map(ticket -> {
                     try {
+                        // Initialiser les relations paresseuses avant de mapper en DTO
+                        Hibernate.initialize(ticket.getEvent());
+                        Hibernate.initialize(ticket.getOrder());
+
                         return mapToDTO(ticket);
                     } catch (Exception e) {
                         logger.error("Erreur lors de la conversion du ticket en DTO", e);
@@ -82,6 +87,10 @@ public class TicketService {
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         for (Ticket ticket : tickets) {
             try {
+                // Initialiser les relations paresseuses avant de mapper en DTO
+                Hibernate.initialize(ticket.getEvent());
+                Hibernate.initialize(ticket.getOrder());
+
                 ticketDTOs.add(mapToDTO(ticket));
             } catch (Exception e) {
                 logger.error("Erreur lors du mapping d'un ticket", e);
@@ -97,7 +106,12 @@ public class TicketService {
         ticketRepository.delete(ticket);
     }
 
+    @Transactional(readOnly = true)
     public TicketDTO mapToDTO(Ticket ticket) throws Exception {
+        // Initialiser les relations paresseuses avant de mapper en DTO
+        Hibernate.initialize(ticket.getEvent());
+        Hibernate.initialize(ticket.getOrder());
+
         TicketDTO ticketDTO = new TicketDTO();
         ticketDTO.setId(ticket.getId());
         ticketDTO.setEvent(eventService.mapToDTO(ticket.getEvent()));
@@ -146,6 +160,7 @@ public class TicketService {
         return ticket;
     }
 
+    @Transactional(readOnly = true)
     public List<Ticket> mapToEntities(List<TicketDTO> ticketDTOs, Event event) throws Exception {
         List<Ticket> tickets = new ArrayList<>();
         if (ticketDTOs != null) {
@@ -164,10 +179,15 @@ public class TicketService {
         return tickets;
     }
 
+    @Transactional(readOnly = true)
     public List<TicketDTO> mapToDTOs(List<Ticket> tickets) throws Exception {
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         if (tickets != null) {
             for (Ticket ticket : tickets) {
+                // Initialiser les relations paresseuses avant de mapper en DTO
+                Hibernate.initialize(ticket.getEvent());
+                Hibernate.initialize(ticket.getOrder());
+
                 ticketDTOs.add(mapToDTO(ticket));
             }
         } else {

@@ -10,6 +10,8 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.joparis2024.repository.RoleRepository;
+
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +37,8 @@ public class UserService {
         List<User> users = userRepository.findAll();
         List<UserDTO> userDTOs = new ArrayList<>();
         for (User user : users) {
+            // Initialisation des rôles pour chaque utilisateur
+            Hibernate.initialize(user.getRoles());
             userDTOs.add(mapToDTO(user));
         }
         return userDTOs;
@@ -90,6 +94,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<UserDTO> getUserByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
+        user.ifPresent(u -> Hibernate.initialize(u.getRoles())); // Initialisation des rôles
         return user.map(this::mapToDTO);
     }
 
@@ -107,6 +112,9 @@ public class UserService {
         existingUser.setEnabled(userDTO.getEnabled());
         existingUser.setPhoneNumber(userDTO.getPhoneNumber());
 
+        // Initialisation des rôles avant de les mettre à jour si nécessaire
+        Hibernate.initialize(existingUser.getRoles());
+
         // Gérer les rôles seulement s'ils sont présents dans le DTO
         if (userDTO.getRoles() != null && !userDTO.getRoles().isEmpty()) {
             List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
@@ -116,7 +124,6 @@ public class UserService {
             existingUser.setRoles(roles);
         }
 
-        // Sauvegarder les modifications
         User updatedUser = userRepository.save(existingUser);
         return mapToDTO(updatedUser);
     }
@@ -153,10 +160,14 @@ public class UserService {
     }
 
     // Mapper l'entité User vers un DTO UserDTO
+    @Transactional(readOnly = true)
     public UserDTO mapToDTO(User user) {
         if (user == null) {
             throw new IllegalArgumentException("L'utilisateur à mapper est nul.");
         }
+
+        // Initialisation de la relation paresseuse roles
+        Hibernate.initialize(user.getRoles());
 
         List<String> roles = new ArrayList<>();
         for (Role role : user.getRoles()) {
@@ -165,18 +176,18 @@ public class UserService {
 
         // Log pour vérifier le contenu de UserDTO après mapping
         UserDTO userDTO = new UserDTO(
-            user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            roles, // Mapping des rôles
-            user.getEnabled(),
-            user.getPhoneNumber(),
-            user.getPassword()
-        );
-        
-        System.out.println("Utilisateur mappé en UserDTO avec succès: " + userDTO);
-        return userDTO;
-    }
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                roles, // Mapping des rôles
+                user.getEnabled(),
+                user.getPhoneNumber(),
+                user.getPassword()
+            );
+            
+            System.out.println("Utilisateur mappé en UserDTO avec succès: " + userDTO);
+            return userDTO;
+        }
 
 
     public User mapToEntity(UserDTO userDTO) throws Exception {
@@ -248,8 +259,14 @@ public class UserService {
         return userRepository.findByUsername(username); // Retourne null si non trouvé
     }
     
+    @Transactional(readOnly = true)
     public User findById(Long id) throws Exception {
-        return userRepository.findById(id).orElseThrow(() -> new Exception("Utilisateur introuvable"));
+        User user = userRepository.findById(id).orElseThrow(() -> new Exception("Utilisateur introuvable"));
+        
+        // Initialisation des rôles de l'utilisateur avant toute utilisation
+        Hibernate.initialize(user.getRoles());
+        
+        return user;
     }
 
 

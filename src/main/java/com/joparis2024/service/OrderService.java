@@ -14,7 +14,7 @@ import com.joparis2024.repository.UserRepository;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -154,6 +154,10 @@ public class OrderService {
         List<Order> orders = orderRepository.findAll();
         List<OrderDTO> orderDTOs = new ArrayList<>();
         for (Order order : orders) {
+            // Initialisation des relations paresseuses pour chaque commande
+            Hibernate.initialize(order.getOrderTickets());
+            Hibernate.initialize(order.getPayment());
+
             orderDTOs.add(mapToDTO(order));
         }
         return orderDTOs;
@@ -165,6 +169,11 @@ public class OrderService {
         if (!existingOrder.isPresent()) {
             throw new Exception("Order non trouvée");
         }
+
+        // Initialisation des relations paresseuses avant de retourner le DTO
+        Hibernate.initialize(existingOrder.get().getOrderTickets());
+        Hibernate.initialize(existingOrder.get().getPayment());
+
         return mapToDTO(existingOrder.get());
     }
 
@@ -182,6 +191,10 @@ public class OrderService {
             throw new Exception("L'ordre à mapper est nul.");
         }
 
+        // Initialisation des relations paresseuses
+        Hibernate.initialize(order.getOrderTickets());  // Initialiser la relation avec les tickets
+        Hibernate.initialize(order.getPayment());       // Initialiser la relation avec le paiement
+
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
         orderDTO.setUser(userService.mapToDTO(order.getUser()));
@@ -197,6 +210,7 @@ public class OrderService {
 
         return orderDTO;
     }
+
 
     public Order mapToEntity(OrderDTO orderDTO) throws Exception {
         if (orderDTO == null) {

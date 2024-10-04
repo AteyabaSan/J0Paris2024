@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class EventService {
     private EventRepository eventRepository;
 
     @Autowired
-    @Lazy // Injection différée pour éviter la dépendance circulaire
+    @Lazy
     private TicketService ticketService;
 
     @Autowired
@@ -41,6 +42,10 @@ public class EventService {
         List<EventDTO> eventDTOs = new ArrayList<>();
         for (Event event : events) {
             try {
+                // Initialiser les relations Lazy avant de mapper en DTO
+                Hibernate.initialize(event.getTickets());
+                Hibernate.initialize(event.getOrganizer());
+                
                 eventDTOs.add(mapToDTO(event));
             } catch (Exception e) {
                 logger.error("Erreur lors du mapping de l'événement avec ID: {}", event.getId(), e);
@@ -69,6 +74,10 @@ public class EventService {
         return eventRepository.findByEventName(eventName)
                 .map(t -> {
                     try {
+                        // Initialiser les relations Lazy avant de mapper en DTO
+                        Hibernate.initialize(t.getTickets());
+                        Hibernate.initialize(t.getOrganizer());
+                        
                         return mapToDTO(t);
                     } catch (Exception e) {
                         logger.error("Erreur lors du mapping de l'événement avec nom : {}", eventName, e);
@@ -107,6 +116,10 @@ public class EventService {
     
     @Transactional(readOnly = true)
     public EventDTO mapToDTO(Event event) throws Exception {
+        // Initialiser les relations Lazy avant de mapper en DTO
+        Hibernate.initialize(event.getTickets());
+        Hibernate.initialize(event.getOrganizer());
+        
         return new EventDTO(
                 event.getId(),
                 event.getEventName(),
@@ -166,6 +179,10 @@ public class EventService {
         List<EventDTO> eventDTOs = new ArrayList<>();
         if (events != null) {
             for (Event event : events) {
+                // Initialiser les relations Lazy avant de mapper en DTO
+                Hibernate.initialize(event.getTickets());
+                Hibernate.initialize(event.getOrganizer());
+                
                 eventDTOs.add(mapToDTO(event));  // Utilise la méthode mapToDTO déjà présente
             }
         } else {
@@ -173,6 +190,6 @@ public class EventService {
         }
         return eventDTOs;
     }
-
 }
+
 
