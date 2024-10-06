@@ -2,7 +2,10 @@ package com.joparis2024.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.joparis2024.dto.EventDTO;
 import com.joparis2024.dto.OfferDTO;
+import com.joparis2024.model.Event;
 import com.joparis2024.model.Offer;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,23 +14,30 @@ import java.util.List;
 public class OfferMapper {
 
     @Autowired
-    private EventMapper eventMapper; // Injection du EventMapper pour le mappage des événements
+    private EventMapper eventMapper;  // Injection du EventMapper
 
-    // Mapper Offer -> OfferDTO
     public OfferDTO toDTO(Offer offer) throws Exception {
         if (offer == null) {
             return null;
         }
 
-        return new OfferDTO(
-                offer.getId(),
-                offer.getName(),
-                offer.getNumberOfSeats(),
-                eventMapper.toDTOs(offer.getEvents()) // Utiliser EventMapper pour les événements
-        );
+        OfferDTO offerDTO = new OfferDTO();
+        offerDTO.setId(offer.getId());
+        offerDTO.setName(offer.getName());
+        offerDTO.setNumberOfSeats(offer.getNumberOfSeats());
+
+        // Mapping manuel des événements associés
+        List<EventDTO> eventDTOs = new ArrayList<>();
+        if (offer.getEvents() != null) {
+            for (Event event : offer.getEvents()) {
+                eventDTOs.add(eventMapper.toDTO(event)); // Gérer l'exception ici
+            }
+        }
+        offerDTO.setEvents(eventDTOs);
+
+        return offerDTO;
     }
 
-    // Mapper OfferDTO -> Offer
     public Offer toEntity(OfferDTO offerDTO) throws Exception {
         if (offerDTO == null) {
             return null;
@@ -37,38 +47,16 @@ public class OfferMapper {
         offer.setId(offerDTO.getId());
         offer.setName(offerDTO.getName());
         offer.setNumberOfSeats(offerDTO.getNumberOfSeats());
-        offer.setEvents(eventMapper.toEntities(offerDTO.getEvents())); // Utiliser EventMapper pour les événements
+
+        // Mapping manuel des événements associés
+        List<Event> events = new ArrayList<>();
+        if (offerDTO.getEvents() != null) {
+            for (EventDTO eventDTO : offerDTO.getEvents()) {
+                events.add(eventMapper.toEntity(eventDTO)); // Gérer l'exception ici
+            }
+        }
+        offer.setEvents(events);
 
         return offer;
-    }
-
-    // Mapper une liste d'Offer -> une liste d'OfferDTO
-    public List<OfferDTO> toDTOs(List<Offer> offers) throws Exception {
-        if (offers == null || offers.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<OfferDTO> offerDTOs = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les entités en DTOs
-        for (Offer offer : offers) {
-            offerDTOs.add(toDTO(offer));
-        }
-
-        return offerDTOs;
-    }
-
-    // Mapper une liste d'OfferDTO -> une liste d'Offer
-    public List<Offer> toEntities(List<OfferDTO> offerDTOs) throws Exception {
-        if (offerDTOs == null || offerDTOs.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Offer> offers = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les DTOs en entités
-        for (OfferDTO offerDTO : offerDTOs) {
-            offers.add(toEntity(offerDTO));
-        }
-
-        return offers;
     }
 }

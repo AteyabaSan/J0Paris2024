@@ -1,5 +1,6 @@
 package com.joparis2024.service;
 
+import com.joparis2024.dto.OrderSimpleDTO;
 import com.joparis2024.dto.TransactionDTO;
 import com.joparis2024.mapper.TransactionMapper;
 import com.joparis2024.model.Transaction;
@@ -43,9 +44,26 @@ public class TransactionService {
 
         List<Transaction> transactions = transactionRepository.findByOrder(order.get());
         List<TransactionDTO> transactionDTOs = new ArrayList<>();
-        // Utilisation d'une boucle pour transformer chaque transaction en DTO
         for (Transaction transaction : transactions) {
             transactionDTOs.add(transactionMapper.toDTO(transaction));
+        }
+        return transactionDTOs;
+    }
+
+    // Récupérer des transactions simplifiées d'une commande (utilisation d'OrderSimpleDTO)
+    public List<TransactionDTO> getSimpleTransactionsByOrder(Long orderId) throws Exception {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if (!order.isPresent()) {
+            throw new Exception("Commande introuvable");
+        }
+
+        List<Transaction> transactions = transactionRepository.findByOrder(order.get());
+        List<TransactionDTO> transactionDTOs = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            // Utilisation de TransactionDTO avec OrderSimpleDTO
+            TransactionDTO transactionDTO = transactionMapper.toDTO(transaction);
+            transactionDTO.setOrder(new OrderSimpleDTO(order.get().getId(), order.get().getStatus(), order.get().getTotalAmount()));  // Utilisation d'OrderSimpleDTO
+            transactionDTOs.add(transactionDTO);
         }
         return transactionDTOs;
     }

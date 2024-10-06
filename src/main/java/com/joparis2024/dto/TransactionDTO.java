@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class TransactionDTO {
 
     private Long id;
-    private Long orderId; // Lien avec la commande (Order)
+    private OrderSimpleDTO order; // Utilisation de OrderSimpleDTO à la place de l'ID
     private String transactionType; // Type de transaction (paiement, remboursement)
     private String transactionStatus; // Statut de la transaction
     private LocalDateTime transactionDate; // Date de la transaction
@@ -14,9 +14,9 @@ public class TransactionDTO {
     public TransactionDTO() {}
 
     // Constructeur avec tous les arguments
-    public TransactionDTO(Long id, Long orderId, String transactionType, String transactionStatus, LocalDateTime transactionDate) {
+    public TransactionDTO(Long id, OrderSimpleDTO order, String transactionType, String transactionStatus, LocalDateTime transactionDate) {
         this.id = id;
-        this.orderId = orderId;
+        this.order = order;
         this.transactionType = transactionType;
         this.transactionStatus = transactionStatus;
         this.transactionDate = transactionDate;
@@ -31,12 +31,12 @@ public class TransactionDTO {
         this.id = id;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public OrderSimpleDTO getOrder() {
+        return order;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrder(OrderSimpleDTO order) {
+        this.order = order;
     }
 
     public String getTransactionType() {

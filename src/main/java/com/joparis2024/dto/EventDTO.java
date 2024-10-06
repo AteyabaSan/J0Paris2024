@@ -13,12 +13,13 @@ public class EventDTO {
     private CategoryDTO category;  // Utiliser CategoryDTO ici
     private List<TicketDTO> tickets;  // Relation avec TicketDTO
     private UserDTO organizer;  // Relation avec UserDTO
+    private List<OfferDTO> offers;  // Relation avec OfferDTO (ajouté)
 
     // Constructeur sans arguments
     public EventDTO() {}
 
     // Constructeur avec tous les arguments
-    public EventDTO(Long id, String eventName, LocalDate eventDate, String description, CategoryDTO category, List<TicketDTO> tickets, UserDTO organizer) {
+    public EventDTO(Long id, String eventName, LocalDate eventDate, String description, CategoryDTO category, List<TicketDTO> tickets, UserDTO organizer, List<OfferDTO> offers) {
     	
         this.id = id;
         this.eventName = eventName;
@@ -27,6 +28,7 @@ public class EventDTO {
         this.category = category;
         this.tickets = tickets;
         this.organizer = organizer;
+        this.offers = offers;  // Ajout de l'attribut offers
     }
 
     // Getters et Setters
@@ -86,7 +88,12 @@ public class EventDTO {
     public void setOrganizer(UserDTO organizer) {
         this.organizer = organizer;
     }
+
+    public List<OfferDTO> getOffers() {
+        return offers;  // Getter pour les offres
+    }
+
+    public void setOffers(List<OfferDTO> offers) {
+        this.offers = offers;  // Setter pour les offres
+    }
 }
-
-
-

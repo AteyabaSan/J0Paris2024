@@ -3,9 +3,9 @@ package com.joparis2024.dto;
 import java.time.LocalDateTime;
 
 public class PaymentDTO {
-	
-	private Long id; // ID du paiement
-    private OrderDTO order; // Lien avec la commande
+    
+    private Long id; // ID du paiement
+    private OrderSimpleDTO order; // Utilisation de OrderSimpleDTO à la place de OrderDTO
     private String paymentMethod; // Méthode de paiement
     private LocalDateTime paymentDate; // Date du paiement
     private double amount; // Montant du paiement
@@ -16,9 +16,9 @@ public class PaymentDTO {
     }
 
     // Constructeur avec tous les paramètres
-    public PaymentDTO(Long id, OrderDTO order, String paymentMethod, LocalDateTime paymentDate, double amount, String paymentStatus) {
+    public PaymentDTO(Long id, OrderSimpleDTO order, String paymentMethod, LocalDateTime paymentDate, double amount, String paymentStatus) {
         this.id = id;
-    	this.order = order;
+        this.order = order;
         this.paymentMethod = paymentMethod;
         this.paymentDate = paymentDate;
         this.amount = amount;
@@ -34,11 +34,11 @@ public class PaymentDTO {
         this.id = id;
     }
 
-    public OrderDTO getOrder() {
+    public OrderSimpleDTO getOrder() {
         return order;
     }
 
-    public void setOrder(OrderDTO order) {
+    public void setOrder(OrderSimpleDTO order) {
         this.order = order;
     }
 
@@ -74,4 +74,3 @@ public class PaymentDTO {
         this.paymentStatus = paymentStatus;
     }
 }
-

@@ -1,10 +1,9 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.EventDTO;
-import com.joparis2024.mapper.CategoryMapper;
+import com.joparis2024.dto.EventOfferDTO;
+import com.joparis2024.dto.OfferDTO;
 import com.joparis2024.mapper.EventMapper;
-import com.joparis2024.mapper.TicketMapper;
-import com.joparis2024.mapper.UserMapper;
 import com.joparis2024.model.Event;
 import com.joparis2024.repository.EventRepository;
 
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class EventService {
@@ -32,15 +31,8 @@ public class EventService {
     private EventMapper eventMapper;
 
     @Autowired
-    private TicketMapper ticketMapper;
+    private EventOfferService eventOfferService; // Ajout du service EventOffer
 
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private CategoryMapper categoryMapper;
-
-    // Récupérer tous les événements
     @Transactional(readOnly = true)
     public List<EventDTO> getAllEvents() {
         logger.info("Récupération de tous les événements");
@@ -57,76 +49,54 @@ public class EventService {
         return eventDTOs;
     }
 
-    // Créer un nouvel événement
     @Transactional
     public EventDTO createEvent(EventDTO eventDTO) throws Exception {
         logger.info("Tentative de création d'un nouvel événement : {}", eventDTO.getEventName());
         validateEventDTO(eventDTO);
+
         Event event = eventMapper.toEntity(eventDTO);
         Event savedEvent = eventRepository.save(event);
+        
+        // Gestion des relations avec les offres via EventOffer
+        if (eventDTO.getOffers() != null && !eventDTO.getOffers().isEmpty()) {
+            for (OfferDTO offerDTO : eventDTO.getOffers()) {
+                EventOfferDTO eventOfferDTO = new EventOfferDTO();
+                eventOfferDTO.setEvent(eventMapper.toDTO(savedEvent));
+                eventOfferDTO.setOffer(offerDTO);
+                eventOfferService.createEventOffer(eventOfferDTO); // Créer l'association Event-Offer
+            }
+        }
+
         logger.info("Événement créé avec succès : {}", savedEvent.getEventName());
         return eventMapper.toDTO(savedEvent);
     }
 
-    // Valider les données de l'événement
-    private void validateEventDTO(EventDTO eventDTO) {
-        if (eventDTO.getEventName() == null || eventDTO.getEventName().isEmpty()) {
-            logger.error("Le nom de l'événement est manquant");
-            throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
-        }
-    }
-
-    // Récupérer un événement par son nom
-    @Transactional(readOnly = true)
-    public Optional<EventDTO> getEventByName(String eventName) {
-        logger.info("Recherche de l'événement par nom : {}", eventName);
-        return eventRepository.findByEventName(eventName)
-                .map(event -> {
-                    try {
-                        return eventMapper.toDTO(event);
-                    } catch (Exception e) {
-                        logger.error("Erreur lors du mapping de l'événement : {}", eventName, e);
-                        return null;
-                    }
-                });
-    }
-
-    // Mettre à jour un événement par son nom
     @Transactional
     public EventDTO updateEventByName(String eventName, EventDTO eventDTO) throws Exception {
         logger.info("Mise à jour de l'événement : {}", eventName);
         Event event = eventRepository.findByEventName(eventName)
                 .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé avec le nom : " + eventName));
 
-        updateEventAttributes(event, eventDTO);
-        Event updatedEvent = eventRepository.save(event);
-        logger.info("Événement mis à jour avec succès : {}", updatedEvent.getEventName());
-        return eventMapper.toDTO(updatedEvent);
-    }
-
-    // Mise à jour des attributs de l'événement
-    private void updateEventAttributes(Event event, EventDTO eventDTO) throws Exception {
         event.setEventName(eventDTO.getEventName());
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
 
-        if (eventDTO.getTickets() != null) {
-            event.setTickets(ticketMapper.toEntities(eventDTO.getTickets()));
-            logger.info("Mise à jour des tickets pour l'événement : {}", event.getEventName());
+        Event updatedEvent = eventRepository.save(event);
+
+        // Gestion des relations avec les offres via EventOffer
+        if (eventDTO.getOffers() != null && !eventDTO.getOffers().isEmpty()) {
+            for (OfferDTO offerDTO : eventDTO.getOffers()) {
+                EventOfferDTO eventOfferDTO = new EventOfferDTO();
+                eventOfferDTO.setEvent(eventMapper.toDTO(updatedEvent));
+                eventOfferDTO.setOffer(offerDTO);
+                eventOfferService.createEventOffer(eventOfferDTO); // Créer l'association Event-Offer
+            }
         }
 
-        if (eventDTO.getOrganizer() != null) {
-            event.setOrganizer(userMapper.toEntity(eventDTO.getOrganizer()));
-            logger.info("Mise à jour de l'organisateur pour l'événement : {}", event.getEventName());
-        }
-
-        if (eventDTO.getCategory() != null) {
-            event.setCategory(categoryMapper.toEntity(eventDTO.getCategory()));
-            logger.info("Mise à jour de la catégorie pour l'événement : {}", event.getEventName());
-        }
+        logger.info("Événement mis à jour avec succès : {}", updatedEvent.getEventName());
+        return eventMapper.toDTO(updatedEvent);
     }
 
-    // Supprimer un événement par son nom
     @Transactional
     public void deleteEvent(String eventName) throws Exception {
         logger.info("Tentative de suppression de l'événement : {}", eventName);
@@ -136,11 +106,17 @@ public class EventService {
         logger.info("Événement supprimé avec succès : {}", eventName);
     }
 
-    // Récupérer un événement par son ID
     @Transactional(readOnly = true)
     public Event findById(Long id) throws Exception {
         logger.info("Recherche de l'événement avec l'ID : {}", id);
         return eventRepository.findById(id)
                 .orElseThrow(() -> new Exception("Événement non trouvé avec l'id : " + id));
+    }
+
+    private void validateEventDTO(EventDTO eventDTO) {
+        if (eventDTO.getEventName() == null || eventDTO.getEventName().isEmpty()) {
+            logger.error("Le nom de l'événement est manquant");
+            throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
+        }
     }
 }

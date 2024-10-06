@@ -88,4 +88,30 @@ public class PaymentService {
                 .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
         paymentRepository.delete(payment);
     }
+    
+    @Transactional(readOnly = true)
+    public PaymentDTO getSimplePaymentById(Long paymentId) throws Exception {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
+
+        // Utilisation de OrderSimpleDTO pour alléger les données associées à la commande
+        PaymentDTO paymentDTO = paymentMapper.toDTO(payment);
+        paymentDTO.setOrder(orderMapper.toSimpleDTO(payment.getOrder()));  // Utilisation d'un OrderSimpleDTO
+        return paymentDTO;
+    }
+    
+    // Nouvelle méthode pour récupérer des paiements simplifiés
+    @Transactional(readOnly = true)
+    public List<PaymentDTO> getSimplePayments() throws Exception {
+        List<Payment> payments = paymentRepository.findAll();
+        List<PaymentDTO> paymentDTOs = new ArrayList<>();
+        for (Payment payment : payments) {
+            PaymentDTO paymentDTO = paymentMapper.toDTO(payment);
+            // Utilisation d'OrderSimpleDTO pour alléger les données
+            paymentDTO.setOrder(orderMapper.toSimpleDTO(payment.getOrder()));
+            paymentDTOs.add(paymentDTO);
+        }
+        return paymentDTOs;
+    }
+
 }

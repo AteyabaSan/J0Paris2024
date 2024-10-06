@@ -2,7 +2,7 @@ package com.joparis2024.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.joparis2024.dto.OrderDTO;
+import com.joparis2024.dto.OrderSimpleDTO;
 import com.joparis2024.dto.PaymentDTO;
 import com.joparis2024.model.Payment;
 import com.joparis2024.model.Order;
@@ -13,6 +13,11 @@ import java.util.List;
 @Component
 public class PaymentMapper {
 
+    // Méthode de PaymentMapper pour utiliser OrderSimpleDTO
+    private OrderSimpleDTO toOrderSimpleDTO(Order order) {
+        return new OrderSimpleDTO(order.getId(), order.getStatus(), order.getTotalAmount());
+    }
+
     // Convertir un Payment en PaymentDTO
     public PaymentDTO toDTO(Payment payment) {
         if (payment == null) {
@@ -21,7 +26,7 @@ public class PaymentMapper {
 
         PaymentDTO paymentDTO = new PaymentDTO();
         paymentDTO.setId(payment.getId());
-        paymentDTO.setOrder(payment.getOrder() != null ? toOrderDTO(payment.getOrder()) : null);
+        paymentDTO.setOrder(payment.getOrder() != null ? toOrderSimpleDTO(payment.getOrder()) : null); // Utilisation de OrderSimpleDTO
         paymentDTO.setPaymentMethod(payment.getPaymentMethod());
         paymentDTO.setPaymentDate(payment.getPaymentDate());
         paymentDTO.setAmount(payment.getAmount());
@@ -38,7 +43,7 @@ public class PaymentMapper {
 
         Payment payment = new Payment();
         payment.setId(paymentDTO.getId());
-        payment.setOrder(paymentDTO.getOrder() != null ? toOrderEntity(paymentDTO.getOrder()) : null);
+        payment.setOrder(paymentDTO.getOrder() != null ? toOrderEntity(paymentDTO.getOrder()) : null); // Conversion en entité Order
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setAmount(paymentDTO.getAmount());
@@ -54,7 +59,6 @@ public class PaymentMapper {
         }
 
         List<PaymentDTO> paymentDTOs = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les entités en DTOs
         for (Payment payment : payments) {
             paymentDTOs.add(toDTO(payment));
         }
@@ -69,7 +73,6 @@ public class PaymentMapper {
         }
 
         List<Payment> payments = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les DTOs en entités
         for (PaymentDTO paymentDTO : paymentDTOs) {
             payments.add(toEntity(paymentDTO));
         }
@@ -77,19 +80,17 @@ public class PaymentMapper {
         return payments;
     }
 
-    // Méthodes auxiliaires pour convertir les commandes (Order et OrderDTO)
-    private OrderDTO toOrderDTO(Order order) {
-        // Méthode pour mapper l'entité Order vers un OrderDTO (à ajuster si nécessaire)
-        return new OrderDTO(order.getId(), order.getStatus(), null, null, order.getTotalAmount(), order.getOrderDate(), null, null);
-    }
-
-    private Order toOrderEntity(OrderDTO orderDTO) {
-        // Méthode pour mapper un OrderDTO vers l'entité Order (à ajuster si nécessaire)
+    // Méthode auxiliaire pour convertir OrderSimpleDTO en Order (si nécessaire)
+    private Order toOrderEntity(OrderSimpleDTO orderSimpleDTO) {
+        if (orderSimpleDTO == null) {
+            return null;
+        }
+        
         Order order = new Order();
-        order.setId(orderDTO.getId());
-        order.setStatus(orderDTO.getStatus());
-        order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setOrderDate(orderDTO.getOrderDate());
+        order.setId(orderSimpleDTO.getId());
+        order.setStatus(orderSimpleDTO.getStatus());
+        order.setTotalAmount(orderSimpleDTO.getTotalAmount());
+
         return order;
     }
 }

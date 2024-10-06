@@ -2,14 +2,18 @@ package com.joparis2024.mapper;
 
 
 import com.joparis2024.dto.EventDTO;
+import com.joparis2024.dto.OfferDTO;
+import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Event;
+import com.joparis2024.model.Offer;
+import com.joparis2024.model.Ticket;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {
@@ -18,11 +22,7 @@ public class EventMapper {
     private CategoryMapper categoryMapper;
 
     @Autowired
-    @Lazy
-    private TicketMapper ticketMapper;
-
-    @Autowired
-    private UserMapper userMapper;
+    private OfferMapper offerMapper;
 
     public EventDTO toDTO(Event event) throws Exception {
         if (event == null) {
@@ -34,9 +34,32 @@ public class EventMapper {
         eventDTO.setEventName(event.getEventName());
         eventDTO.setEventDate(event.getEventDate());
         eventDTO.setDescription(event.getDescription());
-        eventDTO.setCategory(categoryMapper.toDTO(event.getCategory())); // Utilisation de CategoryMapper
-        eventDTO.setTickets(ticketMapper.toDTOs(event.getTickets())); // Utilisation de TicketMapper
-        eventDTO.setOrganizer(userMapper.toDTO(event.getOrganizer())); // Utilisation de UserMapper
+
+        // Mapper la catégorie
+        if (event.getCategory() != null) {
+            eventDTO.setCategory(categoryMapper.toDTO(event.getCategory()));
+        }
+
+        // Mapper les tickets manuellement
+        if (event.getTickets() != null && !event.getTickets().isEmpty()) {
+            List<TicketDTO> ticketDTOs = new ArrayList<>();
+            for (Ticket ticket : event.getTickets()) {
+                TicketDTO ticketDTO = new TicketDTO();
+                ticketDTO.setId(ticket.getId());
+                ticketDTO.setPrice(ticket.getPrice());
+                ticketDTOs.add(ticketDTO);
+            }
+            eventDTO.setTickets(ticketDTOs);
+        }
+
+        // Mapper les offres manuellement avec OfferMapper
+        if (event.getOffers() != null && !event.getOffers().isEmpty()) {
+            List<OfferDTO> offerDTOs = new ArrayList<>();
+            for (Offer offer : event.getOffers()) {
+                offerDTOs.add(offerMapper.toDTO(offer));  // Utilisation correcte de toDTO
+            }
+            eventDTO.setOffers(offerDTOs);
+        }
 
         return eventDTO;
     }
@@ -51,41 +74,33 @@ public class EventMapper {
         event.setEventName(eventDTO.getEventName());
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
-        event.setCategory(categoryMapper.toEntity(eventDTO.getCategory())); // Utilisation de CategoryMapper
 
-        if (eventDTO.getTickets() != null) {
-            event.setTickets(ticketMapper.toEntities(eventDTO.getTickets())); // Utilisation de TicketMapper
+        // Mapper la catégorie
+        if (eventDTO.getCategory() != null) {
+            event.setCategory(categoryMapper.toEntity(eventDTO.getCategory()));
         }
-        if (eventDTO.getOrganizer() != null) {
-            event.setOrganizer(userMapper.toEntity(eventDTO.getOrganizer())); // Utilisation de UserMapper
+
+        // Mapper les tickets manuellement
+        if (eventDTO.getTickets() != null && !eventDTO.getTickets().isEmpty()) {
+            List<Ticket> tickets = new ArrayList<>();
+            for (TicketDTO ticketDTO : eventDTO.getTickets()) {
+                Ticket ticket = new Ticket();
+                ticket.setId(ticketDTO.getId());
+                ticket.setPrice(ticketDTO.getPrice());
+                tickets.add(ticket);
+            }
+            event.setTickets(tickets);
+        }
+
+        // Mapper les offres manuellement avec OfferMapper
+        if (eventDTO.getOffers() != null && !eventDTO.getOffers().isEmpty()) {
+            List<Offer> offers = new ArrayList<>();
+            for (OfferDTO offerDTO : eventDTO.getOffers()) {
+                offers.add(offerMapper.toEntity(offerDTO));  // Utilisation correcte de toEntity
+            }
+            event.setOffers(offers);
         }
 
         return event;
-    }
-
-    public List<EventDTO> toDTOs(List<Event> events) throws Exception {
-        if (events == null || events.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<EventDTO> eventDTOs = new ArrayList<>();
-        for (Event event : events) {
-            eventDTOs.add(toDTO(event));
-        }
-
-        return eventDTOs;
-    }
-
-    public List<Event> toEntities(List<EventDTO> eventDTOs) throws Exception {
-        if (eventDTOs == null || eventDTOs.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Event> events = new ArrayList<>();
-        for (EventDTO eventDTO : eventDTOs) {
-            events.add(toEntity(eventDTO));
-        }
-
-        return events;
     }
 }

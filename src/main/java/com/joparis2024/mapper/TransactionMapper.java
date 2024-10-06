@@ -2,6 +2,8 @@ package com.joparis2024.mapper;
 
 import com.joparis2024.dto.TransactionDTO;
 import com.joparis2024.model.Transaction;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -9,6 +11,9 @@ import java.util.List;
 
 @Component
 public class TransactionMapper {
+
+    @Autowired
+    private OrderMapper orderMapper;  // Pour utiliser OrderSimpleDTO
 
     // Mapper Transaction -> TransactionDTO
     public TransactionDTO toDTO(Transaction transaction) {
@@ -18,7 +23,7 @@ public class TransactionMapper {
 
         TransactionDTO dto = new TransactionDTO();
         dto.setId(transaction.getId());
-        dto.setOrderId(transaction.getOrder().getId());
+        dto.setOrder(orderMapper.toSimpleDTO(transaction.getOrder())); // Utilisation de OrderSimpleDTO
         dto.setTransactionType(transaction.getTransactionType());
         dto.setTransactionStatus(transaction.getTransactionStatus());
         dto.setTransactionDate(transaction.getTransactionDate());
@@ -34,7 +39,6 @@ public class TransactionMapper {
 
         Transaction transaction = new Transaction();
         transaction.setId(dto.getId());
-        // Il faut gérer l'Order ailleurs car on ne peut pas directement mapper l'ID de commande ici
         transaction.setTransactionType(dto.getTransactionType());
         transaction.setTransactionStatus(dto.getTransactionStatus());
         transaction.setTransactionDate(dto.getTransactionDate());
@@ -49,7 +53,6 @@ public class TransactionMapper {
         }
 
         List<TransactionDTO> dtos = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les transactions en DTOs
         for (Transaction transaction : transactions) {
             dtos.add(toDTO(transaction));
         }
@@ -64,7 +67,6 @@ public class TransactionMapper {
         }
 
         List<Transaction> transactions = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les DTOs en entités
         for (TransactionDTO dto : transactionDTOs) {
             transactions.add(toEntity(dto));
         }

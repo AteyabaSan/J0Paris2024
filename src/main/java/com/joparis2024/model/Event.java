@@ -40,5 +40,13 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-}
 
+    // Ajout de la relation Many-to-Many avec Offer
+    @ManyToMany
+    @JoinTable(
+            name = "event_offer",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "offer_id")
+    )
+    private List<Offer> offers;
+}

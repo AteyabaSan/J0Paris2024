@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,34 +28,41 @@ public class TicketService {
     private TicketRepository ticketRepository;
 
     @Autowired
-    @Lazy // Pour éviter la dépendance circulaire
-    private EventService eventService;
+    private TicketMapper ticketMapper;
+
+    @Autowired
+    @Lazy
+    private EventService eventService;  // Pas de dépendance circulaire, gestion des entités via le service.
 
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private TicketMapper ticketMapper;
-
     @Transactional
-    public Ticket createTicket(TicketDTO ticketDTO) throws Exception {
+    public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
         logger.info("Tentative de création d'un ticket : {}", ticketDTO);
 
-        Event event = eventService.findById(ticketDTO.getEvent().getId()); // Récupération directe de l'entité
-        Order order = orderService.findById(ticketDTO.getOrder().getId()); // Récupération directe de l'entité
+        // Utilisation du service pour récupérer les entités Event et Order
+        Event event = eventService.findById(ticketDTO.getEvent().getId());
+        Order order = orderService.findById(ticketDTO.getOrder().getId());
 
+        // Mapper pour obtenir l'entité Ticket
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
-        ticket.setEvent(event);
-        ticket.setOrder(order);
+        ticket.setEvent(event);  // Liaison directe avec l'événement
+        ticket.setOrder(order);  // Liaison directe avec la commande
 
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+        logger.info("Ticket créé avec succès : {}", savedTicket.getId());
+
+        // Retour du DTO
+        return ticketMapper.toDTO(savedTicket);
     }
 
     @Transactional
-    public Ticket updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
+    public TicketDTO updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
 
+        // Utilisation des services pour les entités liées
         Event event = eventService.findById(ticketDTO.getEvent().getId());
         Order order = orderService.findById(ticketDTO.getOrder().getId());
 
@@ -64,26 +72,37 @@ public class TicketService {
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
 
-        return ticketRepository.save(ticket);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        logger.info("Ticket mis à jour avec succès : {}", updatedTicket.getId());
+
+        return ticketMapper.toDTO(updatedTicket);
     }
 
     @Transactional(readOnly = true)
-    public TicketDTO getTicketById(Long ticketId) throws Exception {
-        Ticket ticket = ticketRepository.findById(ticketId)
+    public Ticket getTicketById(Long ticketId) throws Exception {
+        return ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
-        return ticketMapper.toDTO(ticket);
     }
+
 
     @Transactional(readOnly = true)
     public List<TicketDTO> getAllTickets() throws Exception {
         List<Ticket> tickets = ticketRepository.findAll();
-        return ticketMapper.toDTOs(tickets);
+        logger.info("Nombre de tickets récupérés: {}", tickets.size());
+
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+        for (Ticket ticket : tickets) {
+            ticketDTOs.add(ticketMapper.toDTO(ticket));  // Utilisation du mapper pour chaque ticket
+        }
+        return ticketDTOs;
     }
 
     @Transactional
     public void deleteTicket(Long ticketId) throws Exception {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
+
         ticketRepository.delete(ticket);
+        logger.info("Ticket supprimé avec succès : {}", ticketId);
     }
 }

@@ -1,16 +1,11 @@
 package com.joparis2024.mapper;
 
 import com.joparis2024.dto.OrderDTO;
-import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.dto.OrderSimpleDTO;
 import com.joparis2024.model.Order;
-import com.joparis2024.model.Order_Ticket;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class OrderMapper {
@@ -19,37 +14,49 @@ public class OrderMapper {
     private UserMapper userMapper;
 
     @Autowired
-    @Lazy
-    private TicketMapper ticketMapper;
-
-    @Autowired
     private PaymentMapper paymentMapper;
+    
+    // Méthode pour mapper vers OrderSimpleDTO
+    public OrderSimpleDTO toSimpleDTO(Order order) {
+        if (order == null) {
+            return null;
+        }
+        return new OrderSimpleDTO(order.getId(), order.getStatus(), order.getTotalAmount());
+    }
 
-    public OrderDTO toDTO(Order order) throws Exception {
+    // Méthode pour mapper de OrderSimpleDTO vers Order (si besoin)
+    public Order toEntity(OrderSimpleDTO orderSimpleDTO) {
+        if (orderSimpleDTO == null) {
+            return null;
+        }
+        Order order = new Order();
+        order.setId(orderSimpleDTO.getId());
+        order.setStatus(orderSimpleDTO.getStatus());
+        order.setTotalAmount(orderSimpleDTO.getTotalAmount());
+        return order;
+    }
+
+    public OrderDTO toDTO(Order order) {
         if (order == null) {
             return null;
         }
 
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
-        orderDTO.setUser(userMapper.toDTO(order.getUser())); // Utilisation du mapper User
+        orderDTO.setUser(userMapper.toDTO(order.getUser()));  // Utilisation du mapper User
         orderDTO.setStatus(order.getStatus());
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setOrderDate(order.getOrderDate());
 
-        // Mapper les tickets
-        List<TicketDTO> ticketDTOs = new ArrayList<>();
-        for (Order_Ticket orderTicket : order.getOrderTickets()) {
-            ticketDTOs.add(ticketMapper.toDTO(orderTicket.getTicket())); // Utilisation du mapper Ticket
+        // Mapping de la relation Payment
+        if (order.getPayment() != null) {
+            orderDTO.setPayment(paymentMapper.toDTO(order.getPayment()));
         }
-        orderDTO.setTickets(ticketDTOs);
-
-        orderDTO.setPayment(paymentMapper.toDTO(order.getPayment())); // Utilisation du mapper Payment
 
         return orderDTO;
     }
 
-    public Order toEntity(OrderDTO orderDTO) throws Exception {
+    public Order toEntity(OrderDTO orderDTO) {
         if (orderDTO == null) {
             return null;
         }
@@ -59,45 +66,23 @@ public class OrderMapper {
         order.setStatus(orderDTO.getStatus());
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setOrderDate(orderDTO.getOrderDate());
-        order.setUser(userMapper.toEntity(orderDTO.getUser())); // Utilisation du mapper User
 
-        // Mapper les tickets
-        List<Order_Ticket> orderTickets = new ArrayList<>();
-        for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            Order_Ticket orderTicket = new Order_Ticket();
-            orderTicket.setTicket(ticketMapper.toEntity(ticketDTO)); // Utilisation du mapper Ticket
-            orderTickets.add(orderTicket);
+        // Mapping de l'utilisateur via UserMapper avec gestion de l'exception
+        if (orderDTO.getUser() != null) {
+            try {
+                order.setUser(userMapper.toEntity(orderDTO.getUser()));
+            } catch (Exception e) {
+                // Log de l'erreur et gestion possible de l'exception
+                System.err.println("Erreur lors du mapping de l'utilisateur : " + e.getMessage());
+                // Vous pouvez relancer l'exception si nécessaire ou renvoyer une valeur par défaut
+            }
         }
-        order.setOrderTickets(orderTickets);
 
-        order.setPayment(paymentMapper.toEntity(orderDTO.getPayment())); // Utilisation du mapper Payment
+        // Mapping du paiement
+        if (orderDTO.getPayment() != null) {
+            order.setPayment(paymentMapper.toEntity(orderDTO.getPayment()));
+        }
 
         return order;
-    }
-
-    public List<OrderDTO> toDTOs(List<Order> orders) throws Exception {
-        if (orders == null || orders.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<OrderDTO> orderDTOs = new ArrayList<>();
-        for (Order order : orders) {
-            orderDTOs.add(toDTO(order));
-        }
-
-        return orderDTOs;
-    }
-
-    public List<Order> toEntities(List<OrderDTO> orderDTOs) throws Exception {
-        if (orderDTOs == null || orderDTOs.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Order> orders = new ArrayList<>();
-        for (OrderDTO orderDTO : orderDTOs) {
-            orders.add(toEntity(orderDTO));
-        }
-
-        return orders;
     }
 }
