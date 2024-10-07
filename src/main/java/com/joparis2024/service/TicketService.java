@@ -3,14 +3,12 @@ package com.joparis2024.service;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.TicketMapper;
 import com.joparis2024.model.Event;
-import com.joparis2024.model.Order;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.TicketRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,29 +29,31 @@ public class TicketService {
     private TicketMapper ticketMapper;
 
     @Autowired
-    @Lazy
-    private EventService eventService;  // Pas de dépendance circulaire, gestion des entités via le service.
+    private EventService eventService;
 
     @Autowired
-    private OrderService orderService;
+    private OrderTicketFacade orderTicketFacade;  // Utilisation de la façade
 
     @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
         logger.info("Tentative de création d'un ticket : {}", ticketDTO);
 
-        // Utilisation du service pour récupérer les entités Event et Order
+        // Utilisation du service pour récupérer l'entité Event
         Event event = eventService.findById(ticketDTO.getEvent().getId());
-        Order order = orderService.findById(ticketDTO.getOrder().getId());
 
         // Mapper pour obtenir l'entité Ticket
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
         ticket.setEvent(event);  // Liaison directe avec l'événement
-        ticket.setOrder(order);  // Liaison directe avec la commande
 
+        // Sauvegarde du ticket
         Ticket savedTicket = ticketRepository.save(ticket);
         logger.info("Ticket créé avec succès : {}", savedTicket.getId());
 
-        // Retour du DTO
+        // Utilisation de la façade pour lier le ticket à une commande (si une commande est présente)
+        if (ticketDTO.getOrder() != null) {
+            orderTicketFacade.assignTicketToOrder(savedTicket.getId(), ticketDTO.getOrder().getId());
+        }
+
         return ticketMapper.toDTO(savedTicket);
     }
 
@@ -64,10 +64,8 @@ public class TicketService {
 
         // Utilisation des services pour les entités liées
         Event event = eventService.findById(ticketDTO.getEvent().getId());
-        Order order = orderService.findById(ticketDTO.getOrder().getId());
 
         ticket.setEvent(event);
-        ticket.setOrder(order);
         ticket.setPrice(ticketDTO.getPrice());
         ticket.setQuantity(ticketDTO.getQuantity());
         ticket.setAvailable(ticketDTO.isAvailable());
@@ -84,7 +82,6 @@ public class TicketService {
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
     }
 
-
     @Transactional(readOnly = true)
     public List<TicketDTO> getAllTickets() throws Exception {
         List<Ticket> tickets = ticketRepository.findAll();
@@ -92,7 +89,7 @@ public class TicketService {
 
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         for (Ticket ticket : tickets) {
-            ticketDTOs.add(ticketMapper.toDTO(ticket));  // Utilisation du mapper pour chaque ticket
+            ticketDTOs.add(ticketMapper.toDTO(ticket));
         }
         return ticketDTOs;
     }

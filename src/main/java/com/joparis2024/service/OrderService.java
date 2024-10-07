@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.joparis2024.mapper.OrderMapper;
 import com.joparis2024.model.Order;
-import com.joparis2024.model.Order_Ticket;
-import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.OrderRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -31,14 +29,14 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private TicketService ticketService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
-    private OrderMapper orderMapper; 
-    
+    private OrderMapper orderMapper;
+
+    @Autowired
+    private OrderTicketFacade orderTicketFacade;  // Utilisation de la façade
+
     @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) throws Exception {
         logger.info("Tentative de création de la commande avec OrderDTO : {}", orderDTO);
@@ -51,25 +49,18 @@ public class OrderService {
             order.setUser(userService.findById(orderDTO.getUser().getId()));
         }
 
-        // Gestion des tickets associés à la commande
-        if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
-            List<Order_Ticket> orderTickets = new ArrayList<>();
-            for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-                // Ici on récupère l'entité Ticket directement, pas un TicketDTO
-                Ticket ticket = ticketService.getTicketById(ticketDTO.getId()); // Assure-toi que cette méthode retourne un Ticket
-                Order_Ticket orderTicket = new Order_Ticket();
-                orderTicket.setTicket(ticket); // Lier le ticket à l'ordre
-                orderTicket.setOrder(order);
-                orderTickets.add(orderTicket);
-            }
-            order.setOrderTickets(orderTickets); // Assigner les tickets à la commande
-        }
-
-        // Sauvegarde de la commande
+        // Sauvegarde de la commande avant d'ajouter les tickets pour avoir un ordre valide
         Order savedOrder = orderRepository.save(order);
         logger.info("Commande créée avec succès : {}", savedOrder.getId());
 
-        return orderMapper.toDTO(savedOrder); // Retourne le DTO de la commande sauvegardée
+        // Utilisation de la façade pour gérer les tickets associés à la commande
+        if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
+            for (TicketDTO ticketDTO : orderDTO.getTickets()) {
+                orderTicketFacade.assignTicketToOrder(ticketDTO.getId(), savedOrder.getId());
+            }
+        }
+
+        return orderMapper.toDTO(savedOrder);
     }
 
     @Transactional
@@ -84,31 +75,25 @@ public class OrderService {
             order.setUser(userService.findById(orderDTO.getUser().getId()));
         }
 
-        // Mise à jour des tickets associés
-        if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
-            List<Order_Ticket> orderTickets = new ArrayList<>();
-            for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-            	Ticket ticket = ticketService.getTicketById(ticketDTO.getId());
-                Order_Ticket orderTicket = new Order_Ticket();
-                orderTicket.setTicket(ticket);
-                orderTicket.setOrder(order);
-                orderTickets.add(orderTicket);
-            }
-            order.setOrderTickets(orderTickets); // Mettre à jour les tickets liés à la commande
-        }
-
+        // Sauvegarde de la commande avant la mise à jour des tickets pour avoir un ordre valide
         Order updatedOrder = orderRepository.save(order);
         logger.info("Commande mise à jour avec succès : {}", updatedOrder.getId());
 
+        // Mise à jour des tickets associés via la façade
+        if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
+            for (TicketDTO ticketDTO : orderDTO.getTickets()) {
+                orderTicketFacade.assignTicketToOrder(ticketDTO.getId(), updatedOrder.getId());
+            }
+        }
+
         return orderMapper.toDTO(updatedOrder);
     }
-    
+
     @Transactional(readOnly = true)
     public List<OrderDTO> getAllOrders() throws Exception {
         List<Order> orders = orderRepository.findAll();
         logger.info("Nombre de commandes récupérées: {}", orders.size());
-        
-        // Transformation des entités Order en DTOs
+
         List<OrderDTO> orderDTOs = new ArrayList<>();
         for (Order order : orders) {
             orderDTOs.add(orderMapper.toDTO(order));
@@ -124,7 +109,6 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée"));
 
-        // Transformation de l'entité Order en DTO
         return orderMapper.toDTO(order);
     }
 
@@ -135,7 +119,6 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée"));
 
-        // Suppression de la commande
         orderRepository.delete(order);
         logger.info("Commande annulée avec succès : {}", orderId);
     }
@@ -147,21 +130,20 @@ public class OrderService {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée avec l'ID : " + id));
     }
-    
+
     @Transactional(readOnly = true)
     public List<OrderSimpleDTO> getAllSimpleOrders() throws Exception {
         List<Order> orders = orderRepository.findAll();
         logger.info("Nombre de commandes récupérées: {}", orders.size());
-        
-        // Transformation des entités Order en OrderSimpleDTOs
+
         List<OrderSimpleDTO> orderSimpleDTOs = new ArrayList<>();
         for (Order order : orders) {
-            orderSimpleDTOs.add(orderMapper.toSimpleDTO(order));  // Utilisation du OrderMapper pour mapper vers OrderSimpleDTO
+            orderSimpleDTOs.add(orderMapper.toSimpleDTO(order));
         }
 
         return orderSimpleDTOs;
     }
-    
+
     @Transactional(readOnly = true)
     public OrderSimpleDTO getSimpleOrderById(Long orderId) throws Exception {
         logger.info("Recherche de la commande ID: {}", orderId);
@@ -169,9 +151,6 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée"));
 
-        // Transformation de l'entité Order en OrderSimpleDTO
         return orderMapper.toSimpleDTO(order);
     }
-
-
 }
