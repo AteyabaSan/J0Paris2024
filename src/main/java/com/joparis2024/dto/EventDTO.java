@@ -9,12 +9,15 @@ public class EventDTO {
     private String eventName;
     private LocalDate eventDate;
     private String description;
+    private Long categoryId; // ID pour la catégorie
+    private List<Long> ticketIds; // Liste des IDs des tickets
     
     private CategoryDTO category;  // Utiliser CategoryDTO ici
     private List<TicketDTO> tickets;  // Relation avec TicketDTO
     private UserDTO organizer;  // Relation avec UserDTO
     private List<OfferDTO> offers;  // Relation avec OfferDTO (ajouté)
-
+    private List<Long> offerIds;
+    
     // Constructeur sans arguments
     public EventDTO() {}
 
@@ -32,6 +35,32 @@ public class EventDTO {
     }
 
     // Getters et Setters
+    
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    // Getter et Setter pour ticketIds
+    public List<Long> getTicketIds() {
+        return ticketIds;
+    }
+
+    public void setTicketIds(List<Long> ticketIds) {
+        this.ticketIds = ticketIds;
+    }
+
+    
+    public List<Long> getOfferIds() {
+        return offerIds;
+    }
+
+    public void setOfferIds(List<Long> offerIds) {
+        this.offerIds = offerIds;
+    }
 
     public Long getId() {
         return id;

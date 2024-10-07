@@ -32,29 +32,29 @@ public class TicketService {
     private EventService eventService;
 
     @Autowired
-    private OrderTicketFacade orderTicketFacade;  // Utilisation de la façade
+    private OrderTicketFacade orderTicketFacade;
+
+    // Méthode pour convertir une entité Ticket en DTO
+    public TicketDTO convertToDTO(Ticket ticket) {
+        return ticketMapper.toDTO(ticket);  // Centralisation de la conversion dans le service
+    }
 
     @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
         logger.info("Tentative de création d'un ticket : {}", ticketDTO);
 
-        // Utilisation du service pour récupérer l'entité Event
         Event event = eventService.findById(ticketDTO.getEvent().getId());
-
-        // Mapper pour obtenir l'entité Ticket
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
-        ticket.setEvent(event);  // Liaison directe avec l'événement
+        ticket.setEvent(event);
 
-        // Sauvegarde du ticket
         Ticket savedTicket = ticketRepository.save(ticket);
         logger.info("Ticket créé avec succès : {}", savedTicket.getId());
 
-        // Utilisation de la façade pour lier le ticket à une commande (si une commande est présente)
         if (ticketDTO.getOrder() != null) {
             orderTicketFacade.assignTicketToOrder(savedTicket.getId(), ticketDTO.getOrder().getId());
         }
 
-        return ticketMapper.toDTO(savedTicket);
+        return convertToDTO(savedTicket);
     }
 
     @Transactional
@@ -62,7 +62,6 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
 
-        // Utilisation des services pour les entités liées
         Event event = eventService.findById(ticketDTO.getEvent().getId());
 
         ticket.setEvent(event);
@@ -73,7 +72,7 @@ public class TicketService {
         Ticket updatedTicket = ticketRepository.save(ticket);
         logger.info("Ticket mis à jour avec succès : {}", updatedTicket.getId());
 
-        return ticketMapper.toDTO(updatedTicket);
+        return convertToDTO(updatedTicket);
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +88,7 @@ public class TicketService {
 
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         for (Ticket ticket : tickets) {
-            ticketDTOs.add(ticketMapper.toDTO(ticket));
+            ticketDTOs.add(convertToDTO(ticket));  // Utilisation du service pour la conversion
         }
         return ticketDTOs;
     }

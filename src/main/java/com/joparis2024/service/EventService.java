@@ -1,8 +1,6 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.EventDTO;
-import com.joparis2024.dto.EventOfferDTO;
-import com.joparis2024.dto.OfferDTO;
 import com.joparis2024.mapper.EventMapper;
 import com.joparis2024.model.Event;
 import com.joparis2024.repository.EventRepository;
@@ -31,7 +29,7 @@ public class EventService {
     private EventMapper eventMapper;
 
     @Autowired
-    private EventOfferService eventOfferService; // Ajout du service EventOffer
+    private EventOfferFacade eventOfferFacade;
 
     @Transactional(readOnly = true)
     public List<EventDTO> getAllEvents() {
@@ -39,11 +37,7 @@ public class EventService {
         List<Event> events = eventRepository.findAll();
         List<EventDTO> eventDTOs = new ArrayList<>();
         for (Event event : events) {
-            try {
-                eventDTOs.add(eventMapper.toDTO(event));
-            } catch (Exception e) {
-                logger.error("Erreur lors du mapping de l'événement : {}", event.getEventName(), e);
-            }
+            eventDTOs.add(eventMapper.toDTO(event));
         }
         logger.info("Nombre d'événements récupérés: {}", eventDTOs.size());
         return eventDTOs;
@@ -54,21 +48,17 @@ public class EventService {
         logger.info("Tentative de création d'un nouvel événement : {}", eventDTO.getEventName());
         validateEventDTO(eventDTO);
 
+        // Convertir le DTO en entité
         Event event = eventMapper.toEntity(eventDTO);
         Event savedEvent = eventRepository.save(event);
         
-        // Gestion des relations avec les offres via EventOffer
-        if (eventDTO.getOffers() != null && !eventDTO.getOffers().isEmpty()) {
-            for (OfferDTO offerDTO : eventDTO.getOffers()) {
-                EventOfferDTO eventOfferDTO = new EventOfferDTO();
-                eventOfferDTO.setEvent(eventMapper.toDTO(savedEvent));
-                eventOfferDTO.setOffer(offerDTO);
-                eventOfferService.createEventOffer(eventOfferDTO); // Créer l'association Event-Offer
-            }
+        // Utiliser la façade pour associer les offres à l'événement
+        if (eventDTO.getOfferIds() != null && !eventDTO.getOfferIds().isEmpty()) {
+            eventOfferFacade.assignOffersToEvent(savedEvent.getId(), eventDTO.getOfferIds());
         }
 
         logger.info("Événement créé avec succès : {}", savedEvent.getEventName());
-        return eventMapper.toDTO(savedEvent);
+        return eventMapper.toDTO(savedEvent);  // Convertir l'entité en DTO
     }
 
     @Transactional
@@ -77,24 +67,20 @@ public class EventService {
         Event event = eventRepository.findByEventName(eventName)
                 .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé avec le nom : " + eventName));
 
+        // Mettre à jour les champs de l'événement
         event.setEventName(eventDTO.getEventName());
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
 
         Event updatedEvent = eventRepository.save(event);
 
-        // Gestion des relations avec les offres via EventOffer
-        if (eventDTO.getOffers() != null && !eventDTO.getOffers().isEmpty()) {
-            for (OfferDTO offerDTO : eventDTO.getOffers()) {
-                EventOfferDTO eventOfferDTO = new EventOfferDTO();
-                eventOfferDTO.setEvent(eventMapper.toDTO(updatedEvent));
-                eventOfferDTO.setOffer(offerDTO);
-                eventOfferService.createEventOffer(eventOfferDTO); // Créer l'association Event-Offer
-            }
+        // Utilisation de la façade pour mettre à jour les offres associées
+        if (eventDTO.getOfferIds() != null && !eventDTO.getOfferIds().isEmpty()) {
+            eventOfferFacade.assignOffersToEvent(updatedEvent.getId(), eventDTO.getOfferIds());
         }
 
         logger.info("Événement mis à jour avec succès : {}", updatedEvent.getEventName());
-        return eventMapper.toDTO(updatedEvent);
+        return eventMapper.toDTO(updatedEvent);  // Conversion en DTO
     }
 
     @Transactional

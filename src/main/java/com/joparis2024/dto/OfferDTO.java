@@ -6,6 +6,7 @@ public class OfferDTO {
     private Long id;
     private String name;
     private int numberOfSeats;
+    private List<Long> eventIds;
 
     // Nouvelle relation avec EventDTO
     private List<EventDTO> events;
@@ -20,6 +21,14 @@ public class OfferDTO {
     }
 
     // Getters et Setters
+    
+    public List<Long> getEventIds() {
+        return eventIds;
+    }
+
+    public void setEventIds(List<Long> eventIds) {
+        this.eventIds = eventIds;
+    }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

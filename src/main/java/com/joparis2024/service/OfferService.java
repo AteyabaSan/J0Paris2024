@@ -1,10 +1,7 @@
 package com.joparis2024.service;
 
-import com.joparis2024.dto.EventDTO;
 import com.joparis2024.dto.OfferDTO;
-import com.joparis2024.mapper.EventMapper;
 import com.joparis2024.mapper.OfferMapper;
-import com.joparis2024.model.Event;
 import com.joparis2024.model.Offer;
 import com.joparis2024.repository.OfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +19,9 @@ public class OfferService {
 
     @Autowired
     private OfferMapper offerMapper;
-    
+
     @Autowired
-    private EventMapper eventMapper;
+    private EventOfferFacade eventOfferFacade;  // Utilisation de la façade pour gérer les événements associés
 
     // Récupérer toutes les offres
     public List<OfferDTO> getAllOffers() throws Exception {
@@ -41,6 +38,12 @@ public class OfferService {
     public OfferDTO createOffer(OfferDTO offerDTO) throws Exception {
         Offer offer = offerMapper.toEntity(offerDTO);
         Offer savedOffer = offerRepository.save(offer);
+
+        // Utilisation de la façade pour gérer l'association entre Offer et Event
+        if (offerDTO.getEventIds() != null && !offerDTO.getEventIds().isEmpty()) {
+            eventOfferFacade.assignEventsToOffer(savedOffer.getId(), offerDTO.getEventIds());
+        }
+
         return offerMapper.toDTO(savedOffer);
     }
 
@@ -65,16 +68,13 @@ public class OfferService {
         offer.setName(offerDTO.getName());
         offer.setNumberOfSeats(offerDTO.getNumberOfSeats());
 
-        // Mapping explicite des événements
-        if (offerDTO.getEvents() != null && !offerDTO.getEvents().isEmpty()) {
-            List<Event> events = new ArrayList<>();
-            for (EventDTO eventDTO : offerDTO.getEvents()) {
-                events.add(eventMapper.toEntity(eventDTO));  // Mapping manuel des événements
-            }
-            offer.setEvents(events);
+        Offer updatedOffer = offerRepository.save(offer);
+
+        // Utilisation de la façade pour mettre à jour les événements associés
+        if (offerDTO.getEventIds() != null && !offerDTO.getEventIds().isEmpty()) {
+            eventOfferFacade.assignEventsToOffer(updatedOffer.getId(), offerDTO.getEventIds());
         }
 
-        Offer updatedOffer = offerRepository.save(offer);
         return offerMapper.toDTO(updatedOffer);
     }
 
@@ -85,4 +85,11 @@ public class OfferService {
         }
         offerRepository.deleteById(id);
     }
+
+    // Méthode pour trouver une offre par son ID
+    public Offer findById(Long offerId) throws Exception {
+        return offerRepository.findById(offerId)
+            .orElseThrow(() -> new Exception("Offer non trouvée avec l'ID : " + offerId));
+    }
 }
+

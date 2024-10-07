@@ -35,7 +35,7 @@ public class OrderService {
     private OrderMapper orderMapper;
 
     @Autowired
-    private OrderTicketFacade orderTicketFacade;  // Utilisation de la façade
+    private OrderTicketFacade orderTicketFacade;
 
     @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) throws Exception {
@@ -56,7 +56,7 @@ public class OrderService {
         // Utilisation de la façade pour gérer les tickets associés à la commande
         if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
             for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-                orderTicketFacade.assignTicketToOrder(ticketDTO.getId(), savedOrder.getId());
+                orderTicketFacade.assignTicketToOrder(ticketDTO.getId(), savedOrder.getId());  // On passe simplement l'id de la commande
             }
         }
 
@@ -80,7 +80,7 @@ public class OrderService {
         logger.info("Commande mise à jour avec succès : {}", updatedOrder.getId());
 
         // Mise à jour des tickets associés via la façade
-        if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
+        if (orderDTO.getTickets() != null && ! orderDTO.getTickets().isEmpty()) {
             for (TicketDTO ticketDTO : orderDTO.getTickets()) {
                 orderTicketFacade.assignTicketToOrder(ticketDTO.getId(), updatedOrder.getId());
             }
