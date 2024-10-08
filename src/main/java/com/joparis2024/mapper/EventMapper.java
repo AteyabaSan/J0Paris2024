@@ -68,4 +68,14 @@ public class EventMapper {
 
         return event;
     }
+    
+    // Méthode pour convertir une liste d'entités Event en EventDTO
+    public List<EventDTO> toDTOs(List<Event> events) {
+        List<EventDTO> eventDTOs = new ArrayList<>();
+        for (Event event : events) {
+            eventDTOs.add(toDTO(event));  // Appel de la méthode de conversion d'un seul événement
+        }
+        return eventDTOs;
+    }
+    
 }

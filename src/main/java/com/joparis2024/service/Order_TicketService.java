@@ -7,7 +7,8 @@ import com.joparis2024.mapper.Order_TicketMapper;
 import com.joparis2024.model.Order_Ticket;
 import com.joparis2024.repository.Order_TicketRepository;
 
-import java.util.ArrayList;
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 
 @Service
@@ -21,7 +22,6 @@ public class Order_TicketService {
 
     // Créer une association Order_Ticket
     public Order_TicketDTO createOrderTicket(Order_TicketDTO orderTicketDTO) {
-        // Vérifier que les ID d'ordre et de ticket sont valides avant de continuer
         if (orderTicketDTO.getOrderId() == null || orderTicketDTO.getTicketId() == null) {
             throw new IllegalArgumentException("Order ID and Ticket ID must not be null");
         }
@@ -31,25 +31,23 @@ public class Order_TicketService {
         return orderTicketMapper.toDTO(savedOrderTicket);
     }
 
-    // Récupérer tous les Order_Ticket d'une commande
+    // Récupérer toutes les associations Order_Ticket pour une commande
     public List<Order_TicketDTO> getOrderTicketsByOrder(Long orderId) {
         List<Order_Ticket> orderTickets = orderTicketRepository.findByOrderId(orderId);
-        List<Order_TicketDTO> orderTicketDTOs = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les entités en DTO
-        for (Order_Ticket orderTicket : orderTickets) {
-            orderTicketDTOs.add(orderTicketMapper.toDTO(orderTicket));
-        }
-        return orderTicketDTOs;
+        return orderTicketMapper.toDTOs(orderTickets);
     }
 
-    // Récupérer tous les Order_Ticket pour un ticket
-    public List<Order_TicketDTO> getOrderTicketsByTicket(Long ticketId) {
-        List<Order_Ticket> orderTickets = orderTicketRepository.findByTicketId(ticketId);
-        List<Order_TicketDTO> orderTicketDTOs = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les entités en DTO
-        for (Order_Ticket orderTicket : orderTickets) {
-            orderTicketDTOs.add(orderTicketMapper.toDTO(orderTicket));
-        }
-        return orderTicketDTOs;
+    // Supprimer une association Order_Ticket
+    public void deleteOrderTicket(Long id) throws Exception {
+        Order_Ticket orderTicket = orderTicketRepository.findById(id)
+                .orElseThrow(() -> new Exception("Relation Order-Ticket non trouvée"));
+        orderTicketRepository.delete(orderTicket);
     }
+    
+    public Order_TicketDTO getOrderTicketById(Long ticketId) {
+        Order_Ticket orderTicket = orderTicketRepository.findById(ticketId)
+            .orElseThrow(() -> new EntityNotFoundException("Order_Ticket non trouvé"));
+        return orderTicketMapper.toDTO(orderTicket);  // Utilisation de toDTO() pour une seule entité
+    }
+
 }

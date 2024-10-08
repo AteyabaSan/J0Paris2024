@@ -5,13 +5,11 @@ import com.joparis2024.mapper.EventOfferMapper;
 import com.joparis2024.model.EventOffer;
 import com.joparis2024.repository.EventOfferRepository;
 
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EventOfferService {
@@ -27,33 +25,20 @@ public class EventOfferService {
         if (eventOfferDTO.getEvent() == null || eventOfferDTO.getOffer() == null) {
             throw new IllegalArgumentException("L'événement et l'offre doivent être spécifiés");
         }
-        // Utilisation du mappage pour convertir DTO en entité
         EventOffer eventOffer = eventOfferMapper.toEntity(eventOfferDTO);
-        return eventOfferMapper.toDTO(eventOfferRepository.save(eventOffer)); // Renvoi du DTO après sauvegarde
+        return eventOfferMapper.toDTO(eventOfferRepository.save(eventOffer));
     }
 
-    // Récupérer toutes les associations EventOffer
-    public List<EventOfferDTO> getAllEventOffers() {
+    public List<EventOfferDTO> getAllEventOffers() throws Exception {
         List<EventOffer> eventOffers = eventOfferRepository.findAll();
-        List<EventOfferDTO> eventOfferDTOs = new ArrayList<>();
-        // Gestion des erreurs avec try-catch lors du mapping
-        for (EventOffer eventOffer : eventOffers) {
-            try {
-                eventOfferDTOs.add(eventOfferMapper.toDTO(eventOffer));
-            } catch (Exception e) {
-                // Log de l'erreur en cas de problème
-                LoggerFactory.getLogger(EventOfferService.class).error("Erreur lors du mapping de l'EventOffer", e);
-            }
-        }
-        return eventOfferDTOs; // Retour de la liste des DTOs
+        return eventOfferMapper.toDTOs(eventOffers);  // Appel à la méthode pour convertir une liste
     }
+
 
     // Supprimer une association EventOffer
     public void deleteEventOffer(Long id) throws Exception {
-        Optional<EventOffer> eventOffer = eventOfferRepository.findById(id);
-        if (!eventOffer.isPresent()) {
-            throw new Exception("L'association Event-Offer n'existe pas");
-        }
-        eventOfferRepository.delete(eventOffer.get());
+        EventOffer eventOffer = eventOfferRepository.findById(id)
+            .orElseThrow(() -> new Exception("L'association Event-Offer n'existe pas"));
+        eventOfferRepository.delete(eventOffer);
     }
 }

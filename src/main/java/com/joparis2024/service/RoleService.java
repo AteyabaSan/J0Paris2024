@@ -74,4 +74,9 @@ public class RoleService {
         }
         roleRepository.delete(role.get());
     }
+    
+    public List<Role> getRolesByNames(List<String> roleNames) {
+        return roleRepository.findByNameIn(roleNames);
+    }
+
 }

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OfferService {
@@ -21,7 +20,7 @@ public class OfferService {
     private OfferMapper offerMapper;
 
     @Autowired
-    private EventOfferFacade eventOfferFacade;  // Utilisation de la façade pour gérer les événements associés
+    private EventManagementFacade eventManagementFacade;  // Utilisation de la façade pour gérer les événements associés
 
     // Récupérer toutes les offres
     public List<OfferDTO> getAllOffers() throws Exception {
@@ -41,7 +40,7 @@ public class OfferService {
 
         // Utilisation de la façade pour gérer l'association entre Offer et Event
         if (offerDTO.getEventIds() != null && !offerDTO.getEventIds().isEmpty()) {
-            eventOfferFacade.assignEventsToOffer(savedOffer.getId(), offerDTO.getEventIds());
+            eventManagementFacade.assignEventsToOffer(savedOffer.getId(), offerDTO.getEventIds());
         }
 
         return offerMapper.toDTO(savedOffer);
@@ -49,30 +48,24 @@ public class OfferService {
 
     // Récupérer une offre par ID
     public OfferDTO getOfferById(Long id) throws Exception {
-        Optional<Offer> offer = offerRepository.findById(id);
-        if (offer.isPresent()) {
-            return offerMapper.toDTO(offer.get());
-        } else {
-            throw new Exception("Offer non trouvée");
-        }
+        Offer offer = offerRepository.findById(id)
+            .orElseThrow(() -> new Exception("Offer non trouvée"));
+        return offerMapper.toDTO(offer);
     }
 
     // Mettre à jour une offre
     public OfferDTO updateOffer(Long id, OfferDTO offerDTO) throws Exception {
-        Optional<Offer> existingOffer = offerRepository.findById(id);
-        if (!existingOffer.isPresent()) {
-            throw new Exception("Offer non trouvée");
-        }
+        Offer existingOffer = offerRepository.findById(id)
+            .orElseThrow(() -> new Exception("Offer non trouvée"));
 
-        Offer offer = existingOffer.get();
-        offer.setName(offerDTO.getName());
-        offer.setNumberOfSeats(offerDTO.getNumberOfSeats());
+        existingOffer.setName(offerDTO.getName());
+        existingOffer.setNumberOfSeats(offerDTO.getNumberOfSeats());
 
-        Offer updatedOffer = offerRepository.save(offer);
+        Offer updatedOffer = offerRepository.save(existingOffer);
 
         // Utilisation de la façade pour mettre à jour les événements associés
         if (offerDTO.getEventIds() != null && !offerDTO.getEventIds().isEmpty()) {
-            eventOfferFacade.assignEventsToOffer(updatedOffer.getId(), offerDTO.getEventIds());
+            eventManagementFacade.assignEventsToOffer(updatedOffer.getId(), offerDTO.getEventIds());
         }
 
         return offerMapper.toDTO(updatedOffer);
@@ -92,4 +85,3 @@ public class OfferService {
             .orElseThrow(() -> new Exception("Offer non trouvée avec l'ID : " + offerId));
     }
 }
-

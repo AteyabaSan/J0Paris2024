@@ -4,6 +4,9 @@ import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.OrderSimpleDTO;
 import com.joparis2024.model.Order;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -85,4 +88,14 @@ public class OrderMapper {
 
         return order;
     }
+    
+    public List<OrderDTO> toDTOs(List<Order> orders) {
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+        for (Order order : orders) {
+            orderDTOs.add(toDTO(order));  // Réutilisation de la méthode toDTO pour chaque élément
+        }
+        return orderDTOs;
+    }
+
+
 }

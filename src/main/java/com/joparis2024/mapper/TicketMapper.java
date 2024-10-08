@@ -2,6 +2,10 @@ package com.joparis2024.mapper;
 
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.model.Ticket;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 
@@ -42,4 +46,19 @@ public class TicketMapper {
 
         return ticket;
     }
+    
+    public List<TicketDTO> toDTOs(List<Ticket> tickets) {
+        if (tickets == null || tickets.isEmpty()) {
+            return new ArrayList<>();  // Retourne une liste vide si aucune donnée
+        }
+        
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+        for (Ticket ticket : tickets) {
+            TicketDTO dto = toDTO(ticket);  // Conversion via la méthode toDTO existante
+            ticketDTOs.add(dto);
+        }
+        
+        return ticketDTOs;
+    }
+
 }

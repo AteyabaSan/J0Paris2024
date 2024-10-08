@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -48,5 +49,12 @@ public class Event {
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "offer_id")
     )
-    private List<Offer> offers;
+    private List<Offer> offers = new ArrayList<>();  // Initialisation de la liste des offres
+
+    // Méthode pour ajouter une offre à l'événement
+    public void addOffer(Offer offer) {
+        if (offer != null) {
+            this.offers.add(offer);
+        }
+    }
 }

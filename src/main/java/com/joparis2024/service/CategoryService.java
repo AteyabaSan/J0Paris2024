@@ -20,8 +20,11 @@ public class CategoryService {
     @Autowired
     private CategoryMapper categoryMapper; // Injecter le CategoryMapper
 
+    @Autowired
+    private EventManagementFacade eventManagementFacade; // Injecter la façade pour gérer les interactions avec les événements
+
     // Créer une catégorie
-    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) throws Exception {
         // Validation du DTO avant de créer la catégorie
         if (categoryDTO == null || categoryDTO.getName() == null || categoryDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être vide");
@@ -33,7 +36,12 @@ public class CategoryService {
         // Sauvegarder l'entité dans la base de données
         Category savedCategory = categoryRepository.save(category);
 
-        // Mapper l'entité sauvegardée vers un DTO et le retourner
+        // Si l'événement est associé à une catégorie, gestion via la Façade
+        if (categoryDTO.getEventIds() != null && !categoryDTO.getEventIds().isEmpty()) {
+            eventManagementFacade.assignCategoryToEvents(savedCategory.getId(), categoryDTO.getEventIds());
+        }
+
+        // Retourner le DTO
         return categoryMapper.toDTO(savedCategory);
     }
 
@@ -74,6 +82,11 @@ public class CategoryService {
 
         // Sauvegarder les modifications dans la base de données
         Category updatedCategory = categoryRepository.save(category);
+
+        // Mettre à jour les associations de la catégorie avec les événements via la Façade
+        if (categoryDTO.getEventIds() != null && !categoryDTO.getEventIds().isEmpty()) {
+            eventManagementFacade.assignCategoryToEvents(updatedCategory.getId(), categoryDTO.getEventIds());
+        }
 
         // Retourner le DTO mis à jour via le mapper
         return categoryMapper.toDTO(updatedCategory);

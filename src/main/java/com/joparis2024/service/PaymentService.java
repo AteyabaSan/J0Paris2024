@@ -1,51 +1,30 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.PaymentDTO;
-import com.joparis2024.mapper.OrderMapper;
 import com.joparis2024.mapper.PaymentMapper;
 import com.joparis2024.model.Payment;
 import com.joparis2024.repository.PaymentRepository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PaymentService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Autowired
     private PaymentRepository paymentRepository;
-
-    @Autowired
-    @Lazy
-    private OrderService orderService;
-
-    @Autowired
-    private OrderMapper orderMapper; // Utilisation du OrderMapper
 
     @Autowired
     private PaymentMapper paymentMapper;
 
     @Transactional
     public Payment createPayment(PaymentDTO paymentDTO) throws Exception {
-        if (paymentDTO.getOrder() == null) {
-            throw new Exception("La commande ne peut pas être nulle lors de la création du paiement.");
-        }
-
+        // La logique concernant la commande (Order) a été retirée et déplacée dans la facade
         Payment payment = paymentMapper.toEntity(paymentDTO);
-        payment.setOrder(orderMapper.toEntity(paymentDTO.getOrder())); // Utilisation de OrderMapper pour convertir OrderDTO en Order
-
         return paymentRepository.save(payment);
     }
 
@@ -54,19 +33,14 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
 
-        Hibernate.initialize(payment.getOrder());
-
+        // Pas besoin d'initialiser la commande ici, car la facade gère la relation Payment-Order
         return paymentMapper.toDTO(payment);
     }
 
     @Transactional(readOnly = true)
     public List<PaymentDTO> getAllPayments() throws Exception {
         List<Payment> payments = paymentRepository.findAll();
-        List<PaymentDTO> paymentDTOs = new ArrayList<>();
-        for (Payment payment : payments) {
-            paymentDTOs.add(paymentMapper.toDTO(payment));
-        }
-        return paymentDTOs;
+        return paymentMapper.toDTOs(payments);
     }
 
     @Transactional
@@ -88,30 +62,19 @@ public class PaymentService {
                 .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
         paymentRepository.delete(payment);
     }
-    
+
     @Transactional(readOnly = true)
     public PaymentDTO getSimplePaymentById(Long paymentId) throws Exception {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
 
-        // Utilisation de OrderSimpleDTO pour alléger les données associées à la commande
-        PaymentDTO paymentDTO = paymentMapper.toDTO(payment);
-        paymentDTO.setOrder(orderMapper.toSimpleDTO(payment.getOrder()));  // Utilisation d'un OrderSimpleDTO
-        return paymentDTO;
+        // Logique simplifiée : ici, le mapper et les DTO prennent en charge la simplification des données
+        return paymentMapper.toDTO(payment);
     }
-    
-    // Nouvelle méthode pour récupérer des paiements simplifiés
+
     @Transactional(readOnly = true)
     public List<PaymentDTO> getSimplePayments() throws Exception {
         List<Payment> payments = paymentRepository.findAll();
-        List<PaymentDTO> paymentDTOs = new ArrayList<>();
-        for (Payment payment : payments) {
-            PaymentDTO paymentDTO = paymentMapper.toDTO(payment);
-            // Utilisation d'OrderSimpleDTO pour alléger les données
-            paymentDTO.setOrder(orderMapper.toSimpleDTO(payment.getOrder()));
-            paymentDTOs.add(paymentDTO);
-        }
-        return paymentDTOs;
+        return paymentMapper.toDTOs(payments);
     }
-
 }

@@ -10,6 +10,12 @@ public class Order_TicketDTO {
     // Constructeur sans argument
     public Order_TicketDTO() {}
 
+    // Constructeur avec deux arguments (orderId et ticketId)
+    public Order_TicketDTO(Long orderId, Long ticketId) {
+        this.orderId = orderId;
+        this.ticketId = ticketId;
+    }
+
     // Constructeur avec tous les arguments
     public Order_TicketDTO(Long id, Long orderId, Long ticketId, Integer quantity) {
         this.id = id;
@@ -51,4 +57,3 @@ public class Order_TicketDTO {
         this.quantity = quantity;
     }
 }
-
