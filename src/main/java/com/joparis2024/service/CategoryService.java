@@ -21,7 +21,7 @@ public class CategoryService {
     private CategoryMapper categoryMapper; // Injecter le CategoryMapper
 
     @Autowired
-    private EventManagementFacade eventManagementFacade; // Injecter la façade pour gérer les interactions avec les événements
+    private InteractionFacade interactionFacade;  // Utilisation de l'Interaction Facade
 
     // Créer une catégorie
     public CategoryDTO createCategory(CategoryDTO categoryDTO) throws Exception {
@@ -36,10 +36,8 @@ public class CategoryService {
         // Sauvegarder l'entité dans la base de données
         Category savedCategory = categoryRepository.save(category);
 
-        // Si l'événement est associé à une catégorie, gestion via la Façade
-        if (categoryDTO.getEventIds() != null && !categoryDTO.getEventIds().isEmpty()) {
-            eventManagementFacade.assignCategoryToEvents(savedCategory.getId(), categoryDTO.getEventIds());
-        }
+        // Gestion des interactions via la façade
+        interactionFacade.handleCategoryCreation(savedCategory, categoryDTO);
 
         // Retourner le DTO
         return categoryMapper.toDTO(savedCategory);
@@ -83,10 +81,8 @@ public class CategoryService {
         // Sauvegarder les modifications dans la base de données
         Category updatedCategory = categoryRepository.save(category);
 
-        // Mettre à jour les associations de la catégorie avec les événements via la Façade
-        if (categoryDTO.getEventIds() != null && !categoryDTO.getEventIds().isEmpty()) {
-            eventManagementFacade.assignCategoryToEvents(updatedCategory.getId(), categoryDTO.getEventIds());
-        }
+        // Gestion des interactions via la façade
+        interactionFacade.handleCategoryUpdate(updatedCategory, categoryDTO);
 
         // Retourner le DTO mis à jour via le mapper
         return categoryMapper.toDTO(updatedCategory);
@@ -100,5 +96,8 @@ public class CategoryService {
 
         // Supprimer la catégorie de la base de données
         categoryRepository.deleteById(id);
+
+        // Gestion des interactions lors de la suppression via la façade
+        interactionFacade.handleCategoryDeletion(id);
     }
 }

@@ -33,9 +33,6 @@ public class EventManagementFacade {
     private OfferService offerService;
 
     @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
     private TicketService ticketService;
     
     @Autowired
@@ -126,9 +123,9 @@ public class EventManagementFacade {
         return offers;
     }
 
-    // Gestion des catégories : assigner une catégorie à des événements
+    // Gestion des catégories : assigner une catégorie à des événements, via CategoryService externe
     @Transactional
-    public void assignCategoryToEvents(Long categoryId, List<Long> eventIds) throws Exception {
+    public void assignCategoryToEvents(Long categoryId, List<Long> eventIds, CategoryService categoryService) throws Exception {
         logger.info("Association de la catégorie ID: {} aux événements : {}", categoryId, eventIds);
         CategoryDTO categoryDTO = categoryService.getCategoryById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Catégorie non trouvée"));
