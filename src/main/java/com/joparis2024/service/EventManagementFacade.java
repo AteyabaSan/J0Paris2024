@@ -46,7 +46,7 @@ public class EventManagementFacade {
 
     private static final Logger logger = LoggerFactory.getLogger(EventManagementFacade.class);
 
- // Méthode complexe : assigner des tickets à un événement
+    // Méthode complexe : assigner des tickets à un événement
     @Transactional
     public void assignTicketsToEvent(Long eventId, List<Long> ticketIds) throws Exception {
         logger.info("Association des tickets à l'événement ID: {}", eventId);
@@ -61,8 +61,9 @@ public class EventManagementFacade {
             tickets.add(ticket);
         }
 
+        // Mise à jour des tickets via le TicketService pour sauvegarder l'association
         for (Ticket ticket : tickets) {
-            ticketService.updateTicket(ticket.getId(), ticketService.convertToDTO(ticket));  // Sauvegarde via TicketService
+            ticketService.updateTicket(ticket.getId(), ticketService.convertToDTO(ticket)); 
         }
     }
     
@@ -75,7 +76,7 @@ public class EventManagementFacade {
         return event.getTickets();  // Récupérer les tickets liés à l'événement
     }
 
- // Méthode complexe : assigner des offres à un événement
+    // Méthode complexe : assigner des offres à un événement
     @Transactional
     public void assignOffersToEvent(Long eventId, List<Long> offerIds) throws Exception {
         logger.info("Association des offres à l'événement ID: {}", eventId);
@@ -83,7 +84,7 @@ public class EventManagementFacade {
         Event event = eventService.toEntity(eventDTO);  // Conversion en entité
 
         for (Long offerId : offerIds) {
-            Offer offer = offerService.findById(offerId);  // Récupération des offres via OfferService
+            Offer offer = offerService.findById(offerId);  // Récupération de l'offre via OfferService
             EventOffer eventOffer = new EventOffer();
             eventOffer.setEvent(event);
             eventOffer.setOffer(offer);

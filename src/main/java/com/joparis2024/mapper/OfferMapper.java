@@ -46,4 +46,17 @@ public class OfferMapper {
         // Remarque : Les relations avec les événements seront gérées dans le service
         return offer;
     }
+    
+ // Ajout de la méthode toDTOs pour convertir une liste d'offres en DTOs
+    public List<OfferDTO> toDTOs(List<Offer> offers) {
+        if (offers == null || offers.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<OfferDTO> offerDTOs = new ArrayList<>();
+        for (Offer offer : offers) {
+            offerDTOs.add(toDTO(offer));  // Conversion de chaque Offer en OfferDTO
+        }
+        return offerDTOs;
+    }
 }
