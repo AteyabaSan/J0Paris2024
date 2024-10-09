@@ -1,10 +1,14 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.CategoryDTO;
+import com.joparis2024.events.CategoryCreatedEvent;
+import com.joparis2024.events.CategoryDeletedEvent;
+import com.joparis2024.events.CategoryUpdatedEvent;
 import com.joparis2024.mapper.CategoryMapper;
 import com.joparis2024.model.Category;
 import com.joparis2024.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,10 +22,10 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private CategoryMapper categoryMapper; // Injecter le CategoryMapper
+    private CategoryMapper categoryMapper;
 
     @Autowired
-    private InteractionFacade interactionFacade;  // Utilisation de l'Interaction Facade
+    private ApplicationEventPublisher eventPublisher;  // Utilisation de Spring Events
 
     // Créer une catégorie
     public CategoryDTO createCategory(CategoryDTO categoryDTO) throws Exception {
@@ -36,8 +40,8 @@ public class CategoryService {
         // Sauvegarder l'entité dans la base de données
         Category savedCategory = categoryRepository.save(category);
 
-        // Gestion des interactions via la façade
-        interactionFacade.handleCategoryCreation(savedCategory, categoryDTO);
+        // Publier l'événement CategoryCreatedEvent
+        eventPublisher.publishEvent(new CategoryCreatedEvent(this, categoryMapper.toDTO(savedCategory)));
 
         // Retourner le DTO
         return categoryMapper.toDTO(savedCategory);
@@ -47,7 +51,6 @@ public class CategoryService {
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         List<CategoryDTO> categoryDTOs = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les entités en DTOs
         for (Category category : categories) {
             categoryDTOs.add(categoryMapper.toDTO(category));
         }
@@ -57,8 +60,6 @@ public class CategoryService {
     // Récupérer une catégorie par ID
     public Optional<CategoryDTO> getCategoryById(Long id) {
         Optional<Category> category = categoryRepository.findById(id);
-
-        // Mapper l'entité vers un DTO si elle existe
         return category.map(categoryMapper::toDTO);
     }
 
@@ -69,7 +70,6 @@ public class CategoryService {
             throw new Exception("Catégorie non trouvée");
         }
 
-        // Validation des champs à mettre à jour
         if (categoryDTO.getName() == null || categoryDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être vide.");
         }
@@ -81,10 +81,9 @@ public class CategoryService {
         // Sauvegarder les modifications dans la base de données
         Category updatedCategory = categoryRepository.save(category);
 
-        // Gestion des interactions via la façade
-        interactionFacade.handleCategoryUpdate(updatedCategory, categoryDTO);
+        // Publier l'événement CategoryUpdatedEvent
+        eventPublisher.publishEvent(new CategoryUpdatedEvent(this, categoryMapper.toDTO(updatedCategory)));
 
-        // Retourner le DTO mis à jour via le mapper
         return categoryMapper.toDTO(updatedCategory);
     }
 
@@ -97,7 +96,7 @@ public class CategoryService {
         // Supprimer la catégorie de la base de données
         categoryRepository.deleteById(id);
 
-        // Gestion des interactions lors de la suppression via la façade
-        interactionFacade.handleCategoryDeletion(id);
+        // Publier l'événement CategoryDeletedEvent
+        eventPublisher.publishEvent(new CategoryDeletedEvent(this, id));
     }
 }
