@@ -22,18 +22,16 @@ public class PaymentService {
     private PaymentMapper paymentMapper;
 
     @Transactional
-    public Payment createPayment(PaymentDTO paymentDTO) throws Exception {
-        // La logique concernant la commande (Order) a été retirée et déplacée dans la facade
+    public PaymentDTO createPayment(PaymentDTO paymentDTO) throws Exception {
         Payment payment = paymentMapper.toEntity(paymentDTO);
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        return paymentMapper.toDTO(savedPayment);  // Retourner un PaymentDTO
     }
 
     @Transactional(readOnly = true)
     public PaymentDTO getPaymentById(Long paymentId) throws Exception {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
-
-        // Pas besoin d'initialiser la commande ici, car la facade gère la relation Payment-Order
         return paymentMapper.toDTO(payment);
     }
 

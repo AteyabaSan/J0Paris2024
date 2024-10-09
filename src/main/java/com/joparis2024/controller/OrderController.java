@@ -75,15 +75,15 @@ public class OrderController {
         }
     }
 
-    // Annuler une commande
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
-        logger.info("Annulation de la commande avec ID: {}", id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+        logger.info("Requête reçue pour supprimer la commande avec ID: {}", id);
         try {
-            orderService.cancelOrder(id);
+            orderService.cancelOrder(id);  // Appelle la méthode de service pour annuler la commande
+            logger.info("Commande supprimée avec succès, ID : {}", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            logger.error("Erreur lors de l'annulation de la commande avec ID: {}", id, e);
+            logger.error("Erreur lors de la suppression de la commande : {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
