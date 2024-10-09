@@ -18,7 +18,6 @@ public class CategoryController {
     private final CategoryService categoryService;
     private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
-   
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
@@ -90,6 +89,21 @@ public class CategoryController {
         } catch (Exception e) {
             logger.error("Erreur lors de la suppression de la catégorie : {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Associer une catégorie à un ou plusieurs événements
+    @PostMapping("/{categoryId}/events")
+    public ResponseEntity<Void> assignCategoryToEvents(@PathVariable Long categoryId, @RequestBody CategoryDTO categoryDTO) {
+        logger.info("Requête reçue pour associer une catégorie aux événements pour la catégorie ID: {}", categoryId);
+        try {
+            categoryDTO.setId(categoryId); // Associer l'ID de la catégorie
+            categoryService.assignCategoryToEvents(categoryDTO); // Appel du service pour associer la catégorie
+            logger.info("Catégorie associée aux événements avec succès.");
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Erreur lors de l'association de la catégorie aux événements : {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }

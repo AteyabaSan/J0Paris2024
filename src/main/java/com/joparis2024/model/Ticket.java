@@ -21,7 +21,7 @@ public class Ticket {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_id", nullable = true)
     private Event event;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +37,7 @@ public class Ticket {
     @Column(nullable = false)
     private boolean isAvailable;
 
-    @Column(name = "event_date", nullable = false)
+    @Column(name = "event_date", nullable = true)
     private LocalDateTime eventDate;
     
     public Ticket(Long id) {

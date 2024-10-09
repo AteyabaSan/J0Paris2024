@@ -201,5 +201,24 @@ public class OrderManagementFacade {
         // Sauvegarder les modifications de l'utilisateur
         userService.updateUserByEmail(user.getEmail(), userMapper.toDTO(user));
     }
+   
+    @Transactional
+    public void removeTicketFromOrder(Long orderId, Long ticketId) throws Exception {
+        logger.info("Suppression du ticket ID: {} de la commande ID: {}", ticketId, orderId);
+        
+        // Vérifier si le ticket est bien associé à la commande via Order_TicketService
+        Order_TicketDTO orderTicketDTO = orderTicketService.getOrderTicketById(ticketId);
+        if (orderTicketDTO.getOrderId() != orderId) {
+            throw new Exception("Le ticket n'est pas associé à cette commande");
+        }
+
+        // Supprimer l'association dans Order_TicketService
+        orderTicketService.deleteOrderTicket(orderTicketDTO.getId());
+
+        // Mettre à jour le ticket pour supprimer l'association à la commande
+        TicketDTO ticketDTO = ticketService.getTicketById(ticketId);
+        ticketDTO.setOrder(null);
+        ticketService.updateTicket(ticketId, ticketDTO);  // Sauvegarder la mise à jour
+    }
 
 }

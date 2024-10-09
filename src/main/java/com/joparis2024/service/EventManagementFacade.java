@@ -131,4 +131,20 @@ public class EventManagementFacade {
                 .orElseThrow(() -> new EntityNotFoundException("Association non trouvée entre l'événement et l'offre"));
         eventOfferRepository.delete(eventOffer);  // Suppression de l'association
     }
+    
+    @Transactional
+    public void removeTicketFromEvent(Long eventId, Long ticketId) throws Exception {
+        logger.info("Suppression du ticket ID: {} de l'événement ID: {}", ticketId, eventId);
+      
+        
+        // Récupérer le ticket et vérifier qu'il est bien associé à l'événement
+        TicketDTO ticketDTO = ticketService.getTicketById(ticketId);
+        if (ticketDTO.getEvent() == null || !ticketDTO.getEvent().getId().equals(eventId)) {
+            throw new Exception("Le ticket n'est pas associé à cet événement");
+        }
+
+        // Dissocier le ticket de l'événement
+        ticketDTO.setEvent(null);
+        ticketService.updateTicket(ticketId, ticketDTO);  // Sauvegarder la mise à jour
+    }
 }

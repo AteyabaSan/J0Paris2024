@@ -2,7 +2,6 @@ package com.joparis2024.controller;
 
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
@@ -18,96 +17,74 @@ public class OrderController {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    // Créer une commande
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO) {
+        logger.info("Création d'une nouvelle commande");
         try {
-            // Log de vérification du contenu de OrderDTO reçu
-            logger.info("OrderDTO reçu: {}", orderDTO);
-
-            // Vérification si le DTO est bien présent
-            if (orderDTO == null) {
-                throw new IllegalArgumentException("Le DTO de commande est nul.");
-            }
-
-            // Ajout du log avant création
-            logger.info("Contenu de OrderDTO avant création : {}", orderDTO);
-
-            // Création de la commande via le service
             OrderDTO createdOrder = orderService.createOrder(orderDTO);
-
-            // Log de confirmation
-            logger.info("Commande créée avec succès: {}", createdOrder.getId());
-
-            // Retourner la réponse avec statut 201
             return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
-
-        } catch (IllegalArgumentException e) {
-            // Log de l'erreur si le DTO est incorrect
-            logger.error("Erreur: {}", e.getMessage());
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            // Log détaillé en cas d'erreur
-            logger.error("Erreur lors de la création de la commande : ", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Erreur lors de la création de la commande : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Récupérer toutes les commandes (READ)
+    // Récupérer toutes les commandes
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        logger.info("Récupération de toutes les commandes");
         try {
-            logger.info("Récupération de toutes les commandes.");
             List<OrderDTO> orders = orderService.getAllOrders();
-            logger.info("Nombre de commandes récupérées : {}", orders.size());
             return new ResponseEntity<>(orders, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Erreur lors de la récupération des commandes : ", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Erreur lors de la récupération des commandes : {}", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Récupérer une commande par ID (READ)
+    // Récupérer une commande par ID
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+        logger.info("Récupération de la commande avec ID: {}", id);
         try {
-            logger.info("Recherche de la commande avec ID : {}", id);
-            OrderDTO order = orderService.getOrderById(id);
-            logger.info("Commande trouvée : {}", order);
-            return new ResponseEntity<>(order, HttpStatus.OK);
+            OrderDTO orderDTO = orderService.getOrderById(id);
+            return new ResponseEntity<>(orderDTO, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Erreur lors de la recherche de la commande : ", e);
+            logger.error("Erreur lors de la récupération de la commande avec ID: {}", id, e);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    // Mettre à jour une commande (UPDATE)
+    // Mettre à jour une commande
     @PutMapping("/{id}")
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody OrderDTO orderDTO) {
+        logger.info("Mise à jour de la commande avec ID: {}", id);
         try {
-            logger.info("Mise à jour de la commande avec ID : {}, nouvelles infos : {}", id, orderDTO);
             OrderDTO updatedOrder = orderService.updateOrder(id, orderDTO);
-            logger.info("Commande mise à jour avec succès : {}", updatedOrder);
             return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Erreur lors de la mise à jour de la commande : ", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Erreur lors de la mise à jour de la commande avec ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Supprimer une commande (DELETE)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    // Annuler une commande
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
+        logger.info("Annulation de la commande avec ID: {}", id);
         try {
-            logger.info("Suppression de la commande avec ID : {}", id);
             orderService.cancelOrder(id);
-            logger.info("Commande supprimée avec succès.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            logger.error("Erreur lors de la suppression de la commande : ", e);
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            logger.error("Erreur lors de l'annulation de la commande avec ID: {}", id, e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
