@@ -4,63 +4,29 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class EventDTO {
-	
-    private Long id;  // Ajout de l'id
-    private String eventName;
-    private LocalDate eventDate;
-    private String description;
-    private Long categoryId; // ID pour la catégorie
-    private List<Long> ticketIds; // Liste des IDs des tickets
-    
-    private CategoryDTO category;  // Utiliser CategoryDTO ici
-    private List<TicketDTO> tickets;  // Relation avec TicketDTO
-    private UserDTO organizer;  // Relation avec UserDTO
-    private List<OfferDTO> offers;  // Relation avec OfferDTO (ajouté)
-    private List<Long> offerIds;
-    
+    private Long id;  // Identifiant de l'événement
+    private String eventName;  // Nom de l'événement
+    private LocalDate eventDate;  // Date de l'événement
+    private String description;  // Description de l'événement
+    private Long categoryId;  // ID pour la catégorie
+    private List<Long> ticketIds;  // Liste des IDs des tickets
+    private List<Long> offerIds;  // Liste des IDs des offres
+
     // Constructeur sans arguments
     public EventDTO() {}
 
     // Constructeur avec tous les arguments
-    public EventDTO(Long id, String eventName, LocalDate eventDate, String description, CategoryDTO category, List<TicketDTO> tickets, UserDTO organizer, List<OfferDTO> offers) {
-    	
+    public EventDTO(Long id, String eventName, LocalDate eventDate, String description, Long categoryId, List<Long> ticketIds, List<Long> offerIds) {
         this.id = id;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.description = description;
-        this.category = category;
-        this.tickets = tickets;
-        this.organizer = organizer;
-        this.offers = offers;  // Ajout de l'attribut offers
+        this.categoryId = categoryId;
+        this.ticketIds = ticketIds;
+        this.offerIds = offerIds;
     }
 
     // Getters et Setters
-    
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    // Getter et Setter pour ticketIds
-    public List<Long> getTicketIds() {
-        return ticketIds;
-    }
-
-    public void setTicketIds(List<Long> ticketIds) {
-        this.ticketIds = ticketIds;
-    }
-
-    
-    public List<Long> getOfferIds() {
-        return offerIds;
-    }
-
-    public void setOfferIds(List<Long> offerIds) {
-        this.offerIds = offerIds;
-    }
 
     public Long getId() {
         return id;
@@ -94,35 +60,27 @@ public class EventDTO {
         this.description = description;
     }
 
-    public CategoryDTO getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(CategoryDTO category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public List<TicketDTO> getTickets() {
-        return tickets;
+    public List<Long> getTicketIds() {
+        return ticketIds;
     }
 
-    public void setTickets(List<TicketDTO> tickets) {
-        this.tickets = tickets;
+    public void setTicketIds(List<Long> ticketIds) {
+        this.ticketIds = ticketIds;
     }
 
-    public UserDTO getOrganizer() {
-        return organizer;
+    public List<Long> getOfferIds() {
+        return offerIds;
     }
 
-    public void setOrganizer(UserDTO organizer) {
-        this.organizer = organizer;
-    }
-
-    public List<OfferDTO> getOffers() {
-        return offers;  // Getter pour les offres
-    }
-
-    public void setOffers(List<OfferDTO> offers) {
-        this.offers = offers;  // Setter pour les offres
+    public void setOfferIds(List<Long> offerIds) {
+        this.offerIds = offerIds;
     }
 }

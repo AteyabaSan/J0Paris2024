@@ -63,8 +63,8 @@ public class EventMapper {
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
 
-        // Remarque: ne pas gérer ici les relations avec Category, Tickets, ou Offers.
-        // Cela sera géré au niveau des services.
+        // Remarque: les relations avec Category, Tickets et Offers ne sont pas gérées ici.
+        // Cela sera géré au niveau des services et des facades.
 
         return event;
     }
@@ -77,5 +77,4 @@ public class EventMapper {
         }
         return eventDTOs;
     }
-    
 }

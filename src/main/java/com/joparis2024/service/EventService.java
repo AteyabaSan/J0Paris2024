@@ -37,10 +37,12 @@ public class EventService {
     @Transactional
     public EventDTO createEvent(EventDTO eventDTO) throws Exception {
         logger.info("Création d'un nouvel événement : {}", eventDTO.getEventName());
-        validateEventDTO(eventDTO);  // Validation locale
+        validateEventDTO(eventDTO);
 
         // Création de l'entité Event et sauvegarde
         Event event = eventMapper.toEntity(eventDTO);
+
+        // La catégorie sera déjà associée via l'EventDTO si nécessaire, donc pas besoin d'ajouter de logique d'association manuelle ici
         Event savedEvent = eventRepository.save(event);
 
         return eventMapper.toDTO(savedEvent);  // Conversion en DTO
@@ -57,7 +59,9 @@ public class EventService {
         event.setEventDate(eventDTO.getEventDate());
         event.setDescription(eventDTO.getDescription());
 
-        Event updatedEvent = eventRepository.save(event);  // Sauvegarde des modifications
+        // La catégorie est gérée via le DTO et le mapper, donc aucune logique d'association directe
+        Event updatedEvent = eventRepository.save(event);
+
         return eventMapper.toDTO(updatedEvent);  // Conversion en DTO
     }
 
@@ -83,8 +87,8 @@ public class EventService {
             throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
         }
     }
-    
- // Méthode pour convertir un DTO Event en entité Event
+
+    // Méthode pour convertir un DTO Event en entité Event
     public Event toEntity(EventDTO eventDTO) {
         return eventMapper.toEntity(eventDTO);  // Utilisation du mapper pour la conversion
     }

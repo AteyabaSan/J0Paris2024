@@ -6,7 +6,10 @@ import com.joparis2024.events.CategoryDeletedEvent;
 import com.joparis2024.events.CategoryUpdatedEvent;
 import com.joparis2024.mapper.CategoryMapper;
 import com.joparis2024.model.Category;
+import com.joparis2024.model.Event;
 import com.joparis2024.repository.CategoryRepository;
+import com.joparis2024.repository.EventRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -25,25 +28,21 @@ public class CategoryService {
     private CategoryMapper categoryMapper;
 
     @Autowired
+    private EventRepository eventRepository;  // Injecter EventRepository pour gérer les associations
+
+    @Autowired
     private ApplicationEventPublisher eventPublisher;  // Utilisation de Spring Events
 
     // Créer une catégorie
     public CategoryDTO createCategory(CategoryDTO categoryDTO) throws Exception {
-        // Validation du DTO avant de créer la catégorie
         if (categoryDTO == null || categoryDTO.getName() == null || categoryDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Le nom de la catégorie ne peut pas être vide");
         }
 
-        // Mapper le DTO vers l'entité via le mapper
         Category category = categoryMapper.toEntity(categoryDTO);
-
-        // Sauvegarder l'entité dans la base de données
         Category savedCategory = categoryRepository.save(category);
 
-        // Publier l'événement CategoryCreatedEvent
         eventPublisher.publishEvent(new CategoryCreatedEvent(this, categoryMapper.toDTO(savedCategory)));
-
-        // Retourner le DTO
         return categoryMapper.toDTO(savedCategory);
     }
 
@@ -78,10 +77,7 @@ public class CategoryService {
         category.setName(categoryDTO.getName());
         category.setLocation(categoryDTO.getLocation());
 
-        // Sauvegarder les modifications dans la base de données
         Category updatedCategory = categoryRepository.save(category);
-
-        // Publier l'événement CategoryUpdatedEvent
         eventPublisher.publishEvent(new CategoryUpdatedEvent(this, categoryMapper.toDTO(updatedCategory)));
 
         return categoryMapper.toDTO(updatedCategory);
@@ -93,10 +89,43 @@ public class CategoryService {
             throw new Exception("Catégorie non trouvée");
         }
 
-        // Supprimer la catégorie de la base de données
         categoryRepository.deleteById(id);
-
-        // Publier l'événement CategoryDeletedEvent
         eventPublisher.publishEvent(new CategoryDeletedEvent(this, id));
+    }
+
+    // Méthode pour associer une catégorie à des événements
+    public void assignCategoryToEvents(CategoryDTO categoryDTO) throws Exception {
+        if (categoryDTO.getId() == null) {
+            throw new IllegalArgumentException("L'ID de la catégorie est requis.");
+        }
+
+        Optional<Category> category = categoryRepository.findById(categoryDTO.getId());
+        if (!category.isPresent()) {
+            throw new Exception("Catégorie non trouvée.");
+        }
+
+        List<Event> events = eventRepository.findAll();  // Ou récupérer une liste d'événements spécifique
+        for (Event event : events) {
+            event.setCategory(category.get());  // Associer la catégorie à chaque événement
+            eventRepository.save(event);
+        }
+    }
+
+    // Méthode pour dissocier une catégorie des événements
+    public void removeCategoryFromEvents(Long categoryId) throws Exception {
+        if (categoryId == null) {
+            throw new IllegalArgumentException("L'ID de la catégorie est requis.");
+        }
+
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        if (!category.isPresent()) {
+            throw new Exception("Catégorie non trouvée.");
+        }
+
+        List<Event> events = eventRepository.findByCategory(category.get());
+        for (Event event : events) {
+            event.setCategory(null);  // Dissocier la catégorie de chaque événement
+            eventRepository.save(event);
+        }
     }
 }

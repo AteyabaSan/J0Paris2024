@@ -32,17 +32,16 @@ public class Event {
     private String description;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Ticket> tickets;
+    private List<Ticket> tickets = new ArrayList<>();  // Initialisation de la liste des tickets
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
     private User organizer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id" , nullable = false)
     private Category category;
 
-    // Ajout de la relation Many-to-Many avec Offer
     @ManyToMany
     @JoinTable(
             name = "event_offer",
@@ -55,6 +54,14 @@ public class Event {
     public void addOffer(Offer offer) {
         if (offer != null) {
             this.offers.add(offer);
+        }
+    }
+
+    // Méthode pour ajouter un ticket à l'événement
+    public void addTicket(Ticket ticket) {
+        if (ticket != null) {
+            this.tickets.add(ticket);
+            ticket.setEvent(this);  // Associer l'événement au ticket
         }
     }
 }

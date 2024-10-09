@@ -12,7 +12,6 @@ import java.util.List;
 import com.joparis2024.dto.EventDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.TicketMapper;
-import com.joparis2024.dto.CategoryDTO;
 
 import com.joparis2024.model.Event;
 import com.joparis2024.model.EventOffer;
@@ -123,21 +122,6 @@ public class EventManagementFacade {
         return offers;
     }
 
-    // Gestion des catégories : assigner une catégorie à des événements, via CategoryService externe
-    @Transactional
-    public void assignCategoryToEvents(Long categoryId, List<Long> eventIds, CategoryService categoryService) throws Exception {
-        logger.info("Association de la catégorie ID: {} aux événements : {}", categoryId, eventIds);
-        CategoryDTO categoryDTO = categoryService.getCategoryById(categoryId)
-                .orElseThrow(() -> new EntityNotFoundException("Catégorie non trouvée"));
-
-        if (eventIds != null && !eventIds.isEmpty()) {
-            for (Long eventId : eventIds) {
-                EventDTO eventDTO = eventService.getEventById(eventId);
-                eventDTO.setCategory(categoryDTO);  // Associer la catégorie
-                eventService.updateEvent(eventId, eventDTO);  // Sauvegarder les changements
-            }
-        }
-    }
 
     // Méthode pour supprimer une association d'offre avec un événement
     @Transactional
