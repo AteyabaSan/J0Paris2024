@@ -1,9 +1,8 @@
 package com.joparis2024.mapper;
 
 import com.joparis2024.dto.Order_TicketDTO;
-import com.joparis2024.model.Order;
 import com.joparis2024.model.Order_Ticket;
-import com.joparis2024.model.Ticket;
+
 
 import org.springframework.stereotype.Component;
 
@@ -17,41 +16,32 @@ public class Order_TicketMapper {
         if (orderTicket == null) {
             return null;
         }
-
-        return new Order_TicketDTO(
-            orderTicket.getId(),
-            orderTicket.getOrder().getId(),
-            orderTicket.getTicket().getId(),
-            orderTicket.getQuantity()
-        );
+        Order_TicketDTO dto = new Order_TicketDTO();
+        dto.setId(orderTicket.getId());
+        dto.setOrderId(orderTicket.getOrder().getId());
+        dto.setTicketId(orderTicket.getTicket().getId());
+        dto.setQuantity(orderTicket.getQuantity());
+        return dto;
     }
 
-    public Order_Ticket toEntity(Order_TicketDTO orderTicketDTO) {
-        if (orderTicketDTO == null) {
+    public Order_Ticket toEntity(Order_TicketDTO dto) {
+        if (dto == null) {
             return null;
         }
-
         Order_Ticket orderTicket = new Order_Ticket();
-        orderTicket.setId(orderTicketDTO.getId());
-        orderTicket.setQuantity(orderTicketDTO.getQuantity());
-        orderTicket.setOrder(new Order(orderTicketDTO.getOrderId())); // Associer avec l'ID de commande
-        orderTicket.setTicket(new Ticket(orderTicketDTO.getTicketId())); // Associer avec l'ID de ticket
-
+        orderTicket.setId(dto.getId());
+        // On laisse la gestion des relations à une facade si nécessaire
+        orderTicket.setQuantity(dto.getQuantity());
         return orderTicket;
     }
 
+    // Méthode pour convertir une liste de Order_Ticket en DTOs
     public List<Order_TicketDTO> toDTOs(List<Order_Ticket> orderTickets) {
-        if (orderTickets == null || orderTickets.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Order_TicketDTO> orderTicketDTOs = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les entités en DTOs
+        List<Order_TicketDTO> dtoList = new ArrayList<>();
         for (Order_Ticket orderTicket : orderTickets) {
-            orderTicketDTOs.add(toDTO(orderTicket));
+            dtoList.add(toDTO(orderTicket));
         }
-
-        return orderTicketDTOs;
+        return dtoList;
     }
 
     public List<Order_Ticket> toEntities(List<Order_TicketDTO> orderTicketDTOs) {
