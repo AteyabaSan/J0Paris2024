@@ -3,16 +3,16 @@ package com.joparis2024.dto;
 public class EventOfferDTO {
     
     private Long id;
-    private EventDTO event;
-    private OfferDTO offer;
+    private Long eventId;   // Utilisation de l'ID de l'événement
+    private Long offerId;   // Utilisation de l'ID de l'offre
 
     // Constructeurs
     public EventOfferDTO() {}
 
-    public EventOfferDTO(Long id, EventDTO event, OfferDTO offer) {
+    public EventOfferDTO(Long id, Long eventId, Long offerId) {
         this.id = id;
-        this.event = event;
-        this.offer = offer;
+        this.eventId = eventId;
+        this.offerId = offerId;
     }
 
     // Getters et Setters
@@ -24,19 +24,19 @@ public class EventOfferDTO {
         this.id = id;
     }
 
-    public EventDTO getEvent() {
-        return event;
+    public Long getEventId() {
+        return eventId;
     }
 
-    public void setEvent(EventDTO event) {
-        this.event = event;
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
     }
 
-    public OfferDTO getOffer() {
-        return offer;
+    public Long getOfferId() {
+        return offerId;
     }
 
-    public void setOffer(OfferDTO offer) {
-        this.offer = offer;
+    public void setOfferId(Long offerId) {
+        this.offerId = offerId;
     }
 }

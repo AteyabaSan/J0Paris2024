@@ -89,4 +89,12 @@ public class Order_TicketController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    // Récupérer toutes les associations Order_Ticket
+    @GetMapping
+    public ResponseEntity<List<Order_TicketDTO>> getAllOrderTickets() {
+        logger.info("Requête pour récupérer toutes les associations Order_Ticket");
+        List<Order_TicketDTO> orderTicketDTOs = orderTicketService.getAllOrderTickets();
+        return new ResponseEntity<>(orderTicketDTOs, HttpStatus.OK);
+    }
 }

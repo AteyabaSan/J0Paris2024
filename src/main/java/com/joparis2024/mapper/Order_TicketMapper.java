@@ -3,11 +3,11 @@ package com.joparis2024.mapper;
 import com.joparis2024.dto.Order_TicketDTO;
 import com.joparis2024.model.Order_Ticket;
 
-
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Component
 public class Order_TicketMapper {
@@ -46,15 +46,23 @@ public class Order_TicketMapper {
 
     public List<Order_Ticket> toEntities(List<Order_TicketDTO> orderTicketDTOs) {
         if (orderTicketDTOs == null || orderTicketDTOs.isEmpty()) {
+           
             return new ArrayList<>();
         }
 
         List<Order_Ticket> orderTickets = new ArrayList<>();
         // Utilisation d'une boucle classique pour transformer les DTOs en entités
         for (Order_TicketDTO orderTicketDTO : orderTicketDTOs) {
-            orderTickets.add(toEntity(orderTicketDTO));
+            try {
+                Order_Ticket orderTicket = toEntity(orderTicketDTO); // Conversion d'un DTO en entité
+                orderTickets.add(orderTicket);
+             
+            } catch (Exception e) {
+                
+            }
         }
 
         return orderTickets;
     }
+
 }

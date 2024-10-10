@@ -2,6 +2,8 @@ package com.joparis2024.mapper;
 
 import com.joparis2024.dto.EventOfferDTO;
 import com.joparis2024.model.EventOffer;
+import com.joparis2024.repository.EventRepository;
+import com.joparis2024.repository.OfferRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,20 +16,20 @@ import org.springframework.stereotype.Component;
 public class EventOfferMapper {
 
     @Autowired
-    private EventMapper eventMapper;
+    private EventRepository eventRepository;
 
     @Autowired
-    private OfferMapper offerMapper;
+    private OfferRepository offerRepository;
 
-    public EventOfferDTO toDTO(EventOffer eventOffer) throws Exception {
+    public EventOfferDTO toDTO(EventOffer eventOffer) {
         if (eventOffer == null) {
             return null;
         }
 
         EventOfferDTO dto = new EventOfferDTO();
         dto.setId(eventOffer.getId());
-        dto.setEvent(eventMapper.toDTO(eventOffer.getEvent()));  // Utilisation correcte de EventMapper
-        dto.setOffer(offerMapper.toDTO(eventOffer.getOffer()));  // Utilisation correcte de OfferMapper
+        dto.setEventId(eventOffer.getEvent().getId());  // Utilisation de l'ID de l'événement
+        dto.setOfferId(eventOffer.getOffer().getId());  // Utilisation de l'ID de l'offre
         return dto;
     }
 
@@ -38,13 +40,14 @@ public class EventOfferMapper {
 
         EventOffer eventOffer = new EventOffer();
         eventOffer.setId(dto.getId());
-        eventOffer.setEvent(eventMapper.toEntity(dto.getEvent()));  // Utilisation correcte de EventMapper
-        eventOffer.setOffer(offerMapper.toEntity(dto.getOffer()));  // Utilisation correcte de OfferMapper
+        eventOffer.setEvent(eventRepository.findById(dto.getEventId())
+            .orElseThrow(() -> new Exception("Événement non trouvé")));
+        eventOffer.setOffer(offerRepository.findById(dto.getOfferId())
+            .orElseThrow(() -> new Exception("Offre non trouvée")));
         return eventOffer;
     }
     
-    // Nouvelle méthode pour convertir une liste d'EventOffer en une liste d'EventOfferDTO
-    public List<EventOfferDTO> toDTOs(List<EventOffer> eventOffers) throws Exception {
+    public List<EventOfferDTO> toDTOs(List<EventOffer> eventOffers) {
         if (eventOffers == null || eventOffers.isEmpty()) {
             return new ArrayList<>();
         }
@@ -57,7 +60,6 @@ public class EventOfferMapper {
         return eventOfferDTOs;
     }
 
-    // Optionnel : si tu as besoin de convertir une liste de DTOs en entités
     public List<EventOffer> toEntities(List<EventOfferDTO> eventOfferDTOs) throws Exception {
         if (eventOfferDTOs == null || eventOfferDTOs.isEmpty()) {
             return new ArrayList<>();

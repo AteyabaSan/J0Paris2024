@@ -20,10 +20,9 @@ public class EventOfferService {
     @Autowired
     private EventOfferMapper eventOfferMapper;
 
-    // Créer un EventOffer
     public EventOfferDTO createEventOffer(EventOfferDTO eventOfferDTO) throws Exception {
-        if (eventOfferDTO.getEvent() == null || eventOfferDTO.getOffer() == null) {
-            throw new IllegalArgumentException("L'événement et l'offre doivent être spécifiés");
+        if (eventOfferDTO.getEventId() == null || eventOfferDTO.getOfferId() == null) {
+            throw new IllegalArgumentException("Les IDs de l'événement et de l'offre doivent être spécifiés");
         }
         EventOffer eventOffer = eventOfferMapper.toEntity(eventOfferDTO);
         return eventOfferMapper.toDTO(eventOfferRepository.save(eventOffer));
@@ -31,14 +30,19 @@ public class EventOfferService {
 
     public List<EventOfferDTO> getAllEventOffers() throws Exception {
         List<EventOffer> eventOffers = eventOfferRepository.findAll();
-        return eventOfferMapper.toDTOs(eventOffers);  // Appel à la méthode pour convertir une liste
+        return eventOfferMapper.toDTOs(eventOffers);
     }
 
-
-    // Supprimer une association EventOffer
     public void deleteEventOffer(Long id) throws Exception {
         EventOffer eventOffer = eventOfferRepository.findById(id)
             .orElseThrow(() -> new Exception("L'association Event-Offer n'existe pas"));
         eventOfferRepository.delete(eventOffer);
     }
+    
+    public EventOfferDTO getEventOfferById(Long id) throws Exception {
+        EventOffer eventOffer = eventOfferRepository.findById(id)
+                .orElseThrow(() -> new Exception("L'association Event-Offer avec ID : " + id + " n'existe pas"));
+        return eventOfferMapper.toDTO(eventOffer);
+    }
+
 }

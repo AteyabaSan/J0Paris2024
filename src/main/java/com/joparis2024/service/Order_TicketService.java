@@ -67,5 +67,12 @@ public class Order_TicketService {
             .orElseThrow(() -> new EntityNotFoundException("Order_Ticket non trouvé"));
         return orderTicketMapper.toDTO(orderTicket);
     }
+    
+ // Service pour récupérer toutes les associations Order_Ticket
+    public List<Order_TicketDTO> getAllOrderTickets() {
+        List<Order_Ticket> orderTickets = orderTicketRepository.findAll();
+        return orderTicketMapper.toDTOs(orderTickets);
+    }
+
 
 }
