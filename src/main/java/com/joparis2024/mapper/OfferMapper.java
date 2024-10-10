@@ -21,14 +21,16 @@ public class OfferMapper {
         offerDTO.setName(offer.getName());
         offerDTO.setNumberOfSeats(offer.getNumberOfSeats());
 
-        // Mapping manuel des événements associés en utilisant uniquement leurs IDs
-        List<Long> eventIds = new ArrayList<>();
-        if (offer.getEvents() != null) {
+        // Optionnel : ne pas associer d'événements si non présents
+        if (offer.getEvents() != null && !offer.getEvents().isEmpty()) {
+            List<Long> eventIds = new ArrayList<>();
             for (Event event : offer.getEvents()) {
-                eventIds.add(event.getId());  // Utilisation des IDs des événements
+                if (event != null) {
+                    eventIds.add(event.getId());  // Utilisation des IDs des événements
+                }
             }
+            offerDTO.setEventIds(eventIds);
         }
-        offerDTO.setEventIds(eventIds);
 
         return offerDTO;
     }
@@ -43,11 +45,11 @@ public class OfferMapper {
         offer.setName(offerDTO.getName());
         offer.setNumberOfSeats(offerDTO.getNumberOfSeats());
 
-        // Remarque : Les relations avec les événements seront gérées dans le service
+        // Remarque : Ne pas gérer les événements ici, cela se fait dans la facade
         return offer;
     }
-    
- // Ajout de la méthode toDTOs pour convertir une liste d'offres en DTOs
+
+    // Méthode pour convertir une liste d'offres en DTOs
     public List<OfferDTO> toDTOs(List<Offer> offers) {
         if (offers == null || offers.isEmpty()) {
             return new ArrayList<>();

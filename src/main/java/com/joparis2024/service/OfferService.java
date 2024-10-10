@@ -24,7 +24,7 @@ public class OfferService {
         return offerMapper.toDTOs(offers);
     }
 
-    // Créer une offre
+    // Créer une offre sans gérer l'association Event
     public OfferDTO createOffer(OfferDTO offerDTO) throws Exception {
         Offer offer = offerMapper.toEntity(offerDTO);
         Offer savedOffer = offerRepository.save(offer);
@@ -38,7 +38,7 @@ public class OfferService {
         return offerMapper.toDTO(offer);
     }
 
-    // Mettre à jour une offre
+    // Mettre à jour une offre sans gérer l'association Event
     public OfferDTO updateOffer(Long id, OfferDTO offerDTO) throws Exception {
         Offer existingOffer = offerRepository.findById(id)
             .orElseThrow(() -> new Exception("Offer non trouvée"));
