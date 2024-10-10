@@ -27,7 +27,7 @@ public class Offer {
     private int numberOfSeats;  // Nombre de sièges (1, 2, ou 4)
 
     // Relation avec Event - Many-to-Many
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "event_offer",
             joinColumns = @JoinColumn(name = "offer_id"),

@@ -1,21 +1,19 @@
 package com.joparis2024.dto;
 
-import com.joparis2024.model.User;
-import com.joparis2024.model.Role;
 
 public class UserRoleDTO {
     
     private Long id;
-    private User user;
-    private Role role;
+    private Long userId;  // On utilise l'ID au lieu de l'entité complète
+    private Long roleId;  // Idem pour le rôle
 
     // Constructeurs
     public UserRoleDTO() {}
 
-    public UserRoleDTO(Long id, User user, Role role) {
+    public UserRoleDTO(Long id, Long userId, Long roleId) {
         this.id = id;
-        this.user = user;
-        this.role = role;
+        this.userId = userId;
+        this.roleId = roleId;
     }
 
     // Getters et Setters
@@ -27,19 +25,19 @@ public class UserRoleDTO {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Role getRole() {
-        return role;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 }
