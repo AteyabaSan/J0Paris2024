@@ -1,6 +1,8 @@
 package com.joparis2024.mapper;
 
+import com.joparis2024.dto.EventDTO;
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.model.Event;
 import com.joparis2024.model.Ticket;
 
 import java.util.ArrayList;
@@ -24,8 +26,14 @@ public class TicketMapper {
         ticketDTO.setAvailable(ticket.isAvailable());
         ticketDTO.setEventDate(ticket.getEventDate());
 
-        // Nous nous concentrons sur le mapping des attributs simples. 
-        // Les relations complexes (Event, Order) sont gérées au niveau des services, et non dans le mapper.
+        // Ajouter l'Event dans le TicketDTO
+        if (ticket.getEvent() != null) {
+            EventDTO eventDTO = new EventDTO();
+            eventDTO.setId(ticket.getEvent().getId());
+            eventDTO.setEventName(ticket.getEvent().getEventName());
+            // Mappez les autres attributs nécessaires de l'événement ici
+            ticketDTO.setEvent(eventDTO);  // Associe l'événement mappé au DTO du ticket
+        }
 
         return ticketDTO;
     }
@@ -42,23 +50,27 @@ public class TicketMapper {
         ticket.setAvailable(ticketDTO.isAvailable());
         ticket.setEventDate(ticketDTO.getEventDate());
 
-        // Pareil pour le mapping inverse, les relations sont gérées au niveau des services.
+        // Ici aussi, on doit mapper l'Event si présent dans le DTO
+        if (ticketDTO.getEvent() != null) {
+            Event event = new Event();
+            event.setId(ticketDTO.getEvent().getId());
+            ticket.setEvent(event);  // Associer l'événement au ticket
+        }
 
         return ticket;
     }
     
     public List<TicketDTO> toDTOs(List<Ticket> tickets) {
         if (tickets == null || tickets.isEmpty()) {
-            return new ArrayList<>();  // Retourne une liste vide si aucune donnée
+            return new ArrayList<>();  
         }
         
         List<TicketDTO> ticketDTOs = new ArrayList<>();
         for (Ticket ticket : tickets) {
-            TicketDTO dto = toDTO(ticket);  // Conversion via la méthode toDTO existante
+            TicketDTO dto = toDTO(ticket);  
             ticketDTOs.add(dto);
         }
         
         return ticketDTOs;
     }
-
 }

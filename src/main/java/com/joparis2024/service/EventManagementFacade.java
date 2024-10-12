@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.joparis2024.dto.EventDTO;
 import com.joparis2024.dto.TicketDTO;
@@ -18,7 +19,8 @@ import com.joparis2024.model.EventOffer;
 import com.joparis2024.model.Offer;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.EventOfferRepository;
-
+import com.joparis2024.repository.EventRepository;
+import com.joparis2024.repository.TicketRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -41,7 +43,13 @@ public class EventManagementFacade {
     private EventOfferRepository eventOfferRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(EventManagementFacade.class);
-
+    
+    @Autowired
+    private EventRepository eventRepository;
+    
+    @Autowired
+    private  TicketRepository ticketRepository;
+    
     // Méthode complexe : assigner des tickets à un événement
     @Transactional
     public void assignTicketsToEvent(Long eventId, List<Long> ticketIds) throws Exception {
@@ -55,55 +63,92 @@ public class EventManagementFacade {
             Ticket ticket = ticketMapper.toEntity(ticketDTO);  // Conversion de TicketDTO en Ticket
             ticket.setEvent(event);  // Associer l'événement au ticket
             tickets.add(ticket);
+            // Enregistrer directement chaque ticket après l'association
+            ticketRepository.save(ticket);
         }
 
-        // Mise à jour des tickets via le TicketService pour sauvegarder l'association
-        for (Ticket ticket : tickets) {
-            ticketService.updateTicket(ticket.getId(), ticketService.convertToDTO(ticket)); 
-        }
+        logger.info("Assignation des tickets réussie pour l'événement {}", eventId);
     }
     
-    // Méthode complexe : récupérer les tickets associés à un événement
     @Transactional(readOnly = true)
     public List<Ticket> getTicketsForEvent(Long eventId) throws Exception {
         logger.info("Récupération des tickets associés à l'événement ID: {}", eventId);
-        EventDTO eventDTO = eventService.getEventById(eventId);  // Récupération de l'événement via EventService
-        Event event = eventService.toEntity(eventDTO);  // Conversion en entité
-        return event.getTickets();  // Récupérer les tickets liés à l'événement
+
+        // Vérifier si l'événement existe sans assigner à une variable
+        if (!eventRepository.existsById(eventId)) {
+            throw new EntityNotFoundException("L'événement avec ID " + eventId + " n'existe pas");
+        }
+
+        // Utiliser la nouvelle méthode qui fait un JOIN FETCH pour charger les tickets avec leurs événements associés
+        List<Ticket> tickets = ticketRepository.findTicketsWithEvent(eventId);
+
+        if (tickets.isEmpty()) {
+            logger.info("Aucun ticket trouvé pour l'événement ID: {}", eventId);
+        } else {
+            logger.info("Tickets trouvés : {}", tickets);
+        }
+
+        return tickets;
     }
+
 
     // Méthode complexe : assigner des offres à un événement
     @Transactional
     public void assignOffersToEvent(Long eventId, List<Long> offerIds) throws Exception {
         logger.info("Association des offres à l'événement ID: {}", eventId);
-        EventDTO eventDTO = eventService.getEventById(eventId);  // Récupération de l'événement via EventService
-        Event event = eventService.toEntity(eventDTO);  // Conversion en entité
+        
+        EventDTO eventDTO = eventService.getEventById(eventId);
+        if (eventDTO == null) {
+            throw new EntityNotFoundException("Événement non trouvé avec l'ID: " + eventId);
+        }
+        
+        Event event = eventService.toEntity(eventDTO);
 
         for (Long offerId : offerIds) {
-            Offer offer = offerService.findById(offerId);  // Récupération de l'offre via OfferService
+            Offer offer = offerService.findById(offerId);
+            if (offer == null) {
+                throw new EntityNotFoundException("Offre non trouvée avec l'ID: " + offerId);
+            }
+
+            // Vérification si l'association Event-Offer existe déjà
+            Optional<EventOffer> existingRelation = eventOfferRepository.findByEventIdAndOfferId(event.getId(), offer.getId());
+            if (existingRelation.isPresent()) {
+                logger.info("L'association entre l'événement {} et l'offre {} existe déjà", eventId, offerId);
+                continue;  // Ne pas insérer de doublons
+            }
+
+            // Création de la relation EventOffer et sauvegarde
             EventOffer eventOffer = new EventOffer();
             eventOffer.setEvent(event);
             eventOffer.setOffer(offer);
             eventOfferRepository.save(eventOffer);  // Sauvegarde de l'association
         }
+
+        logger.info("Assignation réussie des offres {} à l'événement {}", offerIds, eventId);
     }
+
+
 
     // Méthode complexe : assigner des événements à une offre
     @Transactional
     public void assignEventsToOffer(Long offerId, List<Long> eventIds) throws Exception {
-        logger.info("Association des événements à l'offre ID: {}", offerId);
-        Offer offer = offerService.findById(offerId);  // Récupération de l'offre via OfferService
-
+        Offer offer = offerService.findById(offerId);
+        
         for (Long eventId : eventIds) {
-            EventDTO eventDTO = eventService.getEventById(eventId);  // Récupération de l'événement via EventService
-            Event event = eventService.toEntity(eventDTO);  // Conversion en entité
-
+            // Récupération de l'EventDTO via l'ID
+            EventDTO eventDTO = eventService.getEventById(eventId);
+            
+            // Conversion de EventDTO en Event
+            Event event = eventService.toEntity(eventDTO);
+            
+            // Création de la relation entre l'événement et l'offre
             EventOffer eventOffer = new EventOffer();
             eventOffer.setEvent(event);
             eventOffer.setOffer(offer);
-            eventOfferRepository.save(eventOffer);  // Sauvegarde de l'association
+            eventOfferRepository.save(eventOffer);
         }
     }
+
 
     // Méthode complexe : récupérer les offres associées à un événement
     @Transactional(readOnly = true)
@@ -127,24 +172,33 @@ public class EventManagementFacade {
     @Transactional
     public void deleteEventOffer(Long eventId, Long offerId) throws Exception {
         logger.info("Suppression de l'association entre l'événement ID: {} et l'offre ID: {}", eventId, offerId);
+        
+        // Récupérer l'association EventOffer et vérifier qu'elle existe
         EventOffer eventOffer = eventOfferRepository.findByEventIdAndOfferId(eventId, offerId)
                 .orElseThrow(() -> new EntityNotFoundException("Association non trouvée entre l'événement et l'offre"));
-        eventOfferRepository.delete(eventOffer);  // Suppression de l'association
+
+        // Suppression de l'association dans la base de données
+        eventOfferRepository.delete(eventOffer);
+        
+        logger.info("Association supprimée avec succès entre l'événement ID: {} et l'offre ID: {}", eventId, offerId);
     }
     
     @Transactional
     public void removeTicketFromEvent(Long eventId, Long ticketId) throws Exception {
         logger.info("Suppression du ticket ID: {} de l'événement ID: {}", ticketId, eventId);
-      
-        
-        // Récupérer le ticket et vérifier qu'il est bien associé à l'événement
+
+        // Récupérer le ticket via le service et vérifier son association avec l'événement
         TicketDTO ticketDTO = ticketService.getTicketById(ticketId);
         if (ticketDTO.getEvent() == null || !ticketDTO.getEvent().getId().equals(eventId)) {
-            throw new Exception("Le ticket n'est pas associé à cet événement");
+            throw new Exception("Le ticket ID: " + ticketId + " n'est pas associé à l'événement ID: " + eventId);
         }
 
         // Dissocier le ticket de l'événement
         ticketDTO.setEvent(null);
-        ticketService.updateTicket(ticketId, ticketDTO);  // Sauvegarder la mise à jour
+
+        // Sauvegarder la mise à jour via le service
+        ticketService.updateTicket(ticketId, ticketDTO);
+
+        logger.info("Ticket ID: {} dissocié avec succès de l'événement ID: {}", ticketId, eventId);
     }
 }

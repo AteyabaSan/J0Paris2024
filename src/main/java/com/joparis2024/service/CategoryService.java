@@ -1,9 +1,6 @@
 package com.joparis2024.service;
 
 import com.joparis2024.dto.CategoryDTO;
-import com.joparis2024.events.CategoryCreatedEvent;
-import com.joparis2024.events.CategoryDeletedEvent;
-import com.joparis2024.events.CategoryUpdatedEvent;
 import com.joparis2024.mapper.CategoryMapper;
 import com.joparis2024.model.Category;
 import com.joparis2024.model.Event;
@@ -11,7 +8,6 @@ import com.joparis2024.repository.CategoryRepository;
 import com.joparis2024.repository.EventRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,10 +24,7 @@ public class CategoryService {
     private CategoryMapper categoryMapper;
 
     @Autowired
-    private EventRepository eventRepository;  // Injecter EventRepository pour gérer les associations
-
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;  // Utilisation de Spring Events
+    private EventRepository eventRepository;
 
     // Créer une catégorie
     public CategoryDTO createCategory(CategoryDTO categoryDTO) throws Exception {
@@ -41,8 +34,6 @@ public class CategoryService {
 
         Category category = categoryMapper.toEntity(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
-
-        eventPublisher.publishEvent(new CategoryCreatedEvent(this, categoryMapper.toDTO(savedCategory)));
         return categoryMapper.toDTO(savedCategory);
     }
 
@@ -78,8 +69,6 @@ public class CategoryService {
         category.setLocation(categoryDTO.getLocation());
 
         Category updatedCategory = categoryRepository.save(category);
-        eventPublisher.publishEvent(new CategoryUpdatedEvent(this, categoryMapper.toDTO(updatedCategory)));
-
         return categoryMapper.toDTO(updatedCategory);
     }
 
@@ -88,12 +77,10 @@ public class CategoryService {
         if (!categoryRepository.existsById(id)) {
             throw new Exception("Catégorie non trouvée");
         }
-
         categoryRepository.deleteById(id);
-        eventPublisher.publishEvent(new CategoryDeletedEvent(this, id));
     }
 
-    // Méthode pour associer une catégorie à des événements
+    // Associer une catégorie à des événements
     public void assignCategoryToEvents(CategoryDTO categoryDTO) throws Exception {
         if (categoryDTO.getId() == null) {
             throw new IllegalArgumentException("L'ID de la catégorie est requis.");
@@ -104,14 +91,14 @@ public class CategoryService {
             throw new Exception("Catégorie non trouvée.");
         }
 
-        List<Event> events = eventRepository.findAll();  // Ou récupérer une liste d'événements spécifique
+        List<Event> events = eventRepository.findAll();
         for (Event event : events) {
-            event.setCategory(category.get());  // Associer la catégorie à chaque événement
+            event.setCategory(category.get());
             eventRepository.save(event);
         }
     }
 
-    // Méthode pour dissocier une catégorie des événements
+    // Dissocier une catégorie des événements
     public void removeCategoryFromEvents(Long categoryId) throws Exception {
         if (categoryId == null) {
             throw new IllegalArgumentException("L'ID de la catégorie est requis.");
@@ -124,7 +111,7 @@ public class CategoryService {
 
         List<Event> events = eventRepository.findByCategory(category.get());
         for (Event event : events) {
-            event.setCategory(null);  // Dissocier la catégorie de chaque événement
+            event.setCategory(null);
             eventRepository.save(event);
         }
     }

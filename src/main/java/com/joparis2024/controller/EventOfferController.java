@@ -27,17 +27,25 @@ public class EventOfferController {
     @PostMapping
     public ResponseEntity<EventOfferDTO> createEventOffer(@RequestBody EventOfferDTO eventOfferDTO) {
         try {
-            logger.info("Requête pour créer une association Event-Offer");
+            // Ajoute un log pour vérifier les données reçues dans le DTO
+            System.out.println("Event ID: " + eventOfferDTO.getEventId());
+            System.out.println("Offer ID: " + eventOfferDTO.getOfferId());
+
+            // Si les IDs ne sont pas là, l'erreur sera renvoyée
+            if (eventOfferDTO.getEventId() == null || eventOfferDTO.getOfferId() == null) {
+                throw new IllegalArgumentException("Les IDs de l'événement et de l'offre doivent être spécifiés");
+            }
+
             EventOfferDTO createdEventOffer = eventOfferService.createEventOffer(eventOfferDTO);
             return new ResponseEntity<>(createdEventOffer, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            logger.error("Erreur lors de la création de l'association Event-Offer : " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            logger.error("Erreur inattendue lors de la création de l'association Event-Offer", e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 
     // Récupérer toutes les associations EventOffer
     @GetMapping

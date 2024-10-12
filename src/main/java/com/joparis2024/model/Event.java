@@ -31,7 +31,7 @@ public class Event {
     @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Ticket> tickets = new ArrayList<>();  // Initialisation de la liste des tickets
 
     @ManyToOne(fetch = FetchType.LAZY)

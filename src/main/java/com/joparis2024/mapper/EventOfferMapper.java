@@ -39,13 +39,21 @@ public class EventOfferMapper {
         }
 
         EventOffer eventOffer = new EventOffer();
-        eventOffer.setId(dto.getId());
+
+        // Log des IDs avant récupération
+        System.out.println("Tentative de récupération de l'événement avec ID : " + dto.getEventId());
+        System.out.println("Tentative de récupération de l'offre avec ID : " + dto.getOfferId());
+
+        // Récupération de l'événement et de l'offre
         eventOffer.setEvent(eventRepository.findById(dto.getEventId())
-            .orElseThrow(() -> new Exception("Événement non trouvé")));
+            .orElseThrow(() -> new Exception("Événement non trouvé avec ID : " + dto.getEventId())));
         eventOffer.setOffer(offerRepository.findById(dto.getOfferId())
-            .orElseThrow(() -> new Exception("Offre non trouvée")));
+            .orElseThrow(() -> new Exception("Offre non trouvée avec ID : " + dto.getOfferId())));
+
         return eventOffer;
     }
+
+
     
     public List<EventOfferDTO> toDTOs(List<EventOffer> eventOffers) {
         if (eventOffers == null || eventOffers.isEmpty()) {

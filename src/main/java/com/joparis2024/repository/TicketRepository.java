@@ -33,5 +33,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     // Optionnel : Récupérer un ticket avec son événement et commande associés
     @Query("SELECT t FROM Ticket t JOIN FETCH t.event JOIN FETCH t.order WHERE t.id = :id")
     Optional<Ticket> findByIdWithEventAndOrder(@Param("id") Long id);
+    
+    List<Ticket> findByEventId(Long eventId);
+    
+    @Query("SELECT t FROM Ticket t JOIN FETCH t.event WHERE t.event.id = :eventId")
+    List<Ticket> findTicketsWithEvent(@Param("eventId") Long eventId);
 }
+
 
