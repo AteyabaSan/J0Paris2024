@@ -1,36 +1,38 @@
 package com.joparis2024.dto;
 
-import jakarta.validation.constraints.Min;
+//import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+
 
 public class TicketDTO {
 
-    @NotNull
+    
     private Long id;          // Ajout de l'ID
     
-    @NotNull
+    @NotNull(message = "L'événement est obligatoire")
     private EventDTO event;
-    
-    @NotNull
+
+    @NotNull(message = "La commande est obligatoire")
     private OrderDTO order;
     
-    @Min(0)
-    private double price;
+    @NotNull(message = "Le prix est obligatoire")
+    private Double price;
     
-    @Min(1)
-    private int quantity;
+//    @NotNull(message = "Quantity ne peut pas etre nulle")
+//    @Min(value = 1, message = "La quantité doit être supérieure à zéro")
+    private Integer quantity;
+
     
     private boolean isAvailable; // Utilisation de 'isAvailable' au lieu de 'available'
     
     @NotNull
-    private LocalDateTime eventDate;  // Ajout de la date de l'événement associé
+    private String eventDate;  // Ajout de la date de l'événement associé
 
     // Constructeurs
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, int quantity, boolean isAvailable, LocalDateTime eventDate) {
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, Integer quantity, boolean isAvailable, String eventDate) {
         this.id = id;
         this.event = event;
         this.order = order;
@@ -65,11 +67,11 @@ public class TicketDTO {
         this.price = price;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -81,11 +83,11 @@ public class TicketDTO {
         this.isAvailable = available;
     }
 
-    public LocalDateTime getEventDate() {
+    public String getEventDate() {
         return eventDate;
     }
 
-    public void setEventDate(LocalDateTime eventDate) {
+    public void setEventDate(String eventDate) {
         this.eventDate = eventDate;
     }
 

@@ -30,7 +30,7 @@ public class Order_TicketService {
     @Autowired
     private TicketRepository ticketRepository;
 
-    // Créer une association Order_Ticket
+ // Créer une association Order_Ticket
     public Order_TicketDTO createOrderTicket(Order_TicketDTO orderTicketDTO) throws Exception {
         if (orderTicketDTO.getOrderId() == null || orderTicketDTO.getTicketId() == null) {
             throw new IllegalArgumentException("Order ID and Ticket ID must not be null");
@@ -42,12 +42,21 @@ public class Order_TicketService {
         Ticket ticket = ticketRepository.findById(orderTicketDTO.getTicketId())
                 .orElseThrow(() -> new Exception("Ticket not found"));
 
+        // Vérifier la quantité
+        if (orderTicketDTO.getQuantity() == null) {
+            throw new IllegalArgumentException("Quantity must not be null");
+        }
+
         Order_Ticket orderTicket = orderTicketMapper.toEntity(orderTicketDTO);
         orderTicket.setOrder(order);
         orderTicket.setTicket(ticket);
+        orderTicket.setQuantity(orderTicketDTO.getQuantity()); // Assigner la quantité
+
+        // Sauvegarder l'association Order_Ticket
         Order_Ticket savedOrderTicket = orderTicketRepository.save(orderTicket);
         return orderTicketMapper.toDTO(savedOrderTicket);
     }
+
 
     // Récupérer toutes les associations Order_Ticket pour une commande
     public List<Order_TicketDTO> getOrderTicketsByOrder(Long orderId) {

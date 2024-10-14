@@ -26,6 +26,6 @@ public class Order_Ticket {
     @JoinColumn(name = "ticket_id", nullable = false)
     private Ticket ticket;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer quantity; // Quantité de tickets pour cette commande
 }

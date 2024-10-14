@@ -20,12 +20,23 @@ public class RoleController {
     @PostMapping
     public ResponseEntity<RoleDTO> createRole(@RequestBody RoleDTO roleDTO) {
         try {
+            // Log pour vérifier le contenu du roleDTO
+            System.out.println("Creating role with name: " + roleDTO.getName());
+
+            if (roleDTO.getName() == null || roleDTO.getName().isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
             RoleDTO createdRole = roleService.createRole(roleDTO);
             return new ResponseEntity<>(createdRole, HttpStatus.CREATED);
         } catch (Exception e) {
+            // Log l'exception pour comprendre le problème
+            System.out.println("Error creating role: " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
     // Récupérer tous les rôles
     @GetMapping

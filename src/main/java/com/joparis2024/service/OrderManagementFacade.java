@@ -2,6 +2,7 @@ package com.joparis2024.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.Order_TicketDTO;
 import com.joparis2024.dto.TicketDTO;
-import com.joparis2024.dto.UserDTO;
 import com.joparis2024.mapper.UserMapper;
 import com.joparis2024.model.Role;
 import com.joparis2024.model.User;
+import com.joparis2024.model.UserRole;
+import com.joparis2024.repository.UserRepository;
+import com.joparis2024.repository.UserRoleRepository;
 
 
 @Service
@@ -39,28 +42,60 @@ public class OrderManagementFacade {
 
     @Autowired
     private Order_TicketService orderTicketService;
+    
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
+ 
 
     @Autowired
     private OrderDetailService orderDetailService;
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementFacade.class);
 
+    
     // Méthode complexe : Créer une commande avec tickets et gérer les rôles d'utilisateur
     @Transactional
     public OrderDTO createOrderWithDetails(OrderDTO orderDTO) throws Exception {
         logger.info("Création de la commande avec tickets pour l'utilisateur : {}", orderDTO.getUser().getId());
 
-        // Utilisation de UserService pour récupérer l'utilisateur
-        User user = userService.findById(orderDTO.getUser().getId());
-        UserDTO userDTO = userService.createUser(userMapper.toDTO(user)); // Crée ou récupère l'utilisateur
-        orderDTO.setUser(userDTO);
-
-        // Gestion des rôles utilisateur si nécessaire via la façade
-        if (orderDTO.getUser().getRoles() != null && !orderDTO.getUser().getRoles().isEmpty()) {
-            assignRolesToUser(orderDTO.getUser().getId(), orderDTO.getUser().getRoles()); // Appel de la méthode dans la façade
+        // Validation de l'email de l'utilisateur
+        if (orderDTO.getUser() == null || orderDTO.getUser().getEmail() == null || orderDTO.getUser().getEmail().isEmpty()) {
+            throw new Exception("Email non valide");
         }
 
-        // Création de la commande via OrderService
+        // Vérifier si l'utilisateur existe dans la base de données
+        Optional<User> existingUser = userRepository.findByEmail(orderDTO.getUser().getEmail());
+        if (!existingUser.isPresent()) {
+            throw new Exception("Utilisateur non trouvé. L'utilisateur doit être inscrit avant de passer une commande.");
+        }
+
+        User user = existingUser.get();
+        orderDTO.getUser().setId(user.getId()); // Utiliser l'utilisateur récupéré dans la commande
+
+        // Vérification des rôles via UserRole
+        List<UserRole> userRoles = userRoleRepository.findByUser(user);
+        if (userRoles == null || userRoles.isEmpty()) {
+            throw new Exception("L'utilisateur n'a aucun rôle assigné.");
+        }
+
+        // Assurer que l'utilisateur a bien le rôle 'USER'
+        boolean hasUserRole = false;
+        for (UserRole userRole : userRoles) {
+            if (userRole.getRole().getName().equals("USER")) {
+                hasUserRole = true;
+                break;
+            }
+        }
+
+        if (!hasUserRole) {
+            throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER'.");
+        }
+
+        // Créer la commande via OrderService
         OrderDTO savedOrderDTO = orderService.createOrder(orderDTO);
 
         // Associer des tickets à la commande via Order_TicketService
@@ -72,6 +107,9 @@ public class OrderManagementFacade {
 
         return savedOrderDTO;
     }
+
+
+
 
     // Méthode complexe : Mise à jour d'une commande avec détails et tickets associés
     @Transactional

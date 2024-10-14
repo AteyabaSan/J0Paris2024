@@ -54,14 +54,12 @@ public class UserService {
             throw new Exception("Email déjà utilisé");
         }
 
-        // Récupérer les rôles
-        List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
-        if (roles.isEmpty()) {
-            throw new Exception("Les rôles spécifiés n'existent pas");
-        }
+        // Créer un nouvel utilisateur sans rôle
+        User user = userMapper.toEntity(userDTO, null);
+        
+        // Assurez-vous que l'attribut enabled est défini par défaut
+        user.setEnabled(true); // Ou false selon votre logique métier
 
-        // Mapper UserDTO vers User et sauvegarder
-        User user = userMapper.toEntity(userDTO, roles);
         User savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
     }

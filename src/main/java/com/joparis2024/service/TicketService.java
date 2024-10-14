@@ -28,12 +28,12 @@ public class TicketService {
     @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
         logger.info("Tentative de création d'un ticket : {}", ticketDTO);
-
-        // Création et sauvegarde du ticket
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
         Ticket savedTicket = ticketRepository.save(ticket);
         return ticketMapper.toDTO(savedTicket);
     }
+
+
 
     @Transactional
     public TicketDTO updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {

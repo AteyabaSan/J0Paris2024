@@ -1,5 +1,6 @@
 package com.joparis2024.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -31,7 +32,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private Boolean enabled;
+    private Boolean enabled = true;
 
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -52,6 +53,14 @@ public class User {
         this.enabled = enabled;
         this.phoneNumber = phoneNumber;
     }
+    
+    public List<Role> getRoles() {
+        if (this.roles == null) {
+            this.roles = new ArrayList<>();
+        }
+        return this.roles;
+    }
+
 }
 
 

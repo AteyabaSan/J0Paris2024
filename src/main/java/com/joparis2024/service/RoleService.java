@@ -22,15 +22,19 @@ public class RoleService {
 
     // Créer un rôle
     public RoleDTO createRole(RoleDTO roleDTO) throws Exception {
-        if (roleRepository.findByName(roleDTO.getName()) != null) {
+        Optional<Role> existingRole = roleRepository.findByName(roleDTO.getName());
+        if (existingRole.isPresent()) {
             throw new Exception("Le rôle existe déjà");
         }
 
-        Role role = roleMapper.toEntity(roleDTO);  // Utilisation du RoleMapper pour le mapping
+        Role role = roleMapper.toEntity(roleDTO);
+        // Ajout de logs
+        System.out.println("Role entity created: " + role.getName());
         Role savedRole = roleRepository.save(role);
-
-        return roleMapper.toDTO(savedRole);  // Retourner un DTO via le RoleMapper
+        System.out.println("Role saved with ID: " + savedRole.getId());
+        return roleMapper.toDTO(savedRole);
     }
+
 
     // Mettre à jour un rôle
     public RoleDTO updateRole(Long roleId, RoleDTO roleDTO) throws Exception {

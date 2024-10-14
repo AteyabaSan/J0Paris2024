@@ -1,8 +1,10 @@
 package com.joparis2024.model;
 
-import java.time.LocalDateTime;
+
 
 import jakarta.persistence.*;
+//import jakarta.validation.constraints.Min;
+//import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,14 +33,16 @@ public class Ticket {
     @Column(nullable = false)
     private double price;
 
-    @Column(nullable = false)
-    private int quantity;
+    @Column(nullable = true)
+//    @NotNull(message = "Quantity ne doit pas être nulle")
+//    @Min(value = 1, message = "Il doit y avoir au moins 1 ticket")
+    private Integer quantity;
 
     @Column(nullable = false)
     private boolean isAvailable;
 
     @Column(name = "event_date", nullable = true)
-    private LocalDateTime eventDate;
+    private String eventDate;
     
     public Ticket(Long id) {
         this.id = id;
