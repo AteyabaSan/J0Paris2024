@@ -1,6 +1,6 @@
 package com.joparis2024.dto;
 
-//import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 
@@ -18,8 +18,8 @@ public class TicketDTO {
     @NotNull(message = "Le prix est obligatoire")
     private Double price;
     
-//    @NotNull(message = "Quantity ne peut pas etre nulle")
-//    @Min(value = 1, message = "La quantité doit être supérieure à zéro")
+    @NotNull(message = "Quantity ne peut pas etre nulle")
+    @Min(value = 1, message = "La quantité doit être supérieure à zéro")
     private Integer quantity;
 
     
@@ -28,11 +28,14 @@ public class TicketDTO {
     @NotNull
     private String eventDate;  // Ajout de la date de l'événement associé
 
+ // Nouvel attribut pour l'offre
+    private Long offerId;
+    
     // Constructeurs
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, Integer quantity, boolean isAvailable, String eventDate) {
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, Integer quantity, boolean isAvailable, String eventDate, Long offerId) {
         this.id = id;
         this.event = event;
         this.order = order;
@@ -40,6 +43,7 @@ public class TicketDTO {
         this.quantity = quantity;
         this.isAvailable = isAvailable;
         this.eventDate = eventDate;
+        this.offerId = offerId;
     }
 
     // Getters and Setters
@@ -98,4 +102,14 @@ public class TicketDTO {
     public void setId(Long id) {
         this.id = id;
     }
+    
+    // Nouvelle méthode pour gérer l'offre
+    public Long getOfferId() {
+        return offerId;
+    }
+
+    public void setOfferId(Long offerId) {
+        this.offerId = offerId;
+    }
+
 }

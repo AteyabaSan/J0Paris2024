@@ -14,10 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.Order_TicketDTO;
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.dto.UserDTO;
+import com.joparis2024.mapper.EventMapper;
 import com.joparis2024.mapper.UserMapper;
+import com.joparis2024.model.Offer;
 import com.joparis2024.model.Role;
+import com.joparis2024.model.Ticket;
 import com.joparis2024.model.User;
 import com.joparis2024.model.UserRole;
+import com.joparis2024.repository.OfferRepository;
+import com.joparis2024.repository.TicketRepository;
 import com.joparis2024.repository.UserRepository;
 import com.joparis2024.repository.UserRoleRepository;
 
@@ -49,10 +55,19 @@ public class OrderManagementFacade {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
- 
+    @Autowired
+    private TicketRepository ticketRepository; 
+    
+    
+    @Autowired
+    private EventMapper eventMapper;
+
 
     @Autowired
     private OrderDetailService orderDetailService;
+    
+    @Autowired
+    private OfferRepository offerRepository; 
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementFacade.class);
 
@@ -98,17 +113,60 @@ public class OrderManagementFacade {
         // Créer la commande via OrderService
         OrderDTO savedOrderDTO = orderService.createOrder(orderDTO);
 
-        // Associer des tickets à la commande via Order_TicketService
+        // Associer les tickets à la commande via Order_TicketService et récupérer leurs informations complètes
         if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
+            List<TicketDTO> ticketDTOs = new ArrayList<>();
             for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-                orderTicketService.createOrderTicket(new Order_TicketDTO(savedOrderDTO.getId(), ticketDTO.getId()));
+                // Vérification de la quantité
+                if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
+                    throw new Exception("La quantité de tickets doit être supérieure à 0.");
+                }
+
+                // Vérification de l'offre spécifiée
+                if (ticketDTO.getOfferId() == null) {
+                    throw new Exception("Une offre doit être spécifiée pour le ticket.");
+                }
+
+                // Charger l'offre à partir de son ID
+                Offer offer = offerRepository.findById(ticketDTO.getOfferId())
+                                  .orElseThrow(() -> new Exception("Offre non trouvée."));
+
+                // Charger les informations complètes du ticket
+                Ticket ticket = ticketRepository.findById(ticketDTO.getId())
+                              .orElseThrow(() -> new Exception("Ticket non trouvé."));
+
+                // Compléter le TicketDTO avec les données récupérées
+                ticketDTO.setPrice(ticket.getPrice());
+                ticketDTO.setAvailable(ticket.isAvailable());
+                ticketDTO.setEvent(eventMapper.toDTO(ticket.getEvent())); // Utiliser le EventMapper pour convertir l'Event en EventDTO
+
+                // Créer l'association entre commande et ticket dans Order_Ticket, avec l'offre spécifiée
+                Order_TicketDTO orderTicketDTO = new Order_TicketDTO(
+                    savedOrderDTO.getId(),  // ID de la commande
+                    ticketDTO.getId(),      // ID du ticket
+                    ticketDTO.getQuantity(),// Quantité de tickets
+                    offer.getId()           // ID de l'offre
+                );
+                orderTicketService.createOrderTicket(orderTicketDTO);
+
+                // Ajouter le ticket à la liste des tickets
+                ticketDTOs.add(ticketDTO);
             }
+            savedOrderDTO.setTickets(ticketDTOs); // Mettre à jour les tickets dans la commande
         }
+
+        // Récupérer les informations complètes de l'utilisateur pour le retourner
+        List<String> roles = new ArrayList<>();
+        for (UserRole userRole : userRoles) {
+            roles.add(userRole.getRole().getName());
+        }
+
+        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail(), roles, 
+                                      user.getEnabled(), user.getPhoneNumber(), null);
+        savedOrderDTO.setUser(userDTO); // Mettre à jour l'utilisateur dans la commande
 
         return savedOrderDTO;
     }
-
-
 
 
     // Méthode complexe : Mise à jour d'une commande avec détails et tickets associés
@@ -117,21 +175,45 @@ public class OrderManagementFacade {
         logger.info("Mise à jour de la commande avec ID: {}", orderId);
 
         // Mise à jour des informations utilisateur et des rôles si nécessaire
-        userService.updateUserByEmail(orderDTO.getUser().getEmail(), orderDTO.getUser()); // Tu n'as pas besoin de récupérer le UserDTO ici
+        userService.updateUserByEmail(orderDTO.getUser().getEmail(), orderDTO.getUser());
 
         // Mise à jour de la commande
         OrderDTO updatedOrderDTO = orderService.updateOrder(orderId, orderDTO);
 
         // Mise à jour des tickets associés via Order_TicketService
         if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
+            List<TicketDTO> ticketDTOs = new ArrayList<>();
             for (TicketDTO ticketDTO : orderDTO.getTickets()) {
-                orderTicketService.createOrderTicket(new Order_TicketDTO(orderId, ticketDTO.getId()));
+                // Vérification de la quantité
+                if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
+                    throw new Exception("La quantité de tickets doit être supérieure à 0.");
+                }
+
+                // Charger les informations complètes du ticket
+                Ticket ticket = ticketRepository.findById(ticketDTO.getId())
+                              .orElseThrow(() -> new Exception("Ticket non trouvé."));
+
+                // Compléter le TicketDTO avec les données récupérées
+                ticketDTO.setPrice(ticket.getPrice());
+                ticketDTO.setAvailable(ticket.isAvailable());
+                ticketDTO.setEvent(eventMapper.toDTO(ticket.getEvent())); // Mapper l'Event
+
+                // Créer l'association entre commande et ticket dans Order_Ticket
+                Order_TicketDTO orderTicketDTO = new Order_TicketDTO(
+                    orderId,         // ID de la commande
+                    ticketDTO.getId(), // ID du ticket
+                    ticketDTO.getQuantity() // Quantité de tickets
+                );
+                orderTicketService.createOrderTicket(orderTicketDTO);
+
+                // Ajouter le ticket à la liste des tickets
+                ticketDTOs.add(ticketDTO);
             }
+            updatedOrderDTO.setTickets(ticketDTOs); // Mettre à jour les tickets dans la commande
         }
 
         return updatedOrderDTO;
     }
-
 
     // Méthode complexe : Annuler une commande avec les tickets associés
     @Transactional
@@ -152,22 +234,68 @@ public class OrderManagementFacade {
     @Transactional(readOnly = true)
     public OrderDTO getOrderWithDetails(Long orderId) throws Exception {
         logger.info("Récupération de la commande avec détails pour ID: {}", orderId);
-        return orderDetailService.getOrderWithDetailsById(orderId); // Détails inclus dans OrderDetailService
+        
+        OrderDTO orderDTO = orderDetailService.getOrderWithDetailsById(orderId);
+
+        // Récupérer les tickets associés et leur ajouter les détails
+        List<Order_TicketDTO> orderTicketDTOs = orderTicketService.getOrderTicketsByOrder(orderId);
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+        
+        for (Order_TicketDTO orderTicketDTO : orderTicketDTOs) {
+            Ticket ticket = ticketRepository.findById(orderTicketDTO.getTicketId())
+                            .orElseThrow(() -> new Exception("Ticket non trouvé."));
+            
+            TicketDTO ticketDTO = new TicketDTO();
+            ticketDTO.setId(ticket.getId());
+            ticketDTO.setPrice(ticket.getPrice());
+            ticketDTO.setAvailable(ticket.isAvailable());
+            ticketDTO.setEvent(eventMapper.toDTO(ticket.getEvent())); // Mapper l'Event
+
+            ticketDTOs.add(ticketDTO); // Ajouter à la liste des tickets
+        }
+        
+        orderDTO.setTickets(ticketDTOs); // Mettre à jour les tickets dans la commande
+
+        return orderDTO;
     }
+
 
     // Méthode complexe : Créer un ticket pour une commande
     @Transactional
     public TicketDTO createTicketForOrder(Long orderId, TicketDTO ticketDTO) throws Exception {
         logger.info("Création du ticket pour la commande ID: {}", orderId);
 
+        // Vérification de l'offre spécifiée
+        if (ticketDTO.getOfferId() == null) {
+            throw new Exception("Une offre doit être spécifiée pour le ticket.");
+        }
+
+        // Chargement de l'offre à partir de son ID
+        Offer offer = offerRepository.findById(ticketDTO.getOfferId())
+                        .orElseThrow(() -> new Exception("Offre non trouvée."));
+
         // Création du ticket via TicketService
         TicketDTO savedTicketDTO = ticketService.createTicket(ticketDTO);
 
-        // Associer le ticket à la commande via Order_TicketService
-        orderTicketService.createOrderTicket(new Order_TicketDTO(orderId, savedTicketDTO.getId()));
+        // Associer le ticket à la commande via Order_TicketService, avec l'offre spécifiée
+        orderTicketService.createOrderTicket(new Order_TicketDTO(
+            orderId,                    // ID de la commande
+            savedTicketDTO.getId(),      // ID du ticket
+            ticketDTO.getQuantity(),     // Quantité de tickets
+            offer.getId()                // ID de l'offre
+        ));
+
+        // Renvoyer toutes les informations du ticket après l'avoir associé à la commande
+        Ticket ticket = ticketRepository.findById(savedTicketDTO.getId())
+                        .orElseThrow(() -> new Exception("Ticket non trouvé."));
+
+        savedTicketDTO.setPrice(ticket.getPrice());
+        savedTicketDTO.setAvailable(ticket.isAvailable());
+        savedTicketDTO.setEvent(eventMapper.toDTO(ticket.getEvent())); // Mapper l'Event
 
         return savedTicketDTO;
     }
+
 
     // Méthode complexe : Mettre à jour un ticket pour une commande
     @Transactional
@@ -194,15 +322,24 @@ public class OrderManagementFacade {
         // Récupérer les tickets associés à la commande via Order_TicketService
         List<Order_TicketDTO> orderTicketDTOs = orderTicketService.getOrderTicketsByOrder(orderId);
 
-        // Convertir les relations en tickets
+        // Convertir les relations en tickets avec leurs détails
         List<TicketDTO> tickets = new ArrayList<>();
         for (Order_TicketDTO orderTicketDTO : orderTicketDTOs) {
-            TicketDTO ticketDTO = ticketService.getTicketById(orderTicketDTO.getTicketId());
-            tickets.add(ticketDTO);
+            Ticket ticket = ticketRepository.findById(orderTicketDTO.getTicketId())
+                            .orElseThrow(() -> new Exception("Ticket non trouvé."));
+            
+            TicketDTO ticketDTO = new TicketDTO();
+            ticketDTO.setId(ticket.getId());
+            ticketDTO.setPrice(ticket.getPrice());
+            ticketDTO.setAvailable(ticket.isAvailable());
+            ticketDTO.setEvent(eventMapper.toDTO(ticket.getEvent())); // Mapper l'Event
+
+            tickets.add(ticketDTO); // Ajouter à la liste des tickets
         }
 
         return tickets;
     }
+
 
     // Méthode complexe : Supprimer un ticket pour une commande
     @Transactional

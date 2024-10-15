@@ -9,6 +9,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - j0paris2024_db-data:/var/lib/postgresql/data  # Assure-toi que ce volume correspond à l'existant
 volumes:
-  db-data:
+  j0paris2024_db-data:  # Utilise le volume déjà en place pour conserver les données

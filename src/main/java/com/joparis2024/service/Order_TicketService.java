@@ -11,6 +11,9 @@ import com.joparis2024.repository.OrderRepository;
 import com.joparis2024.repository.Order_TicketRepository;
 import com.joparis2024.repository.TicketRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
@@ -29,34 +32,35 @@ public class Order_TicketService {
 
     @Autowired
     private TicketRepository ticketRepository;
+    
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
 
  // Créer une association Order_Ticket
     public Order_TicketDTO createOrderTicket(Order_TicketDTO orderTicketDTO) throws Exception {
         if (orderTicketDTO.getOrderId() == null || orderTicketDTO.getTicketId() == null) {
-            throw new IllegalArgumentException("Order ID and Ticket ID must not be null");
+            throw new IllegalArgumentException("Order ID et Ticket ID ne doivent pas être nuls.");
         }
 
-        // Vérifier l'existence de l'ordre et du ticket
         Order order = orderRepository.findById(orderTicketDTO.getOrderId())
-                .orElseThrow(() -> new Exception("Order not found"));
+                .orElseThrow(() -> new Exception("Commande non trouvée."));
         Ticket ticket = ticketRepository.findById(orderTicketDTO.getTicketId())
-                .orElseThrow(() -> new Exception("Ticket not found"));
+                .orElseThrow(() -> new Exception("Ticket non trouvé."));
 
-        // Vérifier la quantité
-        if (orderTicketDTO.getQuantity() == null) {
-            throw new IllegalArgumentException("Quantity must not be null");
+        // Validation de la quantité
+        if (orderTicketDTO.getQuantity() == null || orderTicketDTO.getQuantity() <= 0) {
+            throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
         }
+
+        logger.info("Association du ticket ID {} à la commande ID {} avec quantité: {}", ticket.getId(), order.getId(), orderTicketDTO.getQuantity());
 
         Order_Ticket orderTicket = orderTicketMapper.toEntity(orderTicketDTO);
         orderTicket.setOrder(order);
         orderTicket.setTicket(ticket);
-        orderTicket.setQuantity(orderTicketDTO.getQuantity()); // Assigner la quantité
+        orderTicket.setQuantity(orderTicketDTO.getQuantity());
 
-        // Sauvegarder l'association Order_Ticket
         Order_Ticket savedOrderTicket = orderTicketRepository.save(orderTicket);
         return orderTicketMapper.toDTO(savedOrderTicket);
     }
-
 
     // Récupérer toutes les associations Order_Ticket pour une commande
     public List<Order_TicketDTO> getOrderTicketsByOrder(Long orderId) {

@@ -32,19 +32,26 @@ public class TransactionMapper {
     }
 
     // Mapper TransactionDTO -> Transaction
+ // Mapper TransactionDTO -> Transaction
     public Transaction toEntity(TransactionDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Le TransactionDTO à mapper est nul.");
         }
 
+        // Création d'une nouvelle entité Transaction à partir du DTO
         Transaction transaction = new Transaction();
         transaction.setId(dto.getId());
         transaction.setTransactionType(dto.getTransactionType());
         transaction.setTransactionStatus(dto.getTransactionStatus());
         transaction.setTransactionDate(dto.getTransactionDate());
+        
+        // Conversion de OrderSimpleDTO en Order via le orderMapper
+        transaction.setOrder(orderMapper.toEntity(dto.getOrder())); 
 
+        // Retourne l'entité Transaction
         return transaction;
     }
+
 
     // Mapper une liste de Transactions -> Liste de TransactionDTOs
     public List<TransactionDTO> toDTOs(List<Transaction> transactions) {

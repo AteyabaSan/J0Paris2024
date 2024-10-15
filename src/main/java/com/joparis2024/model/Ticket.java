@@ -33,7 +33,7 @@ public class Ticket {
     @Column(nullable = false)
     private double price;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
 //    @NotNull(message = "Quantity ne doit pas être nulle")
 //    @Min(value = 1, message = "Il doit y avoir au moins 1 ticket")
     private Integer quantity;

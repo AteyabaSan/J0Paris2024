@@ -2,7 +2,9 @@ package com.joparis2024.service;
 
 import com.joparis2024.dto.EventDTO;
 import com.joparis2024.mapper.EventMapper;
+import com.joparis2024.model.Category;
 import com.joparis2024.model.Event;
+import com.joparis2024.repository.CategoryRepository;
 import com.joparis2024.repository.EventRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -26,7 +28,10 @@ public class EventService {
 
     @Autowired
     private EventMapper eventMapper;
-
+    
+    @Autowired
+    private CategoryRepository categoryRepository;
+    
     @Transactional(readOnly = true)
     public List<EventDTO> getAllEvents() {
         logger.info("Récupération de tous les événements");
@@ -35,17 +40,29 @@ public class EventService {
     }
 
     @Transactional
-    public EventDTO createEvent(EventDTO eventDTO) throws Exception {
-        logger.info("Création d'un nouvel événement : {}", eventDTO.getEventName());
+    public EventDTO createEvent(EventDTO eventDTO) {
+        // Valider les données du DTO
         validateEventDTO(eventDTO);
 
-        // Création de l'entité Event et sauvegarde
-        Event event = eventMapper.toEntity(eventDTO);
+        // Récupérer la catégorie depuis l'ID
+        Category category = categoryRepository.findById(eventDTO.getCategoryId())
+            .orElseThrow(() -> new IllegalArgumentException("Catégorie non trouvée pour l'ID: " + eventDTO.getCategoryId()));
 
-        // La catégorie sera déjà associée via l'EventDTO si nécessaire, donc pas besoin d'ajouter de logique d'association manuelle ici
+        // Convertir DTO en entité Event
+        Event event = new Event();
+        event.setEventName(eventDTO.getEventName());
+        event.setEventDate(eventDTO.getEventDate());
+        event.setDescription(eventDTO.getDescription());
+        event.setCategory(category); // Associer la catégorie récupérée
+
+        // Sauvegarder l'événement et récupérer l'ID généré
         Event savedEvent = eventRepository.save(event);
 
-        return eventMapper.toDTO(savedEvent);  // Conversion en DTO
+        // Mettre à jour l'EventDTO avec l'ID généré
+        eventDTO.setId(savedEvent.getId());
+
+        // Retourner l'EventDTO mis à jour avec l'ID
+        return eventDTO;
     }
 
     @Transactional
@@ -86,7 +103,15 @@ public class EventService {
             logger.error("Le nom de l'événement est manquant");
             throw new IllegalArgumentException("Le nom de l'événement ne peut pas être vide");
         }
+
+        if (eventDTO.getCategoryId() == null) {
+            logger.error("La catégorie de l'événement est manquante");
+            throw new IllegalArgumentException("La catégorie de l'événement ne peut pas être vide");
+        }
+
+        // Ajouter d'autres validations si nécessaire (ex : date de l'événement, description, etc.)
     }
+
 
     // Méthode pour convertir un DTO Event en entité Event
     public Event toEntity(EventDTO eventDTO) {

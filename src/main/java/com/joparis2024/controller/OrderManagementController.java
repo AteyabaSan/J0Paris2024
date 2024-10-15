@@ -75,6 +75,19 @@ public class OrderManagementController {
                 throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER'.");
             }
 
+            // Log de la quantité des tickets et vérification de l'offre associée
+            if (orderDTO.getTickets() != null && !orderDTO.getTickets().isEmpty()) {
+                for (TicketDTO ticketDTO : orderDTO.getTickets()) {
+                    logger.info("TicketDTO: ID: {}, Quantity: {}, OfferID: {}", ticketDTO.getId(), ticketDTO.getQuantity(), ticketDTO.getOfferId());
+                    if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
+                        throw new Exception("La quantité de tickets doit être supérieure à 0.");
+                    }
+                    if (ticketDTO.getOfferId() == null) {
+                        throw new Exception("Une offre doit être spécifiée pour chaque ticket.");
+                    }
+                }
+            }
+
             // Créer la commande
             orderDTO.getUser().setId(utilisateur.getId());
             OrderDTO savedOrder = orderManagementFacade.createOrderWithDetails(orderDTO);
@@ -85,7 +98,6 @@ public class OrderManagementController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 
     // Mettre à jour une commande avec détails
@@ -157,18 +169,24 @@ public class OrderManagementController {
         logger.info("Demande de création de ticket pour la commande ID : {}", orderId);
 
         // Log des champs du TicketDTO pour vérification
-        logger.info("TicketDTO après désérialisation - Event ID: {}, Order ID: {}, Price: {}, Quantity: {}, Available: {}, EventDate: {}", 
+        logger.info("TicketDTO après désérialisation - Event ID: {}, Offer ID: {}, Order ID: {}, Price: {}, Quantity: {}, Available: {}, EventDate: {}", 
                     ticketDTO.getEvent() != null ? ticketDTO.getEvent().getId() : null,
+                    ticketDTO.getOfferId(),
                     ticketDTO.getOrder() != null ? ticketDTO.getOrder().getId() : null,
                     ticketDTO.getPrice(),
                     ticketDTO.getQuantity(),
                     ticketDTO.isAvailable(),
                     ticketDTO.getEventDate());
 
-        // Vérification de la quantité
+        // Vérification de la quantité et de l'offre
         if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
             logger.error("Quantité invalide après désérialisation : {}", ticketDTO.getQuantity());
             return new ResponseEntity<>("La quantité de tickets doit être supérieure à 0.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (ticketDTO.getOfferId() == null) {
+            logger.error("Offre non spécifiée : {}", ticketDTO.getOfferId());
+            return new ResponseEntity<>("Une offre doit être spécifiée pour le ticket.", HttpStatus.BAD_REQUEST);
         }
 
         try {
@@ -180,7 +198,6 @@ public class OrderManagementController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     // Mettre à jour un ticket pour une commande
     @PutMapping("/orders/{orderId}/tickets/{ticketId}")

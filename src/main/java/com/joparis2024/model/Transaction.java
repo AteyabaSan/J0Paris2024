@@ -21,7 +21,7 @@ public class Transaction {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = true)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order; // Lien avec la commande
 
     @Column(nullable = false)

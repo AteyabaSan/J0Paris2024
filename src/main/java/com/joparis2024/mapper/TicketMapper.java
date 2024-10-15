@@ -28,16 +28,16 @@ public class TicketMapper {
 	    TicketDTO ticketDTO = new TicketDTO();
 	    ticketDTO.setId(ticket.getId());
 	    ticketDTO.setPrice(ticket.getPrice());
-	    ticketDTO.setQuantity(ticket.getQuantity());  // Retirer la condition qui met 0
+	    ticketDTO.setQuantity(ticket.getQuantity());  // On conserve la quantité réelle
 	    ticketDTO.setAvailable(ticket.isAvailable());
 	    ticketDTO.setEventDate(ticket.getEventDate());
 
-	    // Ajouter l'Event dans le TicketDTO
+	    // Ajouter l'Event dans le TicketDTO si disponible
 	    if (ticket.getEvent() != null) {
 	        EventDTO eventDTO = new EventDTO();
 	        eventDTO.setId(ticket.getEvent().getId());
 	        eventDTO.setEventName(ticket.getEvent().getEventName());
-	        ticketDTO.setEvent(eventDTO);  
+	        ticketDTO.setEvent(eventDTO);  // Ajout de l'EventDTO
 	    }
 
 	    return ticketDTO;

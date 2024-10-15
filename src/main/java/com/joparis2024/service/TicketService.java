@@ -27,12 +27,18 @@ public class TicketService {
 
     @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
-        logger.info("Tentative de création d'un ticket : {}", ticketDTO);
+        if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
+            throw new Exception("La quantité doit être supérieure à 0.");
+        }
+        logger.info("Tentative de création d'un ticket avec la quantité: {}", ticketDTO.getQuantity());
+
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
         Ticket savedTicket = ticketRepository.save(ticket);
-        return ticketMapper.toDTO(savedTicket);
-    }
 
+        TicketDTO savedTicketDTO = ticketMapper.toDTO(savedTicket);
+        logger.info("Ticket créé avec succès. Quantité: {}", savedTicketDTO.getQuantity());
+        return savedTicketDTO;
+    }
 
 
     @Transactional
@@ -41,12 +47,19 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
 
+        // Validation de la quantité
+        if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
+            throw new Exception("La quantité doit être supérieure à 0.");
+        }
+
         // Mise à jour des informations du ticket
-        ticket.setPrice(ticketDTO.getPrice());  // Mise à jour du prix uniquement
+        ticket.setPrice(ticketDTO.getPrice());
+        ticket.setQuantity(ticketDTO.getQuantity()); // Mise à jour de la quantité
         Ticket updatedTicket = ticketRepository.save(ticket);
 
-        return ticketMapper.toDTO(updatedTicket);  // Conversion en DTO et retour
+        return ticketMapper.toDTO(updatedTicket); // Conversion en DTO et retour
     }
+
 
 
     @Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package com.joparis2024.controller;
 
 import com.joparis2024.dto.EventDTO;
+//import com.joparis2024.model.Event;
 import com.joparis2024.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +48,34 @@ public class EventController {
     public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
         logger.info("Création d'un nouvel événement: {}", eventDTO.getEventName());
         try {
-            EventDTO createdEvent = eventService.createEvent(eventDTO);
-            return ResponseEntity.status(201).body(createdEvent);
+            // Appel au service pour créer l'événement
+            EventDTO createdEventDTO = eventService.createEvent(eventDTO);
+
+            // Retourner le DTO avec l'ID généré
+            return ResponseEntity.status(201).body(createdEventDTO);
+        } catch (IllegalArgumentException e) {
+            // Gestion des erreurs de validation
+            logger.error("Erreur de validation lors de la création de l'événement: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
+            // Gestion des autres erreurs
             logger.error("Erreur lors de la création de l'événement", e);
             return ResponseEntity.badRequest().build();
         }
     }
+
+
+
+//    // Méthode pour convertir l'entité Event en EventDTO
+//    private EventDTO convertToDTO(Event event) {
+//        EventDTO eventDTO = new EventDTO();
+//        eventDTO.setEventName(event.getEventName());
+//        eventDTO.setDescription(event.getDescription());
+//        eventDTO.setEventDate(event.getEventDate());
+//        eventDTO.setCategoryId(event.getCategory().getId());
+//        return eventDTO;
+//    }
+
 
     // Mettre à jour un événement
     @PutMapping("/{id}")
