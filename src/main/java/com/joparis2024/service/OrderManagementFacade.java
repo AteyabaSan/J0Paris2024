@@ -1,5 +1,6 @@
 package com.joparis2024.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -93,21 +94,29 @@ public class OrderManagementFacade {
 
         // Vérification des rôles via UserRole
         List<UserRole> userRoles = userRoleRepository.findByUser(user);
+        logger.info("Rôles récupérés pour l'utilisateur {} : {}", user.getUsername(), userRoles);
+        
         if (userRoles == null || userRoles.isEmpty()) {
             throw new Exception("L'utilisateur n'a aucun rôle assigné.");
         }
 
-        // Assurer que l'utilisateur a bien le rôle 'USER'
-        boolean hasUserRole = false;
+        // Assurer que l'utilisateur a au moins le rôle 'USER' ou 'ADMIN'
+        boolean hasRequiredRole = false;
         for (UserRole userRole : userRoles) {
-            if (userRole.getRole().getName().equals("USER")) {
-                hasUserRole = true;
+            logger.info("Vérification du rôle : {}", userRole.getRole().getName());
+            if (userRole.getRole().getName().equals("USER") || userRole.getRole().getName().equals("ADMIN")) {
+                hasRequiredRole = true;
                 break;
             }
         }
 
-        if (!hasUserRole) {
-            throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER'.");
+        if (!hasRequiredRole) {
+            throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER' ou 'ADMIN'.");
+        }
+        
+        // Avant de créer la commande, vérifiez et définissez orderDate
+        if (orderDTO.getOrderDate() == null) {
+            orderDTO.setOrderDate(LocalDateTime.now());
         }
 
         // Créer la commande via OrderService
@@ -274,6 +283,14 @@ public class OrderManagementFacade {
         Offer offer = offerRepository.findById(ticketDTO.getOfferId())
                         .orElseThrow(() -> new Exception("Offre non trouvée."));
 
+        // Vérification du prix : si null, récupérer à partir de l'entité Ticket
+        if (ticketDTO.getPrice() == null) {
+            logger.info("Le prix n'est pas spécifié, récupération du prix à partir du ticket existant.");
+            Ticket existingTicket = ticketRepository.findById(ticketDTO.getId())
+                                    .orElseThrow(() -> new Exception("Ticket non trouvé."));
+            ticketDTO.setPrice(existingTicket.getPrice()); // Récupérer et définir le prix
+        }
+
         // Création du ticket via TicketService
         TicketDTO savedTicketDTO = ticketService.createTicket(ticketDTO);
 
@@ -297,21 +314,29 @@ public class OrderManagementFacade {
     }
 
 
+
     // Méthode complexe : Mettre à jour un ticket pour une commande
     @Transactional
     public TicketDTO updateTicketForOrder(Long orderId, Long ticketId, TicketDTO ticketDTO) throws Exception {
         logger.info("Mise à jour du ticket ID: {} pour la commande ID: {}", ticketId, orderId);
 
-        // Mise à jour du ticket via TicketService
-        TicketDTO updatedTicketDTO = ticketService.updateTicket(ticketId, ticketDTO);
+        // Récupérer le ticket existant pour obtenir les informations complètes, y compris le prix
+        Ticket existingTicket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new Exception("Ticket non trouvé."));
 
-        // Vérifier si le ticket est bien associé à la commande via Order_TicketService
+        // Vérifier si le ticket est bien associé à la commande
         Order_TicketDTO orderTicketDTO = orderTicketService.getOrderTicketById(ticketId);
         if (orderTicketDTO.getOrderId() != orderId) {
             throw new Exception("Le ticket ID: " + ticketId + " n'est pas associé à la commande ID: " + orderId);
         }
 
-        return updatedTicketDTO;
+     // Récupérer le prix existant s'il n'est pas fourni dans le TicketDTO
+        if (ticketDTO.getPrice() == null) {
+            logger.info("Le prix du ticket ID: {} n'est pas fourni, récupération du prix actuel", ticketId);
+            ticketDTO.setPrice(existingTicket.getPrice());
+        }
+        // Mettre à jour le ticket via TicketService
+        return ticketService.updateTicket(ticketId, ticketDTO);
     }
 
     // Méthode complexe : Récupérer tous les tickets pour une commande

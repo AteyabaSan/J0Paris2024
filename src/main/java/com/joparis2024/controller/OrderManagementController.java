@@ -19,6 +19,7 @@ import com.joparis2024.service.OrderManagementFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,9 +37,6 @@ public class OrderManagementController {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
-
-   
-    
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementController.class);
    
@@ -62,17 +60,24 @@ public class OrderManagementController {
                 throw new Exception("L'utilisateur n'a aucun rôle assigné.");
             }
 
-            // Assurer que l'utilisateur a bien le rôle 'USER'
-            boolean hasUserRole = false;
+            // Log des rôles de l'utilisateur
+            List<String> roleNames = new ArrayList<>();
             for (UserRole userRole : userRoles) {
-                if (userRole.getRole().getName().equals("USER")) {
-                    hasUserRole = true;
+                roleNames.add(userRole.getRole().getName());
+            }
+            logger.info("Rôles de l'utilisateur : {}", roleNames);
+
+            // Assurer que l'utilisateur a bien le rôle 'USER' ou 'ADMIN'
+            boolean hasValidRole = false;
+            for (UserRole userRole : userRoles) {
+                if (userRole.getRole().getName().equals("USER") || userRole.getRole().getName().equals("ADMIN")) {
+                    hasValidRole = true;
                     break;
                 }
             }
 
-            if (!hasUserRole) {
-                throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER'.");
+            if (!hasValidRole) {
+                throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER' ou 'ADMIN'.");
             }
 
             // Log de la quantité des tickets et vérification de l'offre associée
@@ -190,6 +195,11 @@ public class OrderManagementController {
         }
 
         try {
+            // Log pour vérifier si le prix est manquant avant de passer à la méthode de service
+            if (ticketDTO.getPrice() == null) {
+                logger.info("Le prix est manquant, il sera récupéré depuis la base de données.");
+            }
+
             TicketDTO savedTicket = orderManagementFacade.createTicketForOrder(orderId, ticketDTO);
             return new ResponseEntity<>(savedTicket, HttpStatus.CREATED);
 
@@ -199,7 +209,9 @@ public class OrderManagementController {
         }
     }
 
-    // Mettre à jour un ticket pour une commande
+
+
+ // Mettre à jour un ticket pour une commande
     @PutMapping("/orders/{orderId}/tickets/{ticketId}")
     public ResponseEntity<TicketDTO> updateTicketForOrder(@PathVariable Long orderId, @PathVariable Long ticketId, @RequestBody TicketDTO ticketDTO) {
         try {

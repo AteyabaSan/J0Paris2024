@@ -36,18 +36,33 @@ public class EventManagementController {
     @Autowired
     private TicketMapper ticketMapper;
 
-    // Assigner des tickets à un événement
+ // Assigner des tickets à un événement
     @PostMapping("/events/{eventId}/assign-tickets")
     public ResponseEntity<String> assignTicketsToEvent(@PathVariable Long eventId, @RequestBody List<TicketDTO> ticketDTOs) {
+        if (ticketDTOs == null || ticketDTOs.isEmpty()) {
+            logger.error("Aucun ticket fourni pour l'événement {}", eventId);
+            return ResponseEntity.badRequest().body("Aucun ticket fourni.");
+        }
+
+        // Extraction des IDs des tickets à partir des DTO
         List<Long> ticketIds = new ArrayList<>();
         for (TicketDTO ticketDTO : ticketDTOs) {
-            ticketIds.add(ticketDTO.getId());
+            if (ticketDTO.getId() != null) {
+                ticketIds.add(ticketDTO.getId());
+            } else {
+                logger.error("Ticket DTO sans ID fourni.");
+                return ResponseEntity.badRequest().body("Ticket sans ID fourni.");
+            }
         }
 
         logger.info("Assignation des tickets {} à l'événement {}", ticketIds, eventId);
+
         try {
             eventManagementFacade.assignTicketsToEvent(eventId, ticketIds);
             return ResponseEntity.ok("Assignation réussie des tickets à l'événement " + eventId);
+        } catch (EntityNotFoundException e) {
+            logger.error("Événement ou ticket non trouvé : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Événement ou ticket non trouvé.");
         } catch (Exception e) {
             logger.error("Erreur lors de l'assignation des tickets {} à l'événement {}: {}", ticketIds, eventId, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'assignation des tickets.");

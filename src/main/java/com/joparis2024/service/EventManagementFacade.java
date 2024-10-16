@@ -54,22 +54,37 @@ public class EventManagementFacade {
     @Transactional
     public void assignTicketsToEvent(Long eventId, List<Long> ticketIds) throws Exception {
         logger.info("Association des tickets à l'événement ID: {}", eventId);
-        EventDTO eventDTO = eventService.getEventById(eventId);  // Récupération de l'événement via EventService
-        Event event = eventService.toEntity(eventDTO);  // Conversion en entité
+
+        // Récupérer l'événement
+        EventDTO eventDTO = eventService.getEventById(eventId);  
+        Event event = eventService.toEntity(eventDTO);  
+        logger.info("Événement récupéré: {}", event);
 
         List<Ticket> tickets = new ArrayList<>();
         for (Long ticketId : ticketIds) {
-            TicketDTO ticketDTO = ticketService.getTicketById(ticketId);  // Récupération du TicketDTO
-            Ticket ticket = ticketMapper.toEntity(ticketDTO);  // Conversion de TicketDTO en Ticket
-            ticket.setEvent(event);  // Associer l'événement au ticket
-            tickets.add(ticket);
-            // Enregistrer directement chaque ticket après l'association
-            ticketRepository.save(ticket);
+            // Récupération du ticket DTO
+            TicketDTO ticketDTO = ticketService.getTicketById(ticketId);
+            logger.info("Ticket récupéré pour ID {}: {}", ticketId, ticketDTO);
+
+            // Conversion en entité Ticket
+            Ticket ticket = ticketMapper.toEntity(ticketDTO);
+            logger.info("Ticket converti en entité: {}", ticket);
+
+            // Associer l'événement au ticket et vérifier l'association
+            ticket.setEvent(event);
+            logger.info("Association de l'événement {} avec le ticket {}", eventId, ticket.getId());
+
+            // Sauvegarde du ticket associé
+            Ticket savedTicket = ticketRepository.save(ticket);
+            logger.info("Ticket ID {} sauvegardé avec l'événement {}", savedTicket.getId(), eventId);
+
+            tickets.add(savedTicket);
         }
 
         logger.info("Assignation des tickets réussie pour l'événement {}", eventId);
     }
-    
+
+
     @Transactional(readOnly = true)
     public List<Ticket> getTicketsForEvent(Long eventId) throws Exception {
         logger.info("Récupération des tickets associés à l'événement ID: {}", eventId);

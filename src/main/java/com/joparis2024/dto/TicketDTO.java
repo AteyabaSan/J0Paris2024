@@ -35,7 +35,7 @@ public class TicketDTO {
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, double price, Integer quantity, boolean isAvailable, String eventDate, Long offerId) {
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, Double price, Integer quantity, boolean isAvailable, String eventDate, Long offerId) {
         this.id = id;
         this.event = event;
         this.order = order;
@@ -63,11 +63,11 @@ public class TicketDTO {
         this.order = order;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
