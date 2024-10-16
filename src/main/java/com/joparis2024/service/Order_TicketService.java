@@ -62,11 +62,6 @@ public class Order_TicketService {
         return orderTicketMapper.toDTO(savedOrderTicket);
     }
 
-    // Récupérer toutes les associations Order_Ticket pour une commande
-    public List<Order_TicketDTO> getOrderTicketsByOrder(Long orderId) {
-        List<Order_Ticket> orderTickets = orderTicketRepository.findByOrderId(orderId);
-        return orderTicketMapper.toDTOs(orderTickets);
-    }
 
     // Supprimer une association Order_Ticket
     public void deleteOrderTicket(Long id) throws Exception {
@@ -86,6 +81,16 @@ public class Order_TicketService {
         List<Order_Ticket> orderTickets = orderTicketRepository.findAll();
         return orderTicketMapper.toDTOs(orderTickets);
     }
+    
+ // Ajoute cette méthode à Order_TicketService
+    public List<Order_TicketDTO> getOrderTicketsByOrder(Long orderId) throws Exception {
+        // Récupère toutes les entrées Order_Ticket par ID de commande
+        List<Order_Ticket> orderTickets = orderTicketRepository.findByOrderId(orderId);
+        
+        // Convertir la liste des entités en DTOs
+        return orderTicketMapper.toDTOs(orderTickets);
+    }
+
 
 
 }
