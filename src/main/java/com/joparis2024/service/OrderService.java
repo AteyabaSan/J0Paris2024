@@ -31,9 +31,12 @@ public class OrderService {
     public OrderDTO createOrder(OrderDTO orderDTO) throws Exception {
         logger.info("Création d'une nouvelle commande : {}", orderDTO);
 
+        // Initialiser le montant total à 0
+        orderDTO.setTotalAmount(0.0); 
+
         // Conversion du DTO en entité Order
         Order order = orderMapper.toEntity(orderDTO);
-        Order savedOrder = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order); // Sauvegarder la commande avec montant initial à 0
 
         // Conversion de l'entité sauvegardée en DTO pour le retour
         return orderMapper.toDTO(savedOrder);
@@ -50,7 +53,7 @@ public class OrderService {
         // Mise à jour des détails de la commande
         existingOrder.setOrderDate(orderDTO.getOrderDate());
         existingOrder.setStatus(orderDTO.getStatus());
-        existingOrder.setTotalAmount(orderDTO.getTotalAmount());
+        existingOrder.setTotalAmount(orderDTO.getTotalAmount()); // Mettre à jour le montant total
 
         // Sauvegarde des modifications
         Order updatedOrder = orderRepository.save(existingOrder);
