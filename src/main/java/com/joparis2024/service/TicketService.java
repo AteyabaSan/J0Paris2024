@@ -23,7 +23,8 @@ public class TicketService {
     @Autowired
     private TicketMapper ticketMapper;
     
-    @Autowired TicketRepository ticketRepository;
+    @Autowired 
+    private TicketRepository ticketRepository;
 
     @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
@@ -32,14 +33,14 @@ public class TicketService {
         }
         logger.info("Tentative de création d'un ticket avec la quantité: {}", ticketDTO.getQuantity());
 
+        // S'assurer que l'attribut 'available' est bien pris en compte
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
         Ticket savedTicket = ticketRepository.save(ticket);
 
         TicketDTO savedTicketDTO = ticketMapper.toDTO(savedTicket);
-        logger.info("Ticket créé avec succès. Quantité: {}", savedTicketDTO.getQuantity());
+        logger.info("Ticket créé avec succès. Disponibilité: {}", savedTicketDTO.isAvailable());
         return savedTicketDTO;
     }
-
 
     @Transactional
     public TicketDTO updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
@@ -52,23 +53,21 @@ public class TicketService {
             throw new Exception("La quantité doit être supérieure à 0.");
         }
 
-        // Mise à jour des informations du ticket
+        // Mise à jour des informations du ticket, y compris la disponibilité
         ticket.setPrice(ticketDTO.getPrice());
-        ticket.setQuantity(ticketDTO.getQuantity()); // Mise à jour de la quantité
+        ticket.setQuantity(ticketDTO.getQuantity());
+        ticket.setAvailable(ticketDTO.isAvailable());  // Prise en compte de 'available'
+
         Ticket updatedTicket = ticketRepository.save(ticket);
-
-        return ticketMapper.toDTO(updatedTicket); // Conversion en DTO et retour
+        return ticketMapper.toDTO(updatedTicket);
     }
-
-
-
+    
     @Transactional(readOnly = true)
     public TicketDTO getTicketById(Long ticketId) throws Exception {
         logger.info("Récupération du ticket ID: {}", ticketId);
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
 
-        // Utilise le TicketMapper pour convertir Ticket en TicketDTO
         return ticketMapper.toDTO(ticket);
     }
 
@@ -85,10 +84,5 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
         ticketRepository.delete(ticket);
-    }
-
-    // Méthode pour convertir une entité Ticket en DTO
-    public TicketDTO convertToDTO(Ticket ticket) {
-        return ticketMapper.toDTO(ticket);  // Centralisation de la conversion dans le service
     }
 }

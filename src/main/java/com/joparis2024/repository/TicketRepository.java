@@ -24,7 +24,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByOrder(Order order);
 
     // Récupérer les tickets disponibles pour un événement
-    List<Ticket> findByEventAndIsAvailableTrue(Event event);
+    List<Ticket> findByEventAndAvailableTrue(Event event);
 
     // Requête avec JOIN FETCH pour récupérer un ticket avec son événement associé
     @Query("SELECT t FROM Ticket t JOIN FETCH t.event WHERE t.id = :id")

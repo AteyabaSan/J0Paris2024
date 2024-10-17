@@ -1,6 +1,7 @@
 package com.joparis2024.mapper;
 
 import com.joparis2024.dto.Order_TicketDTO;
+import com.joparis2024.model.Offer;
 import com.joparis2024.model.Order_Ticket;
 
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ public class Order_TicketMapper {
         dto.setOrderId(orderTicket.getOrder().getId());
         dto.setTicketId(orderTicket.getTicket().getId());
         dto.setQuantity(orderTicket.getQuantity());
+        dto.setOfferId(orderTicket.getOffer().getId()); // Inclure l'Offer dans le DTO
         return dto;
     }
 
@@ -30,8 +32,13 @@ public class Order_TicketMapper {
         }
         Order_Ticket orderTicket = new Order_Ticket();
         orderTicket.setId(dto.getId());
-        // On laisse la gestion des relations à une facade si nécessaire
         orderTicket.setQuantity(dto.getQuantity());
+
+        // Gestion des relations, on peut récupérer l'Offer ici
+        Offer offer = new Offer();
+        offer.setId(dto.getOfferId());
+        orderTicket.setOffer(offer);  // Assigner l'Offer à l'entité
+
         return orderTicket;
     }
 
@@ -46,23 +53,19 @@ public class Order_TicketMapper {
 
     public List<Order_Ticket> toEntities(List<Order_TicketDTO> orderTicketDTOs) {
         if (orderTicketDTOs == null || orderTicketDTOs.isEmpty()) {
-           
             return new ArrayList<>();
         }
 
         List<Order_Ticket> orderTickets = new ArrayList<>();
-        // Utilisation d'une boucle classique pour transformer les DTOs en entités
         for (Order_TicketDTO orderTicketDTO : orderTicketDTOs) {
             try {
-                Order_Ticket orderTicket = toEntity(orderTicketDTO); // Conversion d'un DTO en entité
+                Order_Ticket orderTicket = toEntity(orderTicketDTO);
                 orderTickets.add(orderTicket);
-             
             } catch (Exception e) {
-                
+                // Gérer l'exception ou la loguer
             }
         }
 
         return orderTickets;
     }
-
 }

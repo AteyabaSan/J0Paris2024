@@ -38,11 +38,15 @@ public class Ticket {
 //    @Min(value = 1, message = "Il doit y avoir au moins 1 ticket")
     private Integer quantity;
 
-    @Column(nullable = false)
-    private boolean isAvailable;
+    @Column(name = "is_available", nullable = false)
+    private boolean available;
 
     @Column(name = "event_date", nullable = true)
     private String eventDate;
+    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "offer_id", nullable = false)  // Ajoute cette ligne pour gérer l'Offer
+    private Offer offer;  // Relation avec l'Offer
     
     public Ticket(Long id) {
         this.id = id;

@@ -30,16 +30,16 @@ public class OrderManagementController {
 
     @Autowired
     private OrderManagementFacade orderManagementFacade;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
 
     @Autowired
     private UserRoleRepository userRoleRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementController.class);
-   
+
+    // Créer une commande avec détails et tickets
     @PostMapping("/orders/create")
     public ResponseEntity<OrderDTO> createOrderWithDetails(@RequestBody OrderDTO orderDTO) {
         try {
@@ -63,22 +63,10 @@ public class OrderManagementController {
             }
 
             // Vérification que l'utilisateur a le rôle requis
-            boolean hasValidRole = false;
-            for (UserRole userRole : userRoles) {
-                if (userRole.getRole().getName().equals("USER") || userRole.getRole().getName().equals("ADMIN")) {
-                    hasValidRole = true;
-                    break;
-                }
-            }
-
+            boolean hasValidRole = userRoles.stream().anyMatch(ur -> ur.getRole().getName().equals("USER") || ur.getRole().getName().equals("ADMIN"));
             if (!hasValidRole) {
                 logger.error("L'utilisateur {} n'a pas de rôle suffisant (USER ou ADMIN).", utilisateur.getUsername());
                 throw new Exception("L'utilisateur doit avoir au moins le rôle 'USER' ou 'ADMIN'.");
-            }
-
-            // Log des rôles de l'utilisateur
-            for (UserRole userRole : userRoles) {
-                logger.info("Rôle de l'utilisateur {} : {}", utilisateur.getUsername(), userRole.getRole().getName());
             }
 
             // Log des tickets et validation des quantités et offres
@@ -109,7 +97,6 @@ public class OrderManagementController {
         }
     }
 
-
     // Mettre à jour une commande avec détails
     @PutMapping("/orders/{orderId}")
     public ResponseEntity<OrderDTO> updateOrderWithDetails(@PathVariable Long orderId, @RequestBody OrderDTO orderDTO) {
@@ -135,8 +122,6 @@ public class OrderManagementController {
                 logger.info("Le champ 'enabled' est manquant. Utilisation de la valeur existante pour l'utilisateur : {}", existingUser.getEnabled());
                 orderDTO.getUser().setEnabled(existingUser.getEnabled()); // Compléter avec l'ancien statut enabled
             }
-
-            // Compléter d'autres champs sensibles si besoin
 
             // Appeler la méthode pour mettre à jour la commande avec les détails
             OrderDTO updatedOrder = orderManagementFacade.updateOrderWithDetails(orderId, orderDTO);
@@ -172,6 +157,4 @@ public class OrderManagementController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-  
 }

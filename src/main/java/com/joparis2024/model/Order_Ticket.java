@@ -28,4 +28,8 @@ public class Order_Ticket {
 
     @Column(nullable = false)
     private Integer quantity; // Quantité de tickets pour cette commande
+    
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)  // Ajout de la relation avec Offer
+    @JoinColumn(name = "offer_id", nullable = false)
+    private Offer offer;  // Relation avec Offer
 }

@@ -46,8 +46,7 @@ public class Order_TicketService {
         Ticket ticket = ticketRepository.findById(orderTicketDTO.getTicketId())
                 .orElseThrow(() -> new Exception("Ticket non trouvé."));
 
-        // Validation de la quantité
-        if (orderTicketDTO.getQuantity() == null || orderTicketDTO.getQuantity() <= 0) {
+        if (orderTicketDTO.getQuantity() <= 0) {
             throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
         }
 
@@ -61,6 +60,7 @@ public class Order_TicketService {
         Order_Ticket savedOrderTicket = orderTicketRepository.save(orderTicket);
         return orderTicketMapper.toDTO(savedOrderTicket);
     }
+
 
 
     // Supprimer une association Order_Ticket

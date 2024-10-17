@@ -46,18 +46,18 @@ public class OrderMapper {
 
         OrderDTO orderDTO = new OrderDTO();
         orderDTO.setId(order.getId());
-        orderDTO.setUser(userMapper.toDTO(order.getUser()));  // Utilisation du mapper User
+        orderDTO.setUser(userMapper.toDTO(order.getUser()));
         orderDTO.setStatus(order.getStatus());
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setOrderDate(order.getOrderDate());
 
-        // Mapping de la relation Payment
         if (order.getPayment() != null) {
             orderDTO.setPayment(paymentMapper.toDTO(order.getPayment()));
         }
 
         return orderDTO;
     }
+
 
     public Order toEntity(OrderDTO orderDTO) {
         if (orderDTO == null) {

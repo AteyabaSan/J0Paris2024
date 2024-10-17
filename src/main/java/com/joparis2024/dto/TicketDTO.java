@@ -23,7 +23,7 @@ public class TicketDTO {
     private Integer quantity;
 
     
-    private boolean isAvailable; // Utilisation de 'isAvailable' au lieu de 'available'
+    private boolean available; // Utilisation de 'isAvailable' au lieu de 'available'
     
     @NotNull
     private String eventDate;  // Ajout de la date de l'événement associé
@@ -35,13 +35,13 @@ public class TicketDTO {
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, Double price, Integer quantity, boolean isAvailable, String eventDate, Long offerId) {
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, Double price, Integer quantity, boolean available, String eventDate, Long offerId) {
         this.id = id;
         this.event = event;
         this.order = order;
         this.price = price;
         this.quantity = quantity;
-        this.isAvailable = isAvailable;
+        this.available = available;
         this.eventDate = eventDate;
         this.offerId = offerId;
     }
@@ -80,11 +80,11 @@ public class TicketDTO {
     }
 
     public boolean isAvailable() {  // Getter avec 'is'
-        return isAvailable;
+        return available;
     }
 
-    public void setAvailable(boolean available) {  // Setter sans 'is'
-        this.isAvailable = available;
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     public String getEventDate() {
