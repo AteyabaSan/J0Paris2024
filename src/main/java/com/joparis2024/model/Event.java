@@ -64,4 +64,9 @@ public class Event {
             ticket.setEvent(this);  // Associer l'événement au ticket
         }
     }
+    
+    public String getName() {
+        return this.eventName;  // Supposons que l'attribut soit `name`.
+    }
+
 }

@@ -77,4 +77,23 @@ public class OrderService {
         order.setStatus("ANNULÉ");
         orderRepository.save(order);  // Mise à jour du statut
     }
+    
+    public Order findOrderEntityById(Long orderId) throws Exception {
+        return orderRepository.findById(orderId)
+            .orElseThrow(() -> new Exception("Commande non trouvée"));
+    }
+    
+    @Transactional
+    public Order updateOrder(Long orderId, Order order) throws Exception {
+        Order existingOrder = orderRepository.findById(orderId)
+                .orElseThrow(() -> new Exception("Commande non trouvée."));
+
+        existingOrder.setOrderDate(order.getOrderDate());
+        existingOrder.setStatus(order.getStatus());
+        existingOrder.setTotalAmount(order.getTotalAmount());
+
+        return orderRepository.save(existingOrder);
+    }
+
+
 }

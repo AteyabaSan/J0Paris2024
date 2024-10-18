@@ -60,6 +60,11 @@ public class User {
         }
         return this.roles;
     }
+    
+    public String getEmail() {
+        return this.email;
+    }
+
 
 }
 

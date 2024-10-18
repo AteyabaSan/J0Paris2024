@@ -54,4 +54,12 @@ public class Order {
     public void setOrderTickets(List<Order_Ticket> orderTickets) {
         this.orderTickets = orderTickets;
     }
+    
+    public List<Ticket> getTickets() {
+        List<Ticket> tickets = new ArrayList<>();
+        for (Order_Ticket orderTicket : this.orderTickets) {
+            tickets.add(orderTicket.getTicket());
+        }
+        return tickets;
+    }
 }

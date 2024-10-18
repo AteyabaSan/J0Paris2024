@@ -75,4 +75,32 @@ public class PaymentService {
         List<Payment> payments = paymentRepository.findAll();
         return paymentMapper.toDTOs(payments);
     }
+    
+    @Transactional
+    public Payment createPayment(Payment payment) {
+        return paymentRepository.save(payment);
+    }
+    
+    @Transactional
+    public Payment updatePayment(Long paymentId, Payment payment) throws Exception {
+        Payment existingPayment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new Exception("Paiement non trouvé."));
+        
+        existingPayment.setPaymentMethod(payment.getPaymentMethod());
+        existingPayment.setPaymentDate(payment.getPaymentDate());
+        existingPayment.setAmount(payment.getAmount());
+        existingPayment.setPaymentStatus(payment.getPaymentStatus());
+
+        return paymentRepository.save(existingPayment);
+    }
+    
+    public Payment findByPaymentIntentId(String paymentIntentId) {
+        return paymentRepository.findByPaymentIntentId(paymentIntentId);
+    }
+    
+    @Transactional(readOnly = true)
+    public Payment getPaymentEntityById(Long paymentId) throws Exception {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new Exception("Le paiement n'existe pas"));
+    }
 }

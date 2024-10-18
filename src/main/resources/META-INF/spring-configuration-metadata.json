@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "stripe.api.key.public-key",
+      "type": "java.lang.String",
+      "description": "Clé publique pour Stripe",
+      "sourceType": "com.joparis2024.config.StripeProperties"
+    },
+    {
+      "name": "stripe.api.key.secret-key",
+      "type": "java.lang.String",
+      "description": "Clé secrète pour Stripe",
+      "sourceType": "com.joparis2024.config.StripeProperties"
+    }
+  ]
+}

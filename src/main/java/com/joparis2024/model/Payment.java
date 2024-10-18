@@ -40,5 +40,8 @@ public class Payment {
 
     @Column(nullable = false)
     private String paymentStatus;  // Statut du paiement (en attente, échoué, réussi, etc.)
+   
+    @Column(nullable = false)
+    private String paymentIntentId;  // ID généré par Stripe pour le PaymentIntent
 }
 

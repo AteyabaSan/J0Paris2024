@@ -1,5 +1,10 @@
 package com.joparis2024.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.TicketMapper;
 import com.joparis2024.model.Ticket;
@@ -13,7 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
+
+
 
 @Service
 public class TicketService {
@@ -84,5 +93,16 @@ public class TicketService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket non trouvé"));
         ticketRepository.delete(ticket);
+    }
+
+    // Nouvelle méthode pour générer un QR code pour un ticket
+    public byte[] generateQRCode(String text, int width, int height) throws WriterException, IOException {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+
+        return outputStream.toByteArray();
     }
 }
