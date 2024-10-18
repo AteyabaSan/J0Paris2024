@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Modifier une Transaction - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Modifier une Transaction</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/transactions}">Liste des Transactions</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form th:action="@{/updateTransaction(id=${transaction.id})}" method="post">
+            <label for="transactionType">Type de Transaction :</label>
+            <input type="text" id="transactionType" name="transactionType" th:value="${transaction.transactionType}" required>
+
+            <label for="transactionStatus">Statut de la Transaction :</label>
+            <input type="text" id="transactionStatus" name="transactionStatus" th:value="${transaction.transactionStatus}">
+
+            <label for="transactionDate">Date de la Transaction :</label>
+            <input type="datetime-local" id="transactionDate" name="transactionDate" th:value="${#dates.format(transaction.transactionDate, 'yyyy-MM-dd\'T\'HH:mm')}">
+
+            <button type="submit">Mettre à Jour</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

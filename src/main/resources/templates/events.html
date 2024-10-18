@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des Événements - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Liste des Événements</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/createEvent}">Ajouter un Événement</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Événements Disponibles</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom de l'Événement</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Catégorie</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="event : ${events}">
+                    <td th:text="${event.id}"></td>
+                    <td th:text="${event.eventName}"></td>
+                    <td th:text="${event.eventDate}"></td>
+                    <td th:text="${event.description}"></td>
+                    <td th:text="${event.category.name}"></td>
+                    <td>
+                        <a th:href="@{/editEvent(id=${event.id})}">Modifier</a>
+                        <a th:href="@{/deleteEvent(id=${event.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</a>
+                        <a th:href="@{/ticketsForEvent(id=${event.id})}">Voir Tickets</a>
+                        <a th:href="@{/offersForEvent(id=${event.id})}">Voir Offres</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

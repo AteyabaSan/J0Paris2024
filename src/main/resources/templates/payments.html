@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des Paiements - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Liste des Paiements</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/createPayment}">Ajouter un Paiement</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Paiements Disponibles</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Montant</th>
+                    <th>Méthode de Paiement</th>
+                    <th>Date de Paiement</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="payment : ${payments}">
+                    <td th:text="${payment.id}"></td>
+                    <td th:text="${payment.amount}"></td>
+                    <td th:text="${payment.paymentMethod}"></td>
+                    <td th:text="${payment.paymentDate}"></td>
+                    <td th:text="${payment.paymentStatus}"></td>
+                    <td>
+                        <a th:href="@{/paymentDetails(id=${payment.id})}">Détails</a>
+                        <a th:href="@{/updatePayment(id=${payment.id})}">Modifier</a>
+                        <a th:href="@{/cancelPayment(id=${payment.id})}" onclick="return confirm('Êtes-vous sûr de vouloir annuler ce paiement ?');">Annuler</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

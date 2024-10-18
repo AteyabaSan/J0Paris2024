@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Modifier un Utilisateur - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Modifier un Utilisateur</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/users}">Liste des Utilisateurs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form th:action="@{/updateUser(email=${user.email})}" method="post">
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" id="username" name="username" th:value="${user.username}" required>
+
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" th:value="${user.email}" required>
+
+            <label for="phoneNumber">Numéro de téléphone :</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" th:value="${user.phoneNumber}">
+
+            <label for="enabled">Activé :</label>
+            <input type="checkbox" id="enabled" name="enabled" th:checked="${user.enabled}">
+
+            <button type="submit">Mettre à jour</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

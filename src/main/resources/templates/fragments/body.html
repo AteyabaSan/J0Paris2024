@@ -3,8 +3,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
     <div th:fragment="content">
-        <h2>Bienvenue sur la plateforme de billetterie des Jeux Olympiques de Paris 2024 !</h2>
+        <h2>Bienvenue sur la plateforme de billetterie des JO Paris 2024 !</h2>
         <p>Réservez vos billets pour les événements les plus attendus !</p>
+        <a th:href="@{/login}">Se connecter</a> | <a th:href="@{/register}">S'inscrire</a>
     </div>
 </body>
 </html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Détails de l'Événement - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Détails de l'Événement</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/events}">Liste des Événements</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2 th:text="${event.eventName}"></h2>
+        <p th:text="${event.description}"></p>
+        <p th:text="'Date: ' + ${event.eventDate}"></p>
+        <p th:text="'Catégorie: ' + ${event.category.name}"></p>
+
+        <h3>Tickets Associés</h3>
+        <ul>
+            <li th:each="ticket : ${tickets}">
+                <span th:text="${ticket.id}"></span> - <span th:text="${ticket.price}"></span> - <span th:text="${ticket.available ? 'Disponible' : 'Indisponible'}"></span>
+            </li>
+        </ul>
+
+        <h3>Offres Associées</h3>
+        <ul>
+            <li th:each="offer : ${offers}">
+                <span th:text="${offer.name}"></span>
+            </li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

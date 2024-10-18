@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Confirmer le Paiement - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Confirmer le Paiement</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/payments}">Liste des Paiements</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form th:action="@{/confirmPayment(id=${payment.id})}" method="post">
+            <label for="cardNumber">Numéro de Carte :</label>
+            <input type="text" id="cardNumber" name="cardNumber" required>
+
+            <label for="expMonth">Mois d'Expiration :</label>
+            <input type="text" id="expMonth" name="expMonth" required>
+
+            <label for="expYear">Année d'Expiration :</label>
+            <input type="text" id="expYear" name="expYear" required>
+
+            <label for="cvc">Code CVC :</label>
+            <input type="text" id="cvc" name="cvc" required>
+
+            <button type="submit">Confirmer Paiement</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des Transactions - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Liste des Transactions</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/createTransaction}">Créer une Transaction</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Transactions Disponibles</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type de Transaction</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="transaction : ${transactions}">
+                    <td th:text="${transaction.id}"></td>
+                    <td th:text="${transaction.transactionType}"></td>
+                    <td th:text="${transaction.transactionStatus}"></td>
+                    <td th:text="${#dates.format(transaction.transactionDate, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td>
+                        <a th:href="@{/transactions/{id}(id=${transaction.id})}">Voir Détails</a> | 
+                        <a th:href="@{/deleteTransaction/{id}(id=${transaction.id})}">Supprimer</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

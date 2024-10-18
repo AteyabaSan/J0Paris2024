@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Créer un Rôle - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Créer un Rôle</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/roles}">Liste des Rôles</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form th:action="@{/createRole}" method="post">
+            <label for="name">Nom du Rôle :</label>
+            <input type="text" id="name" name="name" required>
+
+            <button type="submit">Créer Rôle</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

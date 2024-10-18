@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Détails de la Commande - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Détails de la Commande</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/orders}">Liste des Commandes</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Commande ID: <span th:text="${order.id}"></span></h2>
+        <p><strong>Date de Commande:</strong> <span th:text="${order.orderDate}"></span></p>
+        <p><strong>Statut:</strong> <span th:text="${order.status}"></span></p>
+        <p><strong>Montant Total:</strong> <span th:text="${order.totalAmount}"></span></p>
+
+        <h3>Tickets Associés</h3>
+        <ul>
+            <li th:each="ticket : ${order.tickets}">
+                <span th:text="${ticket.event.name}"></span> - 
+                <span th:text="${ticket.quantity}"></span> - 
+                <span th:text="${ticket.price}"></span>
+            </li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

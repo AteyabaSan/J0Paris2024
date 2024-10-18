@@ -3,6 +3,8 @@ package com.joparis2024.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
@@ -15,18 +17,21 @@ public class HomeController {
     }
 
     // Méthode pour afficher la page de connexion
-    @GetMapping("/login")
-    public String login(Model model) {
-        model.addAttribute("title", "Connexion - JO Paris 2024");
-        return "login"; // Cela renvoie la vue "login.html"
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password, Model model) {
+        // Ajoutez votre logique de connexion ici
+        model.addAttribute("message", "Connexion réussie !");
+        return "dashboard"; // Redirige vers le tableau de bord après connexion
     }
 
     // Méthode pour afficher la page d'inscription
-    @GetMapping("/register")
-    public String register(Model model) {
-        model.addAttribute("title", "Inscription - JO Paris 2024");
-        return "register"; // Cela renvoie la vue "register.html"
+    @PostMapping("/register")
+    public String register(@RequestParam String username, @RequestParam String email, @RequestParam String password, Model model) {
+        // Ajoutez votre logique d'inscription ici
+        model.addAttribute("message", "Inscription réussie ! Vous pouvez maintenant vous connecter.");
+        return "login"; // Redirige vers la page de connexion après l'inscription
     }
+
 
     // Méthode pour afficher le tableau de bord
     @GetMapping("/dashboard")

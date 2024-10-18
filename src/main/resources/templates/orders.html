@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des Commandes - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Liste des Commandes</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/createOrder}">Créer une Commande</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Commandes Disponibles</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date de Commande</th>
+                    <th>Statut</th>
+                    <th>Montant Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${order.orderDate}"></td>
+                    <td th:text="${order.status}"></td>
+                    <td th:text="${order.totalAmount}"></td>
+                    <td>
+                        <a th:href="@{/orderDetails(id=${order.id})}">Détails</a>
+                        <a th:href="@{/cancelOrder(id=${order.id})}" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">Annuler</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

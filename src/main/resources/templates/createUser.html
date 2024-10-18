@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Créer un Utilisateur - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Créer un Utilisateur</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/users}">Liste des Utilisateurs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form th:action="@{/createUser}" method="post">
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phoneNumber">Numéro de téléphone :</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber">
+
+            <button type="submit">Créer Utilisateur</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

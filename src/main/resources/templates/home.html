@@ -2,13 +2,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Accueil</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/scripts.js}"></script> <!-- Lien vers le fichier JavaScript -->
 </head>
 <body>
-    <div th:replace="layout :: content">
-        <h2>Bienvenue sur la plateforme de billetterie des JO Paris 2024 !</h2>
-        <p>Découvrez les événements et réservez vos billets dès maintenant.</p>
-        <a th:href="@{/login}">Se connecter</a> | <a th:href="@{/register}">S'inscrire</a>
+    <header>
+        <h1>JO Paris 2024 - Ticketing</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/login}">Connexion</a></li>
+                <li><a th:href="@{/register}">Inscription</a></li>
+                <li><a th:href="@{/dashboard}">Tableau de bord</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section th:replace="fragments/body :: content"></section>
     </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
 </body>
 </html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Détails de la Catégorie - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Détails de la Catégorie</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/categories}">Liste des Catégories</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Catégorie ID: <span th:text="${category.id}"></span></h2>
+        <p><strong>Nom de la Catégorie:</strong> <span th:text="${category.name}"></span></p>
+        <p><strong>Emplacement:</strong> <span th:text="${category.location}"></span></p>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mettre à jour une relation User-Rôle</title>
+</head>
+<body>
+    <h2>Mettre à jour une relation User-Rôle</h2>
+    <form th:action="@{/userrole/update(id=${userRole.id})}" method="post">
+        <label for="userId">Utilisateur :</label>
+        <select id="userId" name="userId" required>
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}" 
+                    th:selected="${user.id == userRole.userId}"></option>
+        </select>
+
+        <label for="roleId">Rôle :</label>
+        <select id="roleId" name="roleId" required>
+            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}" 
+                    th:selected="${role.id == userRole.roleId}"></option>
+        </select>
+
+        <button type="submit">Mettre à jour</button>
+    </form>
+</body>
+</html>

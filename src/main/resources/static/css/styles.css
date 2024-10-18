@@ -1,0 +1,112 @@
+/* styles.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f4f8; /* Couleur de fond pastel */
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: linear-gradient(to right, #4B9CD3, #1F8A99); /* Dégradé de bleu */
+    color: white;
+    padding: 15px 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease, transform 0.3s ease; /* Transition douce pour la couleur et la transformation */
+}
+
+nav ul li a:hover {
+    color: #FFCC00; /* Jaune pastel au survol */
+    text-decoration: underline;
+    transform: scale(1.05); /* Agrandit légèrement le lien au survol */
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h2 {
+    color: #1F8A99; /* Couleur pour les titres */
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background: linear-gradient(to right, #4B9CD3, #1F8A99); /* Même dégradé que l'en-tête */
+    color: white;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+a {
+    color: #1F8A99; /* Couleur pastel pour les liens */
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Styles pour les boutons */
+button {
+    background-color: #4B9CD3; /* Couleur de fond du bouton */
+    color: white; /* Couleur du texte */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Transition douce pour le fond et la transformation */
+}
+
+button:hover {
+    background-color: #1F8A99; /* Couleur de fond au survol */
+    transform: scale(1.05); /* Agrandit légèrement le bouton au survol */
+}
+
+/* Styles pour les formulaires */
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+

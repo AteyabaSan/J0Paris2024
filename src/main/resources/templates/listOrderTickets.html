@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des associations Commande-Ticket</title>
+</head>
+<body>
+    <h2>Liste des associations Commande-Ticket</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Commande</th>
+                <th>Ticket</th>
+                <th>Quantité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="orderTicket : ${orderTickets}">
+                <td th:text="${orderTicket.id}"></td>
+                <td th:text="${orderTicket.order.id}"></td>
+                <td th:text="${orderTicket.ticket.id}"></td>
+                <td th:text="${orderTicket.quantity}"></td>
+                <td>
+                    <a th:href="@{/orderticket/delete(id=${orderTicket.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette association ?')">Supprimer</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

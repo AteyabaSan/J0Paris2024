@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Liste des Tickets - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Liste des Tickets</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/createTicket}">Ajouter un Ticket</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Tickets Disponibles</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th>Disponibilité</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="ticket : ${tickets}">
+                    <td th:text="${ticket.id}"></td>
+                    <td th:text="${ticket.price}"></td>
+                    <td th:text="${ticket.quantity}"></td>
+                    <td th:text="${ticket.available ? 'Disponible' : 'Indisponible'}"></td>
+                    <td>
+                        <a th:href="@{/editTicket(id=${ticket.id})}">Modifier</a>
+                        <a th:href="@{/deleteTicket(id=${ticket.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?');">Supprimer</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>

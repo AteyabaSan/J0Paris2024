@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Créer une Catégorie - JO Paris 2024</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header>
+        <h1>Créer une Catégorie</h1>
+        <nav>
+            <ul>
+                <li><a th:href="@{/}">Accueil</a></li>
+                <li><a th:href="@{/categories}">Liste des Catégories</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <form th:action="@{/createCategory}" method="post">
+            <label for="name">Nom de la Catégorie :</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="location">Emplacement :</label>
+            <input type="text" id="location" name="location">
+
+            <button type="submit">Créer Catégorie</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>© 2024 Jeux Olympiques Paris</p>
+    </footer>
+</body>
+</html>
