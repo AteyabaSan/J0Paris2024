@@ -1,0 +1,14 @@
+<!-- src/main/resources/templates/home.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Accueil</title>
+</head>
+<body>
+    <div th:replace="layout :: content">
+        <h2>Bienvenue sur la plateforme de billetterie des JO Paris 2024 !</h2>
+        <p>Découvrez les événements et réservez vos billets dès maintenant.</p>
+        <a th:href="@{/login}">Se connecter</a> | <a th:href="@{/register}">S'inscrire</a>
+    </div>
+</body>
+</html>

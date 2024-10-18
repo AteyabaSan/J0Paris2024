@@ -2,7 +2,10 @@ package com.joparis2024.controller;
 
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.service.TicketService;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -87,4 +90,29 @@ public class TicketController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+    @GetMapping("/{id}/qrcode")
+    public ResponseEntity<byte[]> generateQRCodeForTicket(@PathVariable Long id) {
+        try {
+            // Récupérer les informations du ticket par ID
+            TicketDTO ticketDTO = ticketService.getTicketById(id);
+
+            // Générer un texte pour le QR code
+            String qrCodeText = "Ticket ID: " + ticketDTO.getId() + ", Event: " + (ticketDTO.getEvent() != null ? ticketDTO.getEvent().getEventName() : "Event inconnu");
+
+            // Générer le QR code
+            byte[] qrCodeImage = ticketService.generateQRCode(qrCodeText, 300, 300);
+
+            // Configurer les en-têtes pour une réponse contenant une image
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+
+            // Retourner l'image sous forme de byte[]
+            return new ResponseEntity<>(qrCodeImage, headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
