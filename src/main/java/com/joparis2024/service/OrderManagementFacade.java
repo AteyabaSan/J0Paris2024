@@ -17,13 +17,17 @@ import com.joparis2024.dto.Order_TicketDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.EventMapper;
 import com.joparis2024.model.Offer;
+import com.joparis2024.model.Order;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.model.User;
 import com.joparis2024.model.UserRole;
 import com.joparis2024.repository.OfferRepository;
+import com.joparis2024.repository.OrderRepository;
 import com.joparis2024.repository.TicketRepository;
 import com.joparis2024.repository.UserRepository;
 import com.joparis2024.repository.UserRoleRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 
 @Service
@@ -57,6 +61,9 @@ public class OrderManagementFacade {
     
     @Autowired
     private OfferRepository offerRepository; 
+    
+    @Autowired
+    private OrderRepository orderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementFacade.class);
 
@@ -263,4 +270,9 @@ public class OrderManagementFacade {
 
         return orderDTO;
     }  
+    
+    public Order getOrderEntityById(Long orderId) {
+        return orderRepository.findById(orderId)
+            .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée pour l'ID : " + orderId));
+    }
 }

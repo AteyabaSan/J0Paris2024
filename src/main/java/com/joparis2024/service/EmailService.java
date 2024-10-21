@@ -5,9 +5,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.joparis2024.model.Order;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.util.ByteArrayDataSource;
 
 @Service
 public class EmailService {
@@ -15,27 +16,40 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendEmailWithTicket(String to, String subject, String body, byte[] qrCode) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(body);
+    // Méthode pour envoyer les tickets par email
+    public void sendTicket(Order order) {
+        // Construction de l'email
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        // Attacher le QR code en pièce jointe
-        ByteArrayDataSource dataSource = new ByteArrayDataSource(qrCode, "image/png");
-        helper.addAttachment("ticket.png", dataSource);
+            // Configurer les détails de l'email
+            helper.setTo(order.getUser().getEmail()); // Destinataire (email de l'utilisateur)
+            helper.setSubject("Vos billets pour l'événement " + order.getTickets().get(0).getEvent().getName()); // Objet de l'email
+            helper.setText(buildEmailContent(order), true); // Corps de l'email (HTML)
 
-        mailSender.send(message);
+            // Ajouter les pièces jointes si nécessaire (QR code, PDF, etc.)
+            // helper.addAttachment("ticket.pdf", new File("path/to/ticket.pdf"));
+
+            // Envoyer l'email
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            e.printStackTrace(); // Gérer les erreurs d'envoi d'email
+        }
     }
-    
-    public void sendSimpleEmail(String to, String subject, String body) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(body);
 
-        mailSender.send(message);
+    // Méthode pour construire le contenu HTML de l'email
+    private String buildEmailContent(Order order) {
+        StringBuilder content = new StringBuilder();
+        content.append("<h1>Voici vos billets pour l'événement</h1>");
+        content.append("<p>Événement : ").append(order.getTickets().get(0).getEvent().getName()).append("</p>");
+        content.append("<p>Date : ").append(order.getOrderDate()).append("</p>");
+        content.append("<p>Montant total : ").append(order.getTotalAmount()).append(" €</p>");
+        content.append("<p>Merci pour votre achat !</p>");
+
+        // Tu peux ajouter ici des liens vers les billets ou même inclure des QR codes
+
+        return content.toString();
     }
 }

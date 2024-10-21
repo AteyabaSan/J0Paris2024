@@ -40,6 +40,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findTicketsWithEvent(@Param("eventId") Long eventId);
     
     Optional<Ticket> findById(Long id);
+    
+    List<Ticket> findByOfferId(Long offerId);
+
 
 }
 

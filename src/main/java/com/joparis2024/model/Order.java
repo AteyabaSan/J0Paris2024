@@ -45,6 +45,10 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions = new ArrayList<>();
+    
+    @Column(name = "stripe_session_id")
+    private String stripeSessionId;
+
 
     public Order(Long id) {
         this.id = id;

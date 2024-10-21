@@ -111,7 +111,11 @@ public class EventService {
 
         // Ajouter d'autres validations si nécessaire (ex : date de l'événement, description, etc.)
     }
-
+    
+    public List<EventDTO> getEventsByCategory(Long categoryId) {
+        List<Event> events = eventRepository.findByCategoryId(categoryId);
+        return eventMapper.toDTOs(events);
+    }
 
     // Méthode pour convertir un DTO Event en entité Event
     public Event toEntity(EventDTO eventDTO) {

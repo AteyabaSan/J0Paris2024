@@ -11,6 +11,12 @@ public class CategoryDTO {
 
     // Constructeurs
     public CategoryDTO() {}
+    
+    public CategoryDTO(Long id, String name, String location) {
+        this.id = id;
+        this.name = name;
+        this.location = location;
+    }
 
     public CategoryDTO(Long id, String name, String location, List<Long> eventIds) {
         this.id = id;

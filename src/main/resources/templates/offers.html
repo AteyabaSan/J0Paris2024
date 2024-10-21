@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offres disponibles</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/app.js}"></script>
+</head>
+<body>
+    <header th:replace="fragments/body :: header"></header>
+
+    <h1>Offres disponibles pour l'événement sélectionné</h1>
+
+    <div th:if="${event != null}">
+        <h2>Offre Solo</h2>
+        <p>Nombre de places : 1</p>
+        <a th:href="@{|/orders/create?offerId=1&eventId=${event.id}|}">Choisir cette offre</a>
+    </div>
+
+    <div th:if="${event != null}">
+        <h2>Offre Duo</h2>
+        <p>Nombre de places : 2</p>
+        <a th:href="@{|/orders/create?offerId=2&eventId=${event.id}|}">Choisir cette offre</a>
+    </div>
+
+    <div th:if="${event != null}">
+        <h2>Offre Family</h2>
+        <p>Nombre de places : 4</p>
+        <a th:href="@{|/orders/create?offerId=3&eventId=${event.id}|}">Choisir cette offre</a>
+    </div>
+
+    <div th:if="${event == null}">
+        <p>Aucun événement sélectionné ou erreur lors de la récupération de l'événement.</p>
+    </div>
+
+    <footer th:replace="fragments/body :: footer"></footer>
+</body>
+</html>

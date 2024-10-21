@@ -1,53 +1,90 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Liste des Événements - JO Paris 2024</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Événements</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/app.js}"></script>
 </head>
 <body>
-    <header>
-        <h1>Liste des Événements</h1>
-        <nav>
-            <ul>
-                <li><a th:href="@{/}">Accueil</a></li>
-                <li><a th:href="@{/createEvent}">Ajouter un Événement</a></li>
-            </ul>
-        </nav>
-    </header>
+    <header th:replace="fragments/body :: header"></header>
 
-    <div class="container">
-        <h2>Événements Disponibles</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom de l'Événement</th>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Catégorie</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="event : ${events}">
-                    <td th:text="${event.id}"></td>
-                    <td th:text="${event.eventName}"></td>
-                    <td th:text="${event.eventDate}"></td>
-                    <td th:text="${event.description}"></td>
-                    <td th:text="${event.category.name}"></td>
-                    <td>
-                        <a th:href="@{/editEvent(id=${event.id})}">Modifier</a>
-                        <a th:href="@{/deleteEvent(id=${event.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">Supprimer</a>
-                        <a th:href="@{/ticketsForEvent(id=${event.id})}">Voir Tickets</a>
-                        <a th:href="@{/offersForEvent(id=${event.id})}">Voir Offres</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <h1>Événements pour la catégorie sélectionnée</h1>
+
+    <div>
+        <h2>Sprint : 100m - 200m - 400m / Sauts en hauteur et en longueur</h2>
+        <p>Description : Courses en relais, individuel et sauts</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/1/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Course en Skiff</h2>
+        <p>Description : Course d'Aviron</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/3/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Nage libre / relais / marathon</h2>
+        <p>Description : Courses de Natation</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/4/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Fleuret / Epée / Sabre</h2>
+        <p>Description : Compétition d'Escrime classé en spécialités</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/5/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Gymnastique Artistique / Rythmique</h2>
+        <p>Description : Compétition entre gymnastes selon leur spécialité</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/6/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Poids Plumes / Légers / Lourds</h2>
+        <p>Description : Tournoi de boxe</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/7/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Classique ou 3 contre 3</h2>
+        <p>Description : Tournoi de Basketball</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/8/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Matchs 11 contre 11</h2>
+        <p>Description : Tournoi de Football</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/9/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Matchs classiques 7 contre 7</h2>
+        <p>Description : Tournoi de Rugby</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/10/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Route / Piste / BMX / VTT</h2>
+        <p>Description : Courses selon spécialités</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/11/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Matchs : Simple / Double</h2>
+        <p>Description : Tournoi de Tennis</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/12/offers'}">Voir les offres</a>
+    </div>
+    <div>
+        <h2>Matchs en Salle ou Beach Volley</h2>
+        <p>Description : Tournoi de Volleyball</p>
+        <p>Date : 2024-06-01</p>
+        <a th:href="@{'/events/13/offers'}">Voir les offres</a>
     </div>
 
-    <footer>
-        <p>© 2024 Jeux Olympiques Paris</p>
-    </footer>
+    <footer th:replace="fragments/body :: footer"></footer>
 </body>
 </html>

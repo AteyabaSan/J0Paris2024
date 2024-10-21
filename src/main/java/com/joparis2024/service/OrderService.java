@@ -94,6 +94,21 @@ public class OrderService {
 
         return orderRepository.save(existingOrder);
     }
-
+    
+ // Méthode pour trouver une commande par l'ID de session Stripe
+    public Order findByStripeSessionId(String stripeSessionId) {
+        return orderRepository.findByStripeSessionId(stripeSessionId);
+    }
+    
+ // Méthode pour sauvegarder une commande
+    public void save(Order order) {
+        orderRepository.save(order);
+    }
+    
+    // Méthode pour trouver une commande par ID et retourner un Order, pas un DTO
+    public Order findOrderById(Long orderId) throws Exception {
+        return orderRepository.findById(orderId)
+            .orElseThrow(() -> new Exception("Order not found"));
+    }
 
 }

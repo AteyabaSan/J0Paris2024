@@ -31,11 +31,13 @@ public class TicketDTO {
  // Nouvel attribut pour l'offre
     private Long offerId;
     
+    private String eventName;
+    
     // Constructeurs
     public TicketDTO() {
     }
 
-    public TicketDTO(Long id, EventDTO event, OrderDTO order, Double price, Integer quantity, boolean available, String eventDate, Long offerId) {
+    public TicketDTO(Long id, EventDTO event, OrderDTO order, Double price, Integer quantity, boolean available, String eventDate, Long offerId, String eventName) {
         this.id = id;
         this.event = event;
         this.order = order;
@@ -44,6 +46,7 @@ public class TicketDTO {
         this.available = available;
         this.eventDate = eventDate;
         this.offerId = offerId;
+        this.eventName = eventName;
     }
 
     // Getters and Setters
@@ -111,5 +114,14 @@ public class TicketDTO {
     public void setOfferId(Long offerId) {
         this.offerId = offerId;
     }
-
+    
+ // Ajoute un getter pour eventName
+    public String getEventName() {
+        return eventName;
+    }
+    
+    // Et un setter si nécessaire
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
 }

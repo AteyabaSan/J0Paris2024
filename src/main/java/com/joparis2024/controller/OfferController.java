@@ -5,6 +5,7 @@ import com.joparis2024.service.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,4 +91,11 @@ public class OfferController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+//    @GetMapping("/event/{eventId}")
+//    public String getOffersByEvent(@PathVariable Long eventId, Model model) {
+//        List<OfferDTO> offers = offerService.getOffersByEvent(eventId);
+//        model.addAttribute("offers", offers);
+//        return "offers"; // Page HTML des offres pour cet événement
+//    }
 }

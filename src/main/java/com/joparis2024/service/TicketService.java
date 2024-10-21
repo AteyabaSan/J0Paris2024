@@ -105,4 +105,9 @@ public class TicketService {
 
         return outputStream.toByteArray();
     }
+    
+    public List<TicketDTO> getTicketsByOffer(Long offerId) {
+        List<Ticket> tickets = ticketRepository.findByOfferId(offerId);
+        return ticketMapper.toDTOs(tickets);
+    }
 }

@@ -2,30 +2,34 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Accueil</title>
+	<meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur le site des Jeux Olympiques de Paris 2024</title>itle></title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <script th:src="@{/js/scripts.js}"></script> <!-- Lien vers le fichier JavaScript -->
 </head>
 <body>
-    <header>
-        <h1>JO Paris 2024 - Ticketing</h1>
-        <nav>
-            <ul>
-                <li><a th:href="@{/}">Accueil</a></li>
-                <li><a th:href="@{/login}">Connexion</a></li>
-                <li><a th:href="@{/register}">Inscription</a></li>
-                <li><a th:href="@{/dashboard}">Tableau de bord</a></li>
-            </ul>
-        </nav>
-    </header>
+	<header th:replace="fragments/body :: header"></header>
+	<section>
+	        <h1>Bienvenue aux Jeux Olympiques Paris 2024</h1>
+	        <p>La cérémonie d'ouverture se tiendra le 26 Juillet 2024 , à 18H sur tout le long de la Seine.</p>
+	    </section>
+		
+		<section>
+			<h2>Navigation</h2>
+				<nav>
+					<ul>
+			           <li><a href="/categories">Voir les Catégories</a></li>
+			           <li><a href="/events">Voir les Événements</a></li>
+			           <li><a href="/offers">Voir les Offres</a></li>
+			           <li><a href="/register">S'inscrire</a></li>
+			           <li><a href="/login">Se connecter</a></li>
+			       </ul>
+			   </nav>
+		</section>
 
     <div class="container">
-        <section th:replace="fragments/body :: content"></section>
+       <footer th:replace="fragments/body :: footer"></footer>
     </div>
-
-    <footer>
-        <p>© 2024 Jeux Olympiques Paris</p>
-    </footer>
 </body>
 </html>

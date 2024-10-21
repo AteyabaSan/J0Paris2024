@@ -63,4 +63,11 @@ public class OfferService {
         return offerRepository.findById(offerId)
             .orElseThrow(() -> new Exception("Offer non trouvée"));
     }
+    
+    public List<OfferDTO> getOffersByEvent(Long eventId) {
+        List<Offer> offers = offerRepository.findByEventsId(eventId);
+        return offerMapper.toDTOs(offers);
+    }
 }
+
+

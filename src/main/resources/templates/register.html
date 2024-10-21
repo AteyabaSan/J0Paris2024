@@ -1,25 +1,27 @@
-<!-- src/main/resources/templates/register.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/app.js}"></script>
 </head>
 <body>
-    <div class="container">
-        <h2>Inscription</h2>
-        <form th:action="@{/register}" method="post">
-            <label for="username">Nom d'utilisateur</label>
-            <input type="text" id="username" name="username" required>
+    <header th:replace="fragments/body :: header"></header>
 
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+    <h1>Inscription</h1>
 
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" name="password" required>
+    <form action="/register" method="post">
+        <label for="username">Nom d'utilisateur :</label>
+        <input type="text" id="username" name="username" required>
 
-            <button type="submit">S'inscrire</button>
-        </form>
-    </div>
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">S'inscrire</button>
+    </form>
+
+    <footer th:replace="fragments/body :: footer"></footer>
 </body>
 </html>

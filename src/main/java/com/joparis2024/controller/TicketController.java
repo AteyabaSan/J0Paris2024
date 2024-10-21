@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,13 @@ public class TicketController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    @GetMapping("/offer/{offerId}")
+    public String getTicketsByOffer(@PathVariable Long offerId, Model model) {
+        List<TicketDTO> tickets = ticketService.getTicketsByOffer(offerId);
+        model.addAttribute("tickets", tickets);
+        return "tickets"; // Page qui affiche les tickets disponibles
     }
 
 }

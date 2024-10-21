@@ -6,6 +6,7 @@ import com.joparis2024.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -101,5 +102,12 @@ public class EventController {
             logger.error("Erreur lors de la suppression de l'événement avec ID: {}", id, e);
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    @GetMapping("/category/{categoryId}")
+    public String getEventsByCategory(@PathVariable Long categoryId, Model model) {
+        List<EventDTO> events = eventService.getEventsByCategory(categoryId);
+        model.addAttribute("events", events);
+        return "events"; // La page qui liste les événements
     }
 }

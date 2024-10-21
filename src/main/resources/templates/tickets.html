@@ -1,49 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Liste des Tickets - JO Paris 2024</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilité des tickets</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/js/app.js}"></script>
 </head>
 <body>
-    <header>
-        <h1>Liste des Tickets</h1>
-        <nav>
-            <ul>
-                <li><a th:href="@{/}">Accueil</a></li>
-                <li><a th:href="@{/createTicket}">Ajouter un Ticket</a></li>
-            </ul>
-        </nav>
-    </header>
+    <header th:replace="fragments/body :: header"></header>
 
-    <div class="container">
-        <h2>Tickets Disponibles</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Prix</th>
-                    <th>Quantité</th>
-                    <th>Disponibilité</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="ticket : ${tickets}">
-                    <td th:text="${ticket.id}"></td>
-                    <td th:text="${ticket.price}"></td>
-                    <td th:text="${ticket.quantity}"></td>
-                    <td th:text="${ticket.available ? 'Disponible' : 'Indisponible'}"></td>
-                    <td>
-                        <a th:href="@{/editTicket(id=${ticket.id})}">Modifier</a>
-                        <a th:href="@{/deleteTicket(id=${ticket.id})}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?');">Supprimer</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <h1>Disponibilité des tickets pour l'événement sélectionné</h1>
+
+    <div>
+        <h2 th:text="${event.eventName}">Nom de l'événement</h2>
+        <p th:text="'Date : ' + ${event.eventDate}">Date de l'événement</p>
+        <p>Description : <span th:text="${event.description}">Description de l'événement</span></p>
+
+        <!-- Afficher la disponibilité des tickets -->
+        <p>Tickets disponibles : 
+            <span th:if="${tickets[0].available}" th:text="'Oui, ' + ${tickets[0].quantity} + ' billets restants'"></span>
+            <span th:if="${!tickets[0].available}">Rupture de stock</span>
+        </p>
+
+        <!-- Bouton pour procéder à la commande avec l'offre et l'événement sélectionnés -->
+        <a th:href="@{'/orders/create?offerId=' + ${offer.id} + '&eventId=' + ${event.id}}">Procéder à la commande</a>
     </div>
 
-    <footer>
-        <p>© 2024 Jeux Olympiques Paris</p>
-    </footer>
+    <footer th:replace="fragments/body :: footer"></footer>
 </body>
 </html>

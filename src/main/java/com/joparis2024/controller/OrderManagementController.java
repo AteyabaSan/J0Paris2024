@@ -3,16 +3,20 @@ package com.joparis2024.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 //import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.model.Order;
 import com.joparis2024.model.User;
 import com.joparis2024.model.UserRole;
 import com.joparis2024.repository.UserRepository;
 import com.joparis2024.repository.UserRoleRepository;
 import com.joparis2024.service.OrderManagementFacade;
+import com.joparis2024.service.OrderService;
+import com.joparis2024.service.StripeService;
 
 //import jakarta.validation.Valid;
 
@@ -36,6 +40,13 @@ public class OrderManagementController {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
+    
+    @Autowired
+    private OrderService orderService;
+    
+    
+    @Autowired
+    private StripeService stripeService; // Intégration de Stripe
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementController.class);
 
@@ -157,4 +168,31 @@ public class OrderManagementController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    
+ // Nouvelle méthode pour créer une session Stripe
+    @PostMapping("/payment/create-session")
+    public ResponseEntity<String> createStripeSession(@RequestParam("orderId") Long orderId) {
+        try {
+            // Récupérer la commande par ID
+            Order order = orderManagementFacade.getOrderEntityById(orderId);
+            
+            // Créer une session Stripe pour cette commande
+            String sessionId = stripeService.createStripePaymentSession(order);
+
+            // Retourner l'ID de session Stripe
+            return new ResponseEntity<>(sessionId, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la création de la session Stripe : " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    
+    @GetMapping("/recap")
+    public String getOrderRecap(@RequestParam Long orderId, Model model) throws Exception {
+        OrderDTO order = orderService.getOrderById(orderId);
+        model.addAttribute("order", order);
+        return "order-recap";
+    }
+
 }

@@ -6,8 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
+//
+//import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +39,7 @@ public class CategoryController {
     }
 
     // Récupérer toutes les catégories
-    @GetMapping
+    @GetMapping("/json")
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         logger.info("Requête reçue pour récupérer toutes les catégories");
         try {
@@ -106,4 +108,29 @@ public class CategoryController {
             return ResponseEntity.badRequest().build();
         }
     }
+    
+//    @GetMapping("view")
+//    public String getCategories(Model model) {
+//        // Ajouter des informations de catégories au modèle
+//        // Ce serait mieux de récupérer les catégories depuis une base de données, 
+//        // mais ici je vais simplement simuler avec une liste statique pour l'exemple.
+//        
+//        List<CategoryDTO> categories = Arrays.asList(
+//            new CategoryDTO(1L, "Athlétisme", "Stade De France - Saint-Denis"),
+//            new CategoryDTO(3L, "Aviron", "Vaires-sur-Marne - Seine et Marne"),
+//            new CategoryDTO(4L, "Natation", "Centre Aquatique - Saint-Denis"),
+//            new CategoryDTO(5L, "Escrime", "Grand Palais - Paris Centre"),
+//            new CategoryDTO(6L, "Gymnastique", "Bercy Arena - Accor Arena"),
+//            new CategoryDTO(7L, "Boxe", "Porte de la Chapelle Arena"),
+//            new CategoryDTO(8L, "Basketball", "Porte de la Chapelle Arena"),
+//            new CategoryDTO(9L, "Football", "Parc des Princes"),
+//            new CategoryDTO(10L, "Rugby", "Stade de France"),
+//            new CategoryDTO(11L, "Cyclisme", "Champs Elysées - Colline d'Elancourt"),
+//            new CategoryDTO(12L, "Tennis", "Rolland-Garros"),
+//            new CategoryDTO(13L, "Volleyball", "Parc des expositions Versailles / Champs de Mars-Tour Eiffel")
+//        );
+//
+//        model.addAttribute("categories", categories);
+//        return "categories"; // Retourne la vue Thymeleaf
+//    }
 }
