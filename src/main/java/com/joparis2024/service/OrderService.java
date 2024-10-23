@@ -1,6 +1,9 @@
 package com.joparis2024.service;
 
+import com.joparis2024.dto.EventDTO;
+import com.joparis2024.dto.OfferDTO;
 import com.joparis2024.dto.OrderDTO;
+import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.OrderMapper;
 
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,7 +30,10 @@ public class OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
-
+    
+    public OrderMapper getOrderMapper() {
+        return orderMapper;
+    }
     @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) throws Exception {
         logger.info("Création d'une nouvelle commande : {}", orderDTO);
@@ -96,19 +103,91 @@ public class OrderService {
     }
     
  // Méthode pour trouver une commande par l'ID de session Stripe
-    public Order findByStripeSessionId(String stripeSessionId) {
-        return orderRepository.findByStripeSessionId(stripeSessionId);
+    public OrderDTO findByStripeSessionId(String stripeSessionId) {
+        Order order = orderRepository.findByStripeSessionId(stripeSessionId);
+        return orderMapper.toDTO(order);  // Conversion en OrderDTO
     }
     
  // Méthode pour sauvegarder une commande
-    public void save(Order order) {
-        orderRepository.save(order);
+    public OrderDTO saveOrder(OrderDTO order) throws Exception {
+        // Logique pour sauvegarder la commande, ici on pourrait mapper l'objet DTO en entité et le sauvegarder
+        Order savedOrder = orderRepository.save(orderMapper.toEntity(order));
+        return orderMapper.toDTO(savedOrder);
     }
+
     
     // Méthode pour trouver une commande par ID et retourner un Order, pas un DTO
     public Order findOrderById(Long orderId) throws Exception {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new Exception("Order not found"));
+    }
+    
+    public OrderDTO createOrderFromSessionData(EventDTO event, OfferDTO offer) throws Exception {
+        // Logique pour créer une commande basée sur l'événement et l'offre
+        OrderDTO order = new OrderDTO();
+        
+        // Associer l'événement et l'offre à la commande
+        order.setEvent(event);
+        order.setOffer(offer);
+        order.setStatus("PENDING");
+        order.setOrderDate(LocalDateTime.now());
+
+        // Récupérer et associer les tickets pour l'événement
+        List<TicketDTO> tickets = event.getTickets();
+        if (tickets == null || tickets.isEmpty()) {
+            throw new Exception("Aucun ticket disponible pour cet événement.");
+        }
+
+        // Associer les tickets à la commande
+        order.setTickets(tickets);
+
+        // Calculer le prix total
+        double totalAmount = calculateTotalPrice(tickets, offer);
+        order.setTotalAmount(totalAmount);
+
+        // Sauvegarder et retourner la commande
+        return saveOrder(order);
+    }
+    
+    public double calculateTotalPrice(List<TicketDTO> tickets, OfferDTO offer) {
+        double totalPrice = 0.0;
+
+        // Calculer le total en fonction du prix de chaque ticket
+        for (TicketDTO ticket : tickets) {
+            totalPrice += ticket.getPrice();
+        }
+
+        // Ajuster le total en fonction de l'offre sélectionnée
+        int numberOfPeople = 1; // Par défaut, pour l'offre "Solo"
+        switch (offer.getName()) {
+            case "Solo":
+                numberOfPeople = 1;
+                break;
+            case "Duo":
+                numberOfPeople = 2;
+                break;
+            case "Familial":
+                numberOfPeople = 4;
+                break;
+            default:
+                numberOfPeople = 1; // Valeur par défaut si l'offre est inconnue
+                break;
+        }
+
+        // Multiplier le prix total des tickets par le nombre de personnes dans l'offre
+        return totalPrice * numberOfPeople;
+    }
+
+    
+    public OrderDTO save(OrderDTO orderDTO) {
+        // Convertir le DTO en entité
+        Order orderEntity = orderMapper.toEntity(orderDTO);
+
+        // Sauvegarder l'entité dans la base de données
+        Order savedOrder = orderRepository.save(orderEntity);
+
+        // Retourner le DTO après sauvegarde
+        return orderMapper.toDTO(savedOrder);  // Make sure to use toDTO
     }
 
 }

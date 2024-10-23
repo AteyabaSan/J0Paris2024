@@ -27,37 +27,40 @@ public class StripeService {
 
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
-        // Utiliser les détails de la commande pour créer les articles à payer
+        // Créer un article pour chaque ticket de la commande
         for (Ticket ticket : order.getTickets()) {
-            SessionCreateParams.LineItem lineItem = SessionCreateParams.LineItem.builder()
-                .setPriceData(
-                    SessionCreateParams.LineItem.PriceData.builder()
-                        .setCurrency("eur") // Mettre la devise à "eur"
-                        .setUnitAmount((long) (ticket.getPrice() * 100)) // Montant en centimes
-                        .setProductData(
-                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                .setName(ticket.getEvent().getEventName()) // Nom de l'événement
-                                .build()
-                        )
-                        .build()
-                )
-                .setQuantity((long) order.getTickets().size()) // Nombre de tickets dans la commande
-                .build();
-
-            lineItems.add(lineItem);
+            lineItems.add(
+                SessionCreateParams.LineItem.builder()
+                    .setPriceData(
+                        SessionCreateParams.LineItem.PriceData.builder()
+                            .setCurrency("eur")
+                            .setUnitAmount((long) (ticket.getPrice() * 100))
+                            .setProductData(
+                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                    .setName(ticket.getEvent().getEventName())
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .setQuantity(1L)
+                    .build()
+            );
         }
 
         // Configurer la session Stripe
         SessionCreateParams params = SessionCreateParams.builder()
             .setMode(SessionCreateParams.Mode.PAYMENT)
-            .setSuccessUrl("https://ton-domaine.com/success?session_id={CHECKOUT_SESSION_ID}")
-            .setCancelUrl("https://ton-domaine.com/cancel")
+            .setSuccessUrl("http://localhost:8081/payment/success?session_id={CHECKOUT_SESSION_ID}")
+            .setCancelUrl("http://localhost:8081/payment/cancel")
             .addAllLineItem(lineItems)
             .build();
 
         // Créer la session Stripe
         Session session = Session.create(params);
 
-        return session.getId(); // Retourner l'ID de session Stripe
+        // Vérifier si la session Stripe est bien créée
+        System.out.println("Stripe session created with ID: " + session.getId());
+
+        return session.getId();  // Retourner l'ID de session Stripe
     }
 }

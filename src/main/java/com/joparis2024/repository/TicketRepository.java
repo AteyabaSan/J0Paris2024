@@ -42,6 +42,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findById(Long id);
     
     List<Ticket> findByOfferId(Long offerId);
+    
+    List<Ticket> findByEventIdAndOfferId(Long eventId, Long offerId);
 
 
 }

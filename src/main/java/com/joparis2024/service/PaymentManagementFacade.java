@@ -4,8 +4,9 @@ package com.joparis2024.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import com.joparis2024.mapper.OrderMapper;
 import com.joparis2024.model.Order;
+import com.joparis2024.dto.OrderDTO;
 
 
 import jakarta.transaction.Transactional;
@@ -21,7 +22,8 @@ public class PaymentManagementFacade {
     @Autowired
     private EmailService emailService;
     
-   
+    @Autowired
+    private OrderMapper orderMapper;
 
     
     @Transactional
@@ -42,14 +44,21 @@ public class PaymentManagementFacade {
     @Transactional
     public void confirmPayment(String stripeSessionId) {
         // Récupérer la commande via l'ID de session Stripe
-        Order order = orderService.findByStripeSessionId(stripeSessionId);
-        if (order != null) {
+        OrderDTO orderDTO = orderService.findByStripeSessionId(stripeSessionId);
+        
+        if (orderDTO != null) {
             // Mettre à jour la commande comme "PAIEMENT CONFIRMÉ"
-            order.setStatus("PAIEMENT CONFIRMÉ");
-            orderService.save(order);
+            orderDTO.setStatus("PAIEMENT CONFIRMÉ");
 
-            // Déclencher l'envoi des billets par email
-            emailService.sendTicket(order);
+            // Sauvegarder la commande mise à jour
+            orderService.save(orderDTO);  // Sauvegarder en utilisant OrderDTO
+            
+            // Déclencher l'envoi des billets par email (envoie d'une entité)
+            Order orderEntity = orderMapper.toEntity(orderDTO);  // Conversion en entité
+            emailService.sendTicket(orderEntity);
         }
     }
+
+
+
 }

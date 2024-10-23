@@ -25,7 +25,7 @@ public class EventMapper {
         eventDTO.setEventName(event.getEventName());
         eventDTO.setEventDate(event.getEventDate());
         eventDTO.setDescription(event.getDescription());
-
+        eventDTO.setLocation(event.getLocation());
         // Utiliser l'ID de la catégorie
         if (event.getCategory() != null) {
             eventDTO.setCategoryId(event.getCategory().getId());

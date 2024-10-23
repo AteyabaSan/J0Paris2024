@@ -5,19 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmation de paiement</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/app.js}"></script>
 </head>
 <body>
     <header th:replace="fragments/body :: header"></header>
 
-    <h1>Paiement réussi !</h1>
+    <h1>Confirmation du paiement</h1>
 
-    <div>
-        <p>Votre paiement a été validé avec succès.</p>
-        <p>Un e-mail contenant vos tickets (en format QR code) a été envoyé à votre adresse e-mail.</p>
-        <p>Veuillez vérifier votre boîte de réception pour accéder à vos billets.</p>
-        <a href="/">Retour à la page d'accueil</a>
-    </div>
+    <p th:text="'Paiement confirmé ! Vos billets ont été envoyés à l'adresse email : ' + ${order.user.email}"></p>
+
+    <h2>Détails de l'événement</h2>
+    <p>Événement : <span th:text="${event.eventName}">Nom de l'événement</span></p>
+    <p>Date : <span th:text="${#temporals.format(event.eventDate, 'dd-MM-yyyy')}">Date de l'événement</span></p>
+    <p>Lieu : <span th:text="${event.location}">Lieu de l'événement</span></p>
+
+    <h2>Billets</h2>
+    <ul>
+        <li th:each="ticket : ${tickets}">
+            Ticket pour <span th:text="${ticket.offer.name}">Offre</span> - 
+            Quantité : <span th:text="${ticket.quantity}">1</span>
+        </li>
+    </ul>
 
     <footer th:replace="fragments/body :: footer"></footer>
 </body>

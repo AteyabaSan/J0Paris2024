@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -109,5 +110,26 @@ public class TicketService {
     public List<TicketDTO> getTicketsByOffer(Long offerId) {
         List<Ticket> tickets = ticketRepository.findByOfferId(offerId);
         return ticketMapper.toDTOs(tickets);
+    }
+    
+    public List<TicketDTO> getTicketsByEventAndOffer(Long eventId, Long offerId) throws Exception {
+        List<Ticket> tickets = ticketRepository.findByEventIdAndOfferId(eventId, offerId);
+        
+        if (tickets.isEmpty()) {
+            throw new Exception("Aucun ticket trouvé pour cet événement et cette offre.");
+        }
+
+        List<TicketDTO> ticketDTOs = new ArrayList<>();
+
+        for (Ticket ticket : tickets) {
+            TicketDTO ticketDTO = new TicketDTO();
+            ticketDTO.setId(ticket.getId());
+            ticketDTO.setPrice(ticket.getPrice());
+            ticketDTO.setQuantity(ticket.getQuantity());
+            ticketDTO.setAvailable(ticket.isAvailable());
+            ticketDTOs.add(ticketDTO);
+        }
+
+        return ticketDTOs;
     }
 }

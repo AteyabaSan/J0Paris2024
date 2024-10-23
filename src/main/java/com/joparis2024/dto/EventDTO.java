@@ -10,23 +10,36 @@ public class EventDTO {
     private String description;  // Description de l'événement
     private Long categoryId;  // ID pour la catégorie
     private List<Long> ticketIds;  // Liste des IDs des tickets
+    private List<TicketDTO> tickets;  // Liste des objets TicketDTO
     private List<Long> offerIds;  // Liste des IDs des offres
-
+    private List<OfferDTO> offers;  // Liste des objets OfferDTO
+    private String location;
     // Constructeur sans arguments
     public EventDTO() {}
 
     // Constructeur avec tous les arguments
-    public EventDTO(Long id, String eventName, LocalDate eventDate, String description, Long categoryId, List<Long> ticketIds, List<Long> offerIds) {
+    public EventDTO(String location, Long id, String eventName, LocalDate eventDate, String description, Long categoryId, List<Long> ticketIds, List<TicketDTO> tickets, List<Long> offerIds, List<OfferDTO> offers) {
         this.id = id;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.description = description;
         this.categoryId = categoryId;
         this.ticketIds = ticketIds;
+        this.tickets = tickets;
         this.offerIds = offerIds;
+        this.offers = offers;
+        this.location = location;
     }
 
     // Getters et Setters
+    
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public Long getId() {
         return id;
@@ -76,11 +89,27 @@ public class EventDTO {
         this.ticketIds = ticketIds;
     }
 
+    public List<TicketDTO> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<TicketDTO> tickets) {
+        this.tickets = tickets;
+    }
+
     public List<Long> getOfferIds() {
         return offerIds;
     }
 
     public void setOfferIds(List<Long> offerIds) {
         this.offerIds = offerIds;
+    }
+
+    public List<OfferDTO> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<OfferDTO> offers) {
+        this.offers = offers;
     }
 }

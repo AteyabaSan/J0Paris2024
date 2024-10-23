@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -138,4 +139,42 @@ public class UserService {
         Hibernate.initialize(user.getRoles());
         return user;
     }
+    
+    @Transactional
+    public UserDTO save(UserDTO userDTO) {
+        try {
+            // Vérifier si l'email existe déjà
+            Optional<User> existingUser = userRepository.findByEmail(userDTO.getEmail());
+            if (existingUser.isPresent()) {
+                throw new RuntimeException("Un utilisateur avec cet email existe déjà.");
+            }
+
+            // Convertir le DTO en entité
+            User user = userMapper.toEntity(userDTO);
+
+            // Charger les rôles depuis la base de données
+            List<Role> roles = new ArrayList<>();
+            for (String roleName : userDTO.getRoles()) {
+                Role role = roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new RuntimeException("Rôle introuvable : " + roleName));
+                roles.add(role);
+            }
+
+            // Assigner la liste des rôles à l'utilisateur
+            user.setRoles(roles);
+
+            // Activer l'utilisateur
+            user.setEnabled(true);
+
+            // Sauvegarder l'utilisateur avec les rôles dans la base de données
+            User savedUser = userRepository.save(user);
+
+            // Retourner le DTO correspondant à l'utilisateur sauvegardé
+            return userMapper.toDTO(savedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'enregistrement de l'utilisateur", e);
+        }
+    }
+
 }

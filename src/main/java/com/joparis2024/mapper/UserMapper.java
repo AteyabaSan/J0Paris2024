@@ -1,8 +1,10 @@
 package com.joparis2024.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.joparis2024.dto.UserDTO;
 import com.joparis2024.model.User;
+import com.joparis2024.repository.RoleRepository;
 import com.joparis2024.model.Role;
 
 import java.util.ArrayList;
@@ -10,6 +12,9 @@ import java.util.List;
 
 @Component
 public class UserMapper {
+	
+	@Autowired
+    private RoleRepository roleRepository;
 
     // Mapper User -> UserDTO
     public UserDTO toDTO(User user) {
@@ -50,24 +55,6 @@ public class UserMapper {
 
         return user;
     }
-
- // Nouvelle méthode sans les rôles
-    public User toEntity(UserDTO userDTO) throws Exception {
-        if (userDTO == null) {
-            throw new Exception("Le UserDTO à mapper est nul.");
-        }
-
-        User user = new User();
-        user.setId(userDTO.getId());
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setEnabled(userDTO.getEnabled());
-        user.setPhoneNumber(userDTO.getPhoneNumber());
-        user.setPassword(userDTO.getPassword());
-
-        // On ne définit pas les rôles ici
-        return user;
-    }
     
     // Mapper une liste de User -> une liste de UserDTO
     public List<UserDTO> toDTOs(List<User> users) {
@@ -96,4 +83,26 @@ public class UserMapper {
 
         return users;
     }
+    
+    // Mapper UserDTO -> User (avec une liste de noms de rôles)
+    public User toEntity(UserDTO userDTO) throws Exception {
+        if (userDTO == null) {
+            throw new Exception("Le UserDTO à mapper est nul.");
+        }
+
+        User user = new User();
+        user.setId(userDTO.getId());
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setEnabled(userDTO.getEnabled());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setPassword(userDTO.getPassword());
+
+        // Récupérer les entités Role à partir des noms dans le UserDTO
+        List<Role> roles = roleRepository.findByNameIn(userDTO.getRoles());
+        user.setRoles(roles);  // Assigner les rôles à l'utilisateur
+
+        return user;
+    }
+    
 }

@@ -82,5 +82,12 @@ public class RoleService {
     public List<Role> getRolesByNames(List<String> roleNames) {
         return roleRepository.findByNameIn(roleNames);
     }
+    
+    public RoleDTO findByName(String name) {
+        Role role = roleRepository.findByName(name)
+            .orElseThrow(() -> new RuntimeException("Role not found"));
+        return roleMapper.toDTO(role);  // Assuming you have a RoleMapper to convert Role to RoleDTO
+    }
+    
 
 }

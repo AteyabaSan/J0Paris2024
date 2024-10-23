@@ -49,7 +49,10 @@ public class Event {
             inverseJoinColumns = @JoinColumn(name = "offer_id")
     )
     private List<Offer> offers = new ArrayList<>();  // Initialisation de la liste des offres
-
+    
+    @Column(name = "location")
+    private String location ;
+    
     // Méthode pour ajouter une offre à l'événement
     public void addOffer(Offer offer) {
         if (offer != null) {

@@ -7,16 +7,23 @@ import org.springframework.ui.Model;
 //import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.joparis2024.dto.EventDTO;
+import com.joparis2024.dto.OfferDTO;
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.mapper.OrderMapper;
 import com.joparis2024.model.Order;
 import com.joparis2024.model.User;
 import com.joparis2024.model.UserRole;
 import com.joparis2024.repository.UserRepository;
 import com.joparis2024.repository.UserRoleRepository;
+import com.joparis2024.service.EmailService;
 import com.joparis2024.service.OrderManagementFacade;
 import com.joparis2024.service.OrderService;
+import com.joparis2024.service.PaymentManagementFacade;
 import com.joparis2024.service.StripeService;
+
+import jakarta.servlet.http.HttpSession;
 
 //import jakarta.validation.Valid;
 
@@ -42,16 +49,24 @@ public class OrderManagementController {
     private UserRoleRepository userRoleRepository;
     
     @Autowired
-    private OrderService orderService;
+    private PaymentManagementFacade paymentManagementFacade;
     
+    @Autowired
+    private EmailService emailService;
     
+    @Autowired
+    private OrderMapper orderMapper;
+  
+    @Autowired
+    private OrderService orderService;  // Injection du service
+
     @Autowired
     private StripeService stripeService; // Intégration de Stripe
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementController.class);
 
     // Créer une commande avec détails et tickets
-    @PostMapping("/orders/create")
+    @PostMapping("/api/orders/create-with-details")
     public ResponseEntity<OrderDTO> createOrderWithDetails(@RequestBody OrderDTO orderDTO) {
         try {
             logger.info("Demande de création de commande avec détails pour l'utilisateur : {}", orderDTO.getUser().getId());
@@ -188,11 +203,47 @@ public class OrderManagementController {
     }
 
     
-    @GetMapping("/recap")
-    public String getOrderRecap(@RequestParam Long orderId, Model model) throws Exception {
-        OrderDTO order = orderService.getOrderById(orderId);
-        model.addAttribute("order", order);
+    @GetMapping("/order-recap")
+    public String getOrderRecap(Model model, HttpSession session) {
+        EventDTO selectedEvent = (EventDTO) session.getAttribute("selectedEvent");
+        OfferDTO selectedOffer = (OfferDTO) session.getAttribute("selectedOffer");
+
+        if (selectedEvent == null || selectedOffer == null) {
+            return "error";  // Retourner une vue d'erreur si les données sont manquantes
+        }
+
+        // Récupérer les informations de l'événement et de l'offre
+        model.addAttribute("event", selectedEvent);
+        model.addAttribute("offer", selectedOffer);
+
+        // Calculer le total en fonction des tickets de l'événement et de l'offre
+        double totalAmount = orderService.calculateTotalPrice(selectedEvent.getTickets(), selectedOffer);  // Assurez-vous que la méthode prend une liste de tickets
+        model.addAttribute("totalAmount", totalAmount);
+
+        // Afficher la vue de récapitulatif
         return "order-recap";
     }
 
+    
+    @GetMapping("/payment/success")
+    public String paymentSuccess(@RequestParam("session_id") String sessionId, Model model) {
+        try {
+            // Confirmer le paiement via Stripe
+            paymentManagementFacade.confirmPayment(sessionId);
+
+            // Récupérer la commande liée à la session
+            OrderDTO order = orderManagementFacade.getOrderBySessionId(sessionId);
+
+            // Envoyer les billets par email
+            emailService.sendTicket(orderMapper.toEntity(order));
+
+            model.addAttribute("message", "Paiement confirmé et tickets envoyés !");
+            return "paymentConfirmation";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erreur lors de la confirmation du paiement.");
+            return "error";
+        }
+    }
+    
+  
 }

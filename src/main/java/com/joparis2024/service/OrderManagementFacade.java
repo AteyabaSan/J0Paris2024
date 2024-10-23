@@ -16,6 +16,7 @@ import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.Order_TicketDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.EventMapper;
+import com.joparis2024.mapper.OrderMapper;
 import com.joparis2024.model.Offer;
 import com.joparis2024.model.Order;
 import com.joparis2024.model.Ticket;
@@ -51,11 +52,12 @@ public class OrderManagementFacade {
     @Autowired
     private TicketRepository ticketRepository; 
     
-    
     @Autowired
     private EventMapper eventMapper;
-
-
+      
+    @Autowired
+    public OrderMapper orderMapper; 
+    
     @Autowired
     private OrderDetailService orderDetailService;
     
@@ -64,7 +66,10 @@ public class OrderManagementFacade {
     
     @Autowired
     private OrderRepository orderRepository;
-
+    
+    @Autowired
+    private EmailService emailService;
+    
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementFacade.class);
 
     
@@ -274,5 +279,21 @@ public class OrderManagementFacade {
     public Order getOrderEntityById(Long orderId) {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new EntityNotFoundException("Commande non trouvée pour l'ID : " + orderId));
+    }
+    
+    
+ // Méthode pour récupérer la commande par sessionId Stripe
+    public OrderDTO getOrderBySessionId(String sessionId) throws Exception {
+        OrderDTO orderDTO = orderService.findByStripeSessionId(sessionId); // Utilisation de ta méthode existante
+        if (orderDTO == null) {
+            throw new EntityNotFoundException("Commande non trouvée pour la session : " + sessionId);
+        }
+        return orderDTO;  // Retourne directement le DTO
+    }
+    
+    // Méthode pour envoyer des tickets après une commande confirmée
+    public void sendTicketsForOrder(OrderDTO orderDTO) {
+        Order order = orderMapper.toEntity(orderDTO);  // Convertir DTO en entité
+        emailService.sendTicket(order);  // Utiliser la méthode existante dans EmailService
     }
 }

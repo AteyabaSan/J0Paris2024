@@ -1,5 +1,6 @@
 package com.joparis2024.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDTO {
@@ -8,7 +9,7 @@ public class UserDTO {
     private String username;
     private String email;
     private List<String> roles;  // Liste de rôles
-    private Boolean enabled;
+    private Boolean enabled = true;
     private String phoneNumber;
     private String password;
 
@@ -51,8 +52,12 @@ public class UserDTO {
     }
 
     public List<String> getRoles() {
+        if (roles == null) {
+            roles = new ArrayList<>(); // Initialiser la liste si elle est null
+        }
         return roles;
     }
+
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
