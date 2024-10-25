@@ -11,7 +11,7 @@
     <header th:replace="~{fragments/header :: header}"></header>
 
     <h1>Offres disponibles pour l'événement sélectionné</h1>
-
+	<div class="offers-container">
     <div th:if="${event != null}">
         <h2>Offre Solo pour l'événement : <span th:text="${event.eventName}"></span></h2>
         <p>Nombre de places : 1</p>
@@ -33,7 +33,7 @@
     <div th:if="${event == null}">
         <p>Aucun événement sélectionné ou erreur lors de la récupération de l'événement.</p>
     </div>
-
+	</div>
     <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

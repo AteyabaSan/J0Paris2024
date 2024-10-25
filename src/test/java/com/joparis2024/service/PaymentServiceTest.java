@@ -1,100 +1,175 @@
 package com.joparis2024.service;
 
-////import com.joparis2024.dto.OrderDTO;
-////import com.joparis2024.dto.PaymentDTO;
-//import com.joparis2024.model.Order;
-//import com.joparis2024.model.Payment;
-//import com.joparis2024.repository.PaymentRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.joparis2024.dto.PaymentDTO;
+import com.joparis2024.mapper.PaymentMapper;
+import com.joparis2024.model.Payment;
+import com.joparis2024.repository.PaymentRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@ExtendWith(MockitoExtension.class)
 public class PaymentServiceTest {
 
-//    @Mock
-//    private PaymentRepository paymentRepository;
-//
-//    @Mock
-//    private OrderService orderService;
-//
-//    @InjectMocks
-//    private PaymentService paymentService;
-//
-//    private PaymentDTO paymentDTO;
-//
-//    @BeforeEach
-//    public void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        paymentDTO = new PaymentDTO();
-//        paymentDTO.setPaymentMethod("Carte Bancaire");
-//        paymentDTO.setAmount(200.0);
-//        paymentDTO.setConfirmed(true);
-//        paymentDTO.setPaymentDate(java.time.LocalDateTime.now());
-//
-//        // Assigner un ordre valide à paymentDTO
-//        OrderDTO orderDTO = new OrderDTO(); // Création d'un ordre simulé
-//        orderDTO.setId(1L); // Assure-toi que l'ordre a un ID ou autres propriétés nécessaires
-//        paymentDTO.setOrder(orderDTO); // Assigner cet ordre à paymentDTO
-//    }
-//
-//    // Cas où la création de paiement réussit
-//    @Test
-//    public void createPayment_Success() throws Exception {
-//        when(orderService.mapToEntity(any(OrderDTO.class))).thenReturn(new Order());
-//        when(paymentRepository.save(any(Payment.class))).thenReturn(new Payment());
-//
-//        Payment createdPayment = paymentService.createPayment(paymentDTO);
-//
-//        assertNotNull(createdPayment);
-//        verify(paymentRepository, times(1)).save(any(Payment.class));
-//    }
-//    
-// // Cas où la création de paiement échoue
-//    @Test
-//    public void createPayment_Failure_NoOrder() throws Exception {
-//        // Simuler une situation où l'ordre est nul dans PaymentDTO
-//        paymentDTO.setOrder(null);
-//
-//        // Vérifier que l'exception est levée
-//        Exception exception = assertThrows(Exception.class, () -> {
-//            paymentService.createPayment(paymentDTO);
-//        });
-//
-//        // Vérifier le message de l'exception
-//        String expectedMessage = "L'ordre ne peut pas être nul lors de la création du paiement.";
-//        assertTrue(exception.getMessage().contains(expectedMessage));
-//    }
-//
-//
-//    // Cas où la suppression de paiement réussit
-//    @Test
-//    public void cancelPayment_Success() throws Exception {
-//        Payment payment = new Payment();
-//        when(paymentRepository.findById(anyLong())).thenReturn(Optional.of(payment));
-//
-//        paymentService.cancelPayment(1L);
-//
-//        verify(paymentRepository, times(1)).delete(any(Payment.class));
-//    }
-//
-//    // Cas où la suppression de paiement échoue
-//    @Test
-//    public void cancelPayment_Failure() {
-//        when(paymentRepository.findById(anyLong())).thenReturn(Optional.empty());
-//
-//        Exception exception = assertThrows(Exception.class, () -> {
-//            paymentService.cancelPayment(1L);
-//        });
-//
-//        String expectedMessage = "Le paiement n'existe pas";
-//        assertTrue(exception.getMessage().contains(expectedMessage));
-//    }
+    @InjectMocks
+    private PaymentService paymentService;
+
+    @Mock
+    private PaymentRepository paymentRepository;
+
+    @Mock
+    private PaymentMapper paymentMapper;
+
+    @BeforeEach
+    void setUp() {
+        // Setup if needed
+    }
+
+    @Test
+    void testCreatePayment_Success() throws Exception {
+        // Arrange
+        PaymentDTO paymentDTO = new PaymentDTO();
+        Payment payment = new Payment();
+        when(paymentMapper.toEntity(paymentDTO)).thenReturn(payment);
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(paymentMapper.toDTO(payment)).thenReturn(paymentDTO);
+
+        // Act
+        PaymentDTO result = paymentService.createPayment(paymentDTO);
+
+        // Assert
+        assertNotNull(result);
+        verify(paymentRepository, times(1)).save(payment);
+        verify(paymentMapper, times(1)).toDTO(payment);
+    }
+
+    @Test
+    void testGetPaymentById_Success() throws Exception {
+        // Arrange
+        Long paymentId = 1L;
+        Payment payment = new Payment();
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+        PaymentDTO paymentDTO = new PaymentDTO();
+        when(paymentMapper.toDTO(payment)).thenReturn(paymentDTO);
+
+        // Act
+        PaymentDTO result = paymentService.getPaymentById(paymentId);
+
+        // Assert
+        assertNotNull(result);
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentMapper, times(1)).toDTO(payment);
+    }
+
+    @Test
+    void testGetPaymentById_PaymentNotFound() {
+        // Arrange
+        Long paymentId = 1L;
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> paymentService.getPaymentById(paymentId));
+        assertEquals("Le paiement n'existe pas", exception.getMessage());
+    }
+
+    @Test
+    void testGetAllPayments_Success() throws Exception {
+        // Arrange
+        List<Payment> payments = new ArrayList<>();
+        payments.add(new Payment());
+        when(paymentRepository.findAll()).thenReturn(payments);
+        when(paymentMapper.toDTOs(payments)).thenReturn(new ArrayList<>());
+
+        // Act
+        List<PaymentDTO> result = paymentService.getAllPayments();
+
+        // Assert
+        assertNotNull(result);
+        verify(paymentRepository, times(1)).findAll();
+        verify(paymentMapper, times(1)).toDTOs(payments);
+    }
+
+    @Test
+    void testUpdatePayment_Success() throws Exception {
+        // Arrange
+        Long paymentId = 1L;
+        PaymentDTO paymentDTO = new PaymentDTO();
+        Payment payment = new Payment();
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(paymentMapper.toDTO(payment)).thenReturn(paymentDTO);
+
+        // Act
+        PaymentDTO result = paymentService.updatePayment(paymentId, paymentDTO);
+
+        // Assert
+        assertNotNull(result);
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentRepository, times(1)).save(payment);
+        verify(paymentMapper, times(1)).toDTO(payment);
+    }
+
+    @Test
+    void testUpdatePayment_PaymentNotFound() {
+        // Arrange
+        Long paymentId = 1L;
+        PaymentDTO paymentDTO = new PaymentDTO();
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> paymentService.updatePayment(paymentId, paymentDTO));
+        assertEquals("Le paiement n'existe pas", exception.getMessage());
+    }
+
+    @Test
+    void testCancelPayment_Success() throws Exception {
+        // Arrange
+        Long paymentId = 1L;
+        Payment payment = new Payment();
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.of(payment));
+
+        // Act
+        paymentService.cancelPayment(paymentId);
+
+        // Assert
+        verify(paymentRepository, times(1)).findById(paymentId);
+        verify(paymentRepository, times(1)).delete(payment);
+    }
+
+    @Test
+    void testCancelPayment_PaymentNotFound() {
+        // Arrange
+        Long paymentId = 1L;
+        when(paymentRepository.findById(paymentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(Exception.class, () -> paymentService.cancelPayment(paymentId));
+        assertEquals("Le paiement n'existe pas", exception.getMessage());
+    }
+
+    @Test
+    void testFindByPaymentIntentId_Success() {
+        // Arrange
+        String paymentIntentId = "test_intent_id";
+        Payment payment = new Payment();
+        when(paymentRepository.findByPaymentIntentId(paymentIntentId)).thenReturn(payment);
+
+        // Act
+        Payment result = paymentService.findByPaymentIntentId(paymentIntentId);
+
+        // Assert
+        assertNotNull(result);
+        verify(paymentRepository, times(1)).findByPaymentIntentId(paymentIntentId);
+    }
 }

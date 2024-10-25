@@ -1,112 +1,317 @@
-/* styles.css */
+/* Global styles */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f4f8; /* Couleur de fond pastel */
+    background-color: #f4f4f4; /* Couleur de fond gris clair */
+    font-family: 'Poppins', sans-serif; /* Police moderne */
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    color: #333; /* Texte gris foncé */
 }
 
-header {
-    background: linear-gradient(to right, #4B9CD3, #1F8A99); /* Dégradé de bleu */
-    color: white;
-    padding: 15px 0;
+h2, h3 {
     text-align: center;
+}
+
+/* Header and Navigation */
+header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-logo {
+    width: 50px; /* Taille des logos dans le header */
+    height: auto;
 }
 
 header h1 {
     margin: 0;
+    font-size: 32px;
+    letter-spacing: 1px;
+}
+
+nav {
+    flex-grow: 1;
+    text-align: center;
 }
 
 nav ul {
     list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
     padding: 0;
+    margin: 0;
 }
 
 nav ul li {
     display: inline;
-    margin: 0 15px;
 }
 
 nav ul li a {
     color: white;
     text-decoration: none;
     font-weight: bold;
-    transition: color 0.3s ease, transform 0.3s ease; /* Transition douce pour la couleur et la transformation */
+    padding: 10px;
+    transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 nav ul li a:hover {
-    color: #FFCC00; /* Jaune pastel au survol */
-    text-decoration: underline;
-    transform: scale(1.05); /* Agrandit légèrement le lien au survol */
+    background-color: #555; /* Fond gris moyen au survol */
+    color: white;
 }
 
-.container {
-    width: 80%;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+nav ul li a.invisible {
+    color: #888; /* Liens non visibles ou désactivés */
+}
+
+/* Encadré vidéo */
+.video-presentation {
+    background-color: rgba(255, 255, 255, 0.9); /* Fond blanc légèrement transparent */
+    padding: 40px;
+    margin: 40px auto;
+    border-radius: 12px;
+    max-width: 800px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    text-align: center;
+    border-top: 4px solid #444; /* Accent gris foncé */
+}
+
+.video-presentation h2 {
+    color: #333; /* Texte gris foncé */
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.video-presentation p {
+    font-size: 18px;
+    color: #555; /* Gris doux */
+    margin-bottom: 20px;
+}
+
+.video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Ombre douce */
+}
+
+.video-container iframe {
+    border: none;
     border-radius: 8px;
 }
 
-h2 {
-    color: #1F8A99; /* Couleur pour les titres */
+/* Container for content */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 85%;
+    margin: 0 auto;
+    padding: 30px;
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
+/* Footer */
 footer {
-    text-align: center;
-    padding: 10px;
-    background: linear-gradient(to right, #4B9CD3, #1F8A99); /* Même dégradé que l'en-tête */
+    background-color: #333;
     color: white;
-    position: relative;
-    bottom: 0;
-    width: 100%;
+    padding: 20px;
+    text-align: center;
+    border-top: 4px solid #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
+footer p {
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Links */
 a {
-    color: #1F8A99; /* Couleur pastel pour les liens */
+    text-align: center;
+    display: inline-block; /* Assure-toi que les liens sont inline-block pour le centrage */
+    padding: 10px 15px;
+    color: #333;
+    transition: color 0.3s ease;
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none; /* Retire la décoration de survol pour un style plus propre */
+    color: #666;
 }
 
-/* Styles pour les boutons */
+/* Buttons */
 button {
-    background-color: #4B9CD3; /* Couleur de fond du bouton */
-    color: white; /* Couleur du texte */
+    background-color: #333; /* Boutons gris foncé */
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
     border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease; /* Transition douce pour le fond et la transformation */
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 button:hover {
-    background-color: #1F8A99; /* Couleur de fond au survol */
-    transform: scale(1.05); /* Agrandit légèrement le bouton au survol */
+    background-color: #555; /* Change la teinte pour un effet subtil */
+    transform: scale(1.05);
 }
 
-/* Styles pour les formulaires */
+/* Forms */
 form {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    background-color: #f5f5f5; /* Fond gris très clair */
+    padding: 30px;
+    border-radius: 10px;
+    margin-top: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
 
 form label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #333;
 }
 
 form input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
+form input:focus {
+    border-color: #888;
+    outline: none;
+    box-shadow: 0 0 8px rgba(136, 136, 136, 0.2);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .video-presentation {
+        padding: 20px;
+        max-width: 95%;
+    }
+
+    .video-container iframe {
+        width: 100%;
+        height: auto;
+    }
+
+    .container {
+        width: 95%;
+    }
+
+    nav ul li {
+        margin: 0 10px;
+    }
+
+    button {
+        padding: 10px 15px;
+    }
+
+    form {
+        padding: 20px;
+    }
+}
+
+/* Centrer les éléments des sections */
+h1, h2, h3, p, a, button {
+    text-align: center;
+}
+
+.container {
+    text-align: center;
+}
+
+/* Pour centrer les liens */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+/* Flexbox pour centrer les sections */
+section {
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre le contenu horizontalement */
+}
+
+section a {
+    display: inline-block;
+    margin-top: 10px;
+    text-align: center;
+    color: #333;
+}
+
+/* Flexbox pour centrer les offres */
+/* Flexbox pour centrer les offres */
+.offer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.offer-container a {
+    display: inline-block;
+    text-align: center;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+/* Pour les offres */
+ul li {
+    display: flex;
+    justify-content: center; /* Centre les liens horizontalement */
+    margin-bottom: 15px;
+}
+
+/* Centrer les conteneurs et leurs contenus */
+.categories-container, 
+.events-container, 
+.offers-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.categories-container div, 
+.events-container div, 
+.offers-container div {
+    margin-bottom: 20px; /* Ajoute un peu d'espacement entre les éléments */
+}
+
+.categories-container a, 
+.events-container a, 
+.offers-container a {
+    display: inline-block;
+    text-align: center;
+    margin-top: 10px;
+    color: #333;
+}

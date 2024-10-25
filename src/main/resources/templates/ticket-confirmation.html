@@ -6,15 +6,17 @@
     <title>Confirmation de l'envoi des tickets</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body>
+<body class="ticket-confirmation">
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <h2>Tickets envoyés avec succès !</h2>
-    <p>Vos billets ont été envoyés à l'adresse email que vous avez renseignée.</p>
-    
-    <form action="/home" method="get">
-        <button type="submit">Retour à l'accueil</button>
-    </form>
+    <div class="confirmation-container">
+        <h2>Tickets envoyés avec succès !</h2>
+        <p>Vérifiez votre boîte mail !</p>
+        
+        <form action="/home" method="get">
+            <button type="submit">Retour à l'accueil</button>
+        </form>
+    </div>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

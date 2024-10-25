@@ -12,13 +12,13 @@
 
     <h1>Choisissez une catégorie</h1>
 
-    <div>
+    <div class="categories-container">
         <div th:each="category : ${categories}">
             <h2 th:text="${category.name}"></h2>
             <p th:text="'Lieu: ' + ${category.location}"></p>
             <a th:href="'/categories/' + ${category.id} + '/events'">Voir les événements</a>
         </div>
-    </div>
+    </divclass="categories-container">
 
     <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>

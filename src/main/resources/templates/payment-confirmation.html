@@ -6,18 +6,19 @@
     <title>Confirmation de paiement</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body>
+<body class="payment-confirmation">
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <h1>Félicitations, Paiement Confirmé !</h1>
+    <div class="confirmation-container">
+        <h1>Félicitations, Paiement Confirmé !</h1>
+        <p>Veuillez re-confirmer votre email pour recevoir vos billets.</p>
 
-    <p>Paiement confirmé ! Veuillez re-confirmer votre email pour recevoir vos billets.</p>
-
-    <form action="/send-tickets" method="post">
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Envoyer les tickets</button>
-    </form>
+        <form action="/send-tickets" method="post">
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required>
+            <button type="submit">Envoyer les tickets</button>
+        </form>
+    </div>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

@@ -19,7 +19,8 @@
         <h3>Offre sélectionnée : <span th:text="${offer.name}"></span></h3>
         <p>Description de l'événement: <span th:text="${event.description}"></span></p>
 
-        <h4>Total : <span th:text="${totalAmount}"></span> €</h4>
+		<h4>Total de la Commande : <span>150.00</span> €</h4>
+
 
         <form action="/confirm-order" method="post">
             <button type="submit">Confirmer la commande</button>
