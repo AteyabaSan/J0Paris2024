@@ -9,22 +9,15 @@
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
-    <h1>Confirmation du paiement</h1>
+    <h1>Félicitations, Paiement Confirmé !</h1>
 
-    <p th:text="'Paiement confirmé ! Vos billets ont été envoyés à l'adresse email : ' + ${order.user.email}"></p>
+    <p>Paiement confirmé ! Veuillez re-confirmer votre email pour recevoir vos billets.</p>
 
-    <h2>Détails de l'événement</h2>
-    <p>Événement : <span th:text="${event.eventName}">Nom de l'événement</span></p>
-    <p>Date : <span th:text="${#temporals.format(event.eventDate, 'dd-MM-yyyy')}">Date de l'événement</span></p>
-    <p>Lieu : <span th:text="${event.location}">Lieu de l'événement</span></p>
-
-    <h2>Billets</h2>
-    <ul>
-        <li th:each="ticket : ${tickets}">
-            Ticket pour <span th:text="${ticket.offer.name}">Offre</span> - 
-            Quantité : <span th:text="${ticket.quantity}">1</span>
-        </li>
-    </ul>
+    <form action="/send-tickets" method="post">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">Envoyer les tickets</button>
+    </form>
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

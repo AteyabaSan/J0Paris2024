@@ -5,6 +5,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.TicketMapper;
 import com.joparis2024.model.Order;
@@ -109,6 +110,21 @@ public class TicketService {
 
         return outputStream.toByteArray();
     }
+    
+    public void processTicketAndSendEmail(OrderDTO demoOrder, String email) throws WriterException, IOException {
+        // Créer le texte pour le QR code
+        String qrText = "Billet pour l'événement : " + demoOrder.getEvent().getEventName() +
+                        " - Offre : " + demoOrder.getOffer().getName() +
+                        " - Quantité : 1"; // Ajustez selon vos besoins
+
+        // Générer le QR code
+        byte[] qrCodeImage = generateQRCode(qrText, 250, 250);
+
+        // Appeler EmailService pour envoyer l'email
+        emailService.sendTicketAsync(demoOrder, email, qrCodeImage);
+    }
+
+
     
     public List<TicketDTO> getTicketsByOffer(Long offerId) {
         List<Ticket> tickets = ticketRepository.findByOfferId(offerId);

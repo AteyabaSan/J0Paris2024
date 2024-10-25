@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de l'envoi des tickets</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <h2>Tickets envoyés avec succès !</h2>
+    <p>Vos billets ont été envoyés à l'adresse email que vous avez renseignée.</p>
+    
+    <form action="/home" method="get">
+        <button type="submit">Retour à l'accueil</button>
+    </form>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

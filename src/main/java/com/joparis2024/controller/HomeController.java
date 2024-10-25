@@ -2,6 +2,7 @@ package com.joparis2024.controller;
 
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +31,9 @@ import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.RoleDTO;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.dto.UserDTO;
-import com.joparis2024.mapper.OrderMapper;
+
 import com.joparis2024.mapper.TicketMapper;
+
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.TicketRepository;
 import com.joparis2024.security.CustomUserDetails;
@@ -72,9 +74,6 @@ public class HomeController {
     
     @Autowired
     private OrderService orderService;
-    
-    @Autowired
-    private OrderMapper orderMapper;
     
 //    @Autowired
 //    private StripeService stripeService;
@@ -244,11 +243,6 @@ public class HomeController {
             return "error";
         }
     }
-
-
-
-
-
 
 
 
@@ -596,30 +590,32 @@ public class HomeController {
     @GetMapping("/payment/success")
     public String paymentSuccess(HttpSession session, @RequestParam("session_id") String sessionId, Model model) {
         try {
-            // Confirmer le paiement via Stripe
             paymentManagementFacade.confirmPayment(sessionId);
 
-            // Récupérer la commande liée à la session
+            // Récupérer la commande de la session ou créer une commande de démo
             OrderDTO order = (OrderDTO) session.getAttribute("currentOrder");
-
-            if (order != null) {
-                // Envoyer les billets par email avec des QR codes
-                emailService.sendTicket(orderMapper.toEntity(order));
-            } else {
-                logger.warn("Aucune commande trouvée dans la session. Utilisation d'une commande fictive pour la démo.");
-                // Si aucune commande n'est trouvée, tu peux générer des tickets fictifs pour la démo
-                OrderDTO demoOrder = createDemoOrder();  // Crée une commande de démo
-                emailService.sendTicket(orderMapper.toEntity(demoOrder));
+            if (order == null) {
+                order = createDemoOrder();
             }
 
-            // Rediriger vers la page de confirmation du paiement
-            return "redirect:/payment-confirmation";
+            // Ajouter l'ordre et les autres attributs nécessaires au modèle pour la vue
+            model.addAttribute("order", order);
+            model.addAttribute("event", order.getEvent());
+            model.addAttribute("tickets", order.getEvent().getTickets());
 
+            // Récupérer l'email de l'utilisateur connecté via SecurityContextHolder
+//            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            // Envoyer les billets par email en passant l'email récupéré en paramètre
+//            emailService.sendTicketAsync(orderMapper.toEntity(order), email);
+
+            return "redirect:/payment-confirmation";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Erreur lors de la confirmation du paiement.");
             return "error";
         }
     }
+
 
     private OrderDTO createDemoOrder() {
         // Créer une commande fictive pour la démo
@@ -630,6 +626,7 @@ public class HomeController {
         event.setId(1L);
         event.setEventName("Démonstration Événement");
         event.setLocation("Demo Location");
+        event.setEventDate(LocalDate.now().plusDays(30)); // Utilisation de LocalDate comme requis
         demoOrder.setEvent(event);
 
         // Création d'une OfferDTO fictive
@@ -639,6 +636,7 @@ public class HomeController {
         offer.setPrice(100.0);
         demoOrder.setOffer(offer);
         
+        // Autres informations sur la commande
         demoOrder.setTotalAmount(100.0);
         demoOrder.setOrderDate(LocalDateTime.now());
         demoOrder.setStatus("CONFIRMED");
@@ -646,11 +644,49 @@ public class HomeController {
         return demoOrder;
     }
 
-    @GetMapping("/payment-confirmation")
-    public String showPaymentConfirmation(Model model) {
-        model.addAttribute("message", "Paiement confirmé avec succès.");
-        return "payment-confirmation";  // Renvoyer vers la vue Thymeleaf payment-confirmation.html
+
+    
+    @PostMapping("/send-tickets")
+    public String sendTickets(@RequestParam("email") String email, Model model) {
+        try {
+            // Création de la commande de démonstration
+            OrderDTO demoOrder = createDemoOrder();
+
+            // Générer le QR code
+            String qrText = "Billet pour l'événement : " + demoOrder.getEvent().getEventName() +
+                            " - Offre : " + demoOrder.getOffer().getName() + 
+                            " - Quantité : 1"; // Ajustez selon vos besoins
+
+            byte[] qrCodeImage = ticketService.generateQRCode(qrText, 250, 250); // Générez le QR code
+
+            // Envoi des tickets à l'email renseigné
+            emailService.sendTicketAsync(demoOrder, email, qrCodeImage); // Passez le QR code généré
+
+            // Ajouter un message de confirmation dans le modèle
+            model.addAttribute("message", "Tickets envoyés avec succès à " + email);
+        } catch (Exception e) {
+            // Ajouter un message d'erreur dans le modèle en cas de problème
+            model.addAttribute("error", "Erreur lors de l'envoi des tickets : " + e.getMessage());
+        }
+        
+        // Retourner vers la page de confirmation des tickets
+        return "ticket-confirmation"; 
     }
+
+
+
+    @GetMapping("/payment-confirmation")
+    public String showPaymentConfirmation(Model model, HttpSession session) {
+        // Vérifie si les attributs sont dans le modèle ; sinon, récupère-les de la session
+        if (!model.containsAttribute("order")) {
+            OrderDTO order = (OrderDTO) session.getAttribute("currentOrder");
+            model.addAttribute("order", order);
+            model.addAttribute("event", order.getEvent());
+            model.addAttribute("tickets", order.getEvent().getTickets());
+        }
+        return "payment-confirmation";
+    }
+
 
 
     // Page de login
