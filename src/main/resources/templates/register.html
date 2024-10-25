@@ -5,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script th:src="@{/javascript/scripts.js}"></script>
 </head>
 <body>
-    <header th:replace="fragments/body :: header"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
     <h1>Inscription</h1>
-
-    <!-- Affichage du message d'erreur si présent -->
-    <div th:if="${errorMessage}" class="error-message">
-        <p th:text="${errorMessage}"></p>
-    </div>
 
     <form action="/register" method="post">
         <label for="username">Nom d'utilisateur :</label>
@@ -29,6 +25,6 @@
         <button type="submit">S'inscrire</button>
     </form>
 
-    <footer th:replace="fragments/body :: footer"></footer>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

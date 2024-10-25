@@ -7,13 +7,14 @@ public class OfferDTO {
     private String name;
     private int numberOfSeats;
     private List<Long> eventIds;  // IDs des événements
+    private Double price;
 
     // Suppression de la relation directe avec EventDTO pour les opérations basiques
     // Cette relation sera gérée dans la facade ou dans des méthodes plus complexes
 
     public OfferDTO() {}
 
-    public OfferDTO(Long id, String name, int numberOfSeats, List<Long> eventIds) {
+    public OfferDTO(Double price, Long id, String name, int numberOfSeats, List<Long> eventIds) {
         this.id = id;
         this.name = name;
         this.numberOfSeats = numberOfSeats;
@@ -21,6 +22,14 @@ public class OfferDTO {
     }
 
     // Getters et Setters
+    
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
 
     public Long getId() {
         return id;

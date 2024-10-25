@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Stripe Payment</title>
+    <script src="https://js.stripe.com/v3/"></script> <!-- Stripe.js -->
+</head>
+<body>
+    <h1>Paiement sécurisé</h1>
+
+    <!-- Formulaire de paiement avec Stripe -->
+    <form id="payment-form" action="/payment/process" method="post">
+        <div id="card-element">
+            <!-- Stripe Elements va insérer le formulaire de carte ici -->
+        </div>
+        <button id="submit">Payer</button>
+    </form>
+
+    <script>
+        // Utilisation de la clé publique Stripe
+        var stripe = Stripe('pk_test_51PyXi6P85HZazy2xXKKi1hkBh2HkgyhdNEhqd9olQRbVUz5ik0UFPS8tNzWmx8KrQw76URIYFP5N5yp6VQ8wIkA200991Ooo3J');
+        var elements = stripe.elements();
+
+        var cardElement = elements.create('card');
+        cardElement.mount('#card-element'); // Insère le formulaire de carte dans la div 'card-element'
+
+        // Gestion de la soumission du formulaire
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+            }).then(function(result) {
+                if (result.error) {
+                    console.error(result.error.message);
+                } else {
+                    // Si la création du PaymentMethod est réussie, envoyer l'ID au backend
+                    fetch('/payment/process', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ paymentMethodId: result.paymentMethod.id })
+                    }).then(function(response) {
+                        return response.json();
+                    }).then(function(sessionData) {
+                        if (sessionData.error) {
+                            console.error(sessionData.error);
+                        } else {
+                            // Redirection vers Stripe Checkout
+                            window.location = sessionData.url;
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

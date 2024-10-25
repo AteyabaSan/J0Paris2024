@@ -7,6 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.joparis2024.dto.TicketDTO;
 import com.joparis2024.mapper.TicketMapper;
+import com.joparis2024.model.Order;
 import com.joparis2024.model.Ticket;
 import com.joparis2024.repository.TicketRepository;
 
@@ -35,22 +36,24 @@ public class TicketService {
     
     @Autowired 
     private TicketRepository ticketRepository;
+    
+    @Autowired
+    private EmailService emailService;
 
     @Transactional
-    public TicketDTO createTicket(TicketDTO ticketDTO) throws Exception {
-        if (ticketDTO.getQuantity() == null || ticketDTO.getQuantity() <= 0) {
+    public Ticket createTicket(Ticket ticket) throws Exception {
+        if (ticket.getQuantity() == null || ticket.getQuantity() <= 0) {
             throw new Exception("La quantité doit être supérieure à 0.");
         }
-        logger.info("Tentative de création d'un ticket avec la quantité: {}", ticketDTO.getQuantity());
-
-        // S'assurer que l'attribut 'available' est bien pris en compte
-        Ticket ticket = ticketMapper.toEntity(ticketDTO);
+        logger.info("Tentative de création d'un ticket avec la quantité: {}", ticket.getQuantity());
+        
+        // Sauvegarde du ticket
         Ticket savedTicket = ticketRepository.save(ticket);
-
-        TicketDTO savedTicketDTO = ticketMapper.toDTO(savedTicket);
-        logger.info("Ticket créé avec succès. Disponibilité: {}", savedTicketDTO.isAvailable());
-        return savedTicketDTO;
+        logger.info("Ticket créé avec succès. Disponibilité: {}", savedTicket.isAvailable());
+        
+        return savedTicket;
     }
+
 
     @Transactional
     public TicketDTO updateTicket(Long ticketId, TicketDTO ticketDTO) throws Exception {
@@ -131,5 +134,15 @@ public class TicketService {
         }
 
         return ticketDTOs;
+    }
+    
+ // Méthode pour gérer l'envoi des tickets après confirmation du paiement
+    public void handleTicketSendingAfterPayment(Order order) throws Exception {
+        // Logique pour générer des QR codes ou autres actions nécessaires
+        logger.info("Génération des QR codes pour la commande ID: {}", order.getId());
+
+        // Appel au service EmailService pour envoyer les tickets
+        emailService.sendTicket(order);
+        logger.info("Tickets envoyés par email pour la commande ID: {}", order.getId());
     }
 }

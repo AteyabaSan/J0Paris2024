@@ -1,7 +1,11 @@
 package com.joparis2024.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import jakarta.persistence.*;
 
@@ -64,7 +68,19 @@ public class User {
     public String getEmail() {
         return this.email;
     }
-
+    
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+    
+ // Méthode pour retourner les rôles sous forme de GrantedAuthority sans utiliser de Stream
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : this.roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
+    }
 
 }
 

@@ -164,4 +164,23 @@ public class EventManagementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+ // Nouvelle route pour récupérer un événement avec les tickets et leurs prix
+    @GetMapping("/events/{eventId}/details")
+    public ResponseEntity<EventDTO> getEventWithTicketDetails(@PathVariable Long eventId) {
+        logger.info("Récupération de l'événement avec détails des tickets pour l'événement ID: {}", eventId);
+        try {
+            // Appel à la méthode dans la facade pour récupérer les détails des tickets
+            EventDTO eventDTO = eventManagementFacade.getEventWithTicketDetails(eventId);
+            return ResponseEntity.ok(eventDTO);
+        } catch (EntityNotFoundException e) {
+            logger.error("Événement non trouvé : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération de l'événement et des tickets : {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

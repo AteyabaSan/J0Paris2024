@@ -216,4 +216,26 @@ public class EventManagementFacade {
 
         logger.info("Ticket ID: {} dissocié avec succès de l'événement ID: {}", ticketId, eventId);
     }
+    
+    @Transactional(readOnly = true)
+    public EventDTO getEventWithTicketDetails(Long eventId) throws Exception {
+        // Récupérer l'événement via le service
+        EventDTO eventDTO = eventService.getEventById(eventId);
+        if (eventDTO == null) {
+            throw new EntityNotFoundException("Événement non trouvé avec l'ID: " + eventId);
+        }
+
+        // Récupérer les tickets associés à cet événement
+        List<Ticket> tickets = ticketRepository.findByEventId(eventId);
+
+        // Mapper les tickets en TicketDTOs, y compris les prix
+        List<TicketDTO> ticketDTOs = ticketMapper.toDTOs(tickets);
+
+        // Ajouter les tickets à l'eventDTO
+        eventDTO.setTickets(ticketDTOs);
+
+        return eventDTO;
+    }
+
+
 }

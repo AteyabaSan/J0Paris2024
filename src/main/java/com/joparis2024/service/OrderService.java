@@ -123,7 +123,6 @@ public class OrderService {
     }
     
     public OrderDTO createOrderFromSessionData(EventDTO event, OfferDTO offer) throws Exception {
-        // Logique pour créer une commande basée sur l'événement et l'offre
         OrderDTO order = new OrderDTO();
         
         // Associer l'événement et l'offre à la commande
@@ -132,46 +131,56 @@ public class OrderService {
         order.setStatus("PENDING");
         order.setOrderDate(LocalDateTime.now());
 
-        // Récupérer et associer les tickets pour l'événement
+        // Les tickets sont déjà récupérés avec l'événement via EventManagementFacade
         List<TicketDTO> tickets = event.getTickets();
         if (tickets == null || tickets.isEmpty()) {
             throw new Exception("Aucun ticket disponible pour cet événement.");
         }
 
-        // Associer les tickets à la commande
         order.setTickets(tickets);
 
-        // Calculer le prix total
+        // Calculer le prix total en fonction des tickets et de l'offre
         double totalAmount = calculateTotalPrice(tickets, offer);
         order.setTotalAmount(totalAmount);
 
         // Sauvegarder et retourner la commande
         return saveOrder(order);
     }
-    
+
+
     public double calculateTotalPrice(List<TicketDTO> tickets, OfferDTO offer) {
+        // Vérifier que la liste des tickets n'est pas vide
+        if (tickets == null || tickets.isEmpty()) {
+            throw new IllegalArgumentException("La liste des tickets ne peut pas être vide.");
+        }
+
+        // Initialiser le prix total
         double totalPrice = 0.0;
 
         // Calculer le total en fonction du prix de chaque ticket
         for (TicketDTO ticket : tickets) {
-            totalPrice += ticket.getPrice();
+            totalPrice += ticket.getPrice();  // Ajouter le prix du ticket au total
         }
 
         // Ajuster le total en fonction de l'offre sélectionnée
-        int numberOfPeople = 1; // Par défaut, pour l'offre "Solo"
-        switch (offer.getName()) {
-            case "Solo":
-                numberOfPeople = 1;
-                break;
-            case "Duo":
-                numberOfPeople = 2;
-                break;
-            case "Familial":
-                numberOfPeople = 4;
-                break;
-            default:
-                numberOfPeople = 1; // Valeur par défaut si l'offre est inconnue
-                break;
+        int numberOfPeople;
+        if (offer != null) {
+            switch (offer.getName()) {
+                case "Solo":
+                    numberOfPeople = 1;
+                    break;
+                case "Duo":
+                    numberOfPeople = 2;
+                    break;
+                case "Familial":
+                    numberOfPeople = 4;
+                    break;
+                default:
+                    numberOfPeople = 1; // Valeur par défaut si l'offre est inconnue
+                    break;
+            }
+        } else {
+            numberOfPeople = 1;  // Par défaut, un seul billet si l'offre est nulle
         }
 
         // Multiplier le prix total des tickets par le nombre de personnes dans l'offre
@@ -180,6 +189,11 @@ public class OrderService {
 
     
     public OrderDTO save(OrderDTO orderDTO) {
+        // Vérifier que la commande a bien des tickets
+        if (orderDTO.getTickets() == null || orderDTO.getTickets().isEmpty()) {
+            throw new IllegalArgumentException("La commande doit contenir au moins un ticket.");
+        }
+
         // Convertir le DTO en entité
         Order orderEntity = orderMapper.toEntity(orderDTO);
 
@@ -187,7 +201,8 @@ public class OrderService {
         Order savedOrder = orderRepository.save(orderEntity);
 
         // Retourner le DTO après sauvegarde
-        return orderMapper.toDTO(savedOrder);  // Make sure to use toDTO
+        return orderMapper.toDTO(savedOrder);  // Utiliser toDTO pour renvoyer le DTO mis à jour
     }
+
 
 }

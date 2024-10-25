@@ -5,32 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disponibilité des tickets</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/javascript/scripts.js}"></script>
 </head>
 <body>
-    <header th:replace="fragments/body :: header"></header>
+    <div th:replace="~{fragments/header :: header}"></div>
 
     <h1>Disponibilité des tickets pour l'événement sélectionné</h1>
 
     <div>
         <h2 th:text="${event.eventName}">Nom de l'événement</h2>
-        <p th:text="'Date : ' + ${event.eventDate}">Date de l'événement</p>
+        <p th:text="'Date : ' + ${#temporals.format(event.eventDate, 'dd-MM-yyyy')}">Date de l'événement</p>
         <p>Description : <span th:text="${event.description}">Description de l'événement</span></p>
 
         <!-- Vérification de l'existence des tickets -->
-        <p th:if="${tickets.size() > 0}">Tickets disponibles : 
+        <p th:if="${tickets.size() > 0}">
+            Tickets disponibles :
             <span th:if="${tickets[0].available}" th:text="'Oui, ' + ${tickets[0].quantity} + ' billets restants'"></span>
             <span th:if="${!tickets[0].available}">Rupture de stock</span>
         </p>
         <p th:if="${tickets.size() == 0}">Aucun ticket disponible pour cet événement.</p>
 
         <!-- Bouton pour procéder à la commande si les tickets sont disponibles -->
-        <a th:if="${tickets.size() > 0 && tickets[0].available}" 
+        <a th:if="${tickets.size() > 0 && tickets[0].available}"
            th:href="@{'/orders/create?offerId=' + ${offer.id} + '&eventId=' + ${event.id}}">
             Procéder à la commande
         </a>
     </div>
 
-    <footer th:replace="fragments/body :: footer"></footer>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -5,14 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/javascript/scripts.js}"></script>
 </head>
 <body>
-    <header th:replace="fragments/body :: header"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
     <h1>Connexion</h1>
 
-    <form action="/login" method="post">
+    <div th:if="${param.error}" class="error-message">
+        <p>Nom d'utilisateur ou mot de passe incorrect.</p>
+    </div>
+
+    <div th:if="${param.logout}" class="success-message">
+        <p>Vous vous êtes déconnecté avec succès.</p>
+    </div>
+
+    <form th:action="@{/login}" method="post">
         <label for="username">Nom d'utilisateur :</label>
         <input type="text" id="username" name="username" required>
 
@@ -22,6 +30,6 @@
         <button type="submit">Se connecter</button>
     </form>
 
-    <footer th:replace="fragments/body :: footer"></footer>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

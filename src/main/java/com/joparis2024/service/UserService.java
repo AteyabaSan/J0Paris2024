@@ -14,6 +14,7 @@ import com.joparis2024.repository.RoleRepository;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -34,6 +35,10 @@ public class UserService {
 
     @PersistenceContext
     private EntityManager entityManager;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     // Récupérer tous les utilisateurs
     @Transactional(readOnly = true)
@@ -129,8 +134,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé pour le nom d'utilisateur : " + username));
     }
+
 
     @Transactional(readOnly = true)
     public User findById(Long id) throws Exception {
@@ -140,7 +147,7 @@ public class UserService {
         return user;
     }
     
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public UserDTO save(UserDTO userDTO) {
         try {
             // Vérifier si l'email existe déjà
@@ -148,6 +155,15 @@ public class UserService {
             if (existingUser.isPresent()) {
                 throw new RuntimeException("Un utilisateur avec cet email existe déjà.");
             }
+
+            // Vérifier si le nom d'utilisateur existe déjà
+            Optional<User> existingUsername = userRepository.findByUsername(userDTO.getUsername());
+            if (existingUsername.isPresent()) {
+                throw new RuntimeException("Un utilisateur avec ce nom d'utilisateur existe déjà.");
+            }
+
+            // Encodage du mot de passe
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
             // Convertir le DTO en entité
             User user = userMapper.toEntity(userDTO);
@@ -160,13 +176,13 @@ public class UserService {
                 roles.add(role);
             }
 
-            // Assigner la liste des rôles à l'utilisateur
+            // Assigner les rôles à l'utilisateur
             user.setRoles(roles);
 
             // Activer l'utilisateur
             user.setEnabled(true);
 
-            // Sauvegarder l'utilisateur avec les rôles dans la base de données
+            // Sauvegarder l'utilisateur dans la base de données
             User savedUser = userRepository.save(user);
 
             // Retourner le DTO correspondant à l'utilisateur sauvegardé
@@ -176,5 +192,32 @@ public class UserService {
             throw new RuntimeException("Erreur lors de l'enregistrement de l'utilisateur", e);
         }
     }
+
+
+    @Transactional
+    public UserDTO authenticate(String username, String password) {
+        try {
+            // Vérifier si l'utilisateur avec ce nom existe
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Nom d'utilisateur incorrect."));
+
+            // Vérifier le mot de passe
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                throw new RuntimeException("Mot de passe incorrect.");
+            }
+
+            // Vérifier si l'utilisateur est activé
+            if (!user.isEnabled()) {
+                throw new RuntimeException("L'utilisateur n'est pas activé.");
+            }
+
+            // Retourner le DTO de l'utilisateur authentifié
+            return userMapper.toDTO(user);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'authentification de l'utilisateur.", e);
+        }
+    }
+
 
 }

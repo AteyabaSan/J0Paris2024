@@ -1,47 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Récapitulatif de la commande</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/app.js}"></script>
 </head>
 <body>
-    <!-- Inclusion de l'en-tête -->
-    <header th:replace="fragments/body :: header"></header>
+    <!-- Inclusion du header -->
+    <header th:replace="~{fragments/header :: header}"></header>
 
-    <h1>Récapitulatif de votre commande</h1>
+    <div class="container">
+        <h1>Récapitulatif de la commande</h1>
+        <h2>Événement : <span th:text="${event.eventName}"></span></h2>
+        <p>Date : <span th:text="${event.eventDate}"></span></p>
+        <p>Lieu : <span th:text="${event.location}"></span></p>
 
-    <div>
-        <!-- Affichage des informations de l'événement -->
-        <h2 th:text="${event.eventName}">Nom de l'événement</h2>
-        <p>Date : <span th:text="${#temporals.format(event.eventDate, 'dd-MM-yyyy')}">Date de l'événement</span></p>
-        <p>Lieu : <span th:text="${event.location}">Lieu de l'événement</span></p>
+        <h3>Offre sélectionnée : <span th:text="${offer.name}"></span></h3>
+        <p>Description de l'événement: <span th:text="${event.description}"></span></p>
 
-        <!-- Affichage des informations de l'offre -->
-        <p>Offre sélectionnée : <span th:text="${offer.name}">Nom de l'offre</span></p>
-        <p>Nombre de places : <span th:text="${offer.numberOfSeats}">Nombre de places</span></p>
+        <h4>Total : <span th:text="${totalAmount}"></span> €</h4>
 
-        <!-- Affichage des informations du ticket si disponible -->
-        <p th:if="${ticket != null}">
-            Prix unitaire du ticket : <span th:text="${ticket.price}">Prix du ticket</span>€
-        </p>
-        <p th:if="${ticket == null}">
-            Informations du ticket non disponibles.
-        </p>
-
-        <!-- Affichage du total à payer -->
-        <p>Total à payer : <span th:text="${totalAmount}">Total</span>€</p>
-
-        <!-- Bouton pour procéder au paiement -->
-        <form th:action="@{/payment/create-session}" method="post">
-            <input type="hidden" name="orderId" th:value="${order.id}">
-            <button type="submit">Procéder au paiement</button>
+        <form action="/confirm-order" method="post">
+            <button type="submit">Confirmer la commande</button>
         </form>
     </div>
 
-    <!-- Inclusion du pied de page -->
-    <footer th:replace="fragments/body :: footer"></footer>
+    <!-- Inclusion du footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <!-- Inclusion des scripts -->
+    <script th:src="@{/javascript/scripts.js}"></script>
 </body>
 </html>

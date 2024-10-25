@@ -1,7 +1,11 @@
 package com.joparis2024.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class UserDTO {
 
@@ -58,7 +62,6 @@ public class UserDTO {
         return roles;
     }
 
-
     public void setRoles(List<String> roles) {
         this.roles = roles;
     }
@@ -86,7 +89,13 @@ public class UserDTO {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    // Méthode pour obtenir les autorités (rôles) de l'utilisateur
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (String role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role));
+        }
+        return authorities;
+    }
 }
-
-
-

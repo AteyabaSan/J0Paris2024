@@ -1,35 +1,33 @@
-<!-- src/main/resources/templates/home.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenue sur le site des Jeux Olympiques de Paris 2024</title>itle></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur le site des Jeux Olympiques de Paris 2024</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/scripts.js}"></script> <!-- Lien vers le fichier JavaScript -->
+    <script th:src="@{/javascript/scripts.js}"></script>
 </head>
 <body>
-	<header th:replace="fragments/body :: header"></header>
-	<section>
-	        <h1>Bienvenue aux Jeux Olympiques Paris 2024</h1>
-	        <p>La cérémonie d'ouverture se tiendra le 26 Juillet 2024 , à 18H sur tout le long de la Seine.</p>
-	    </section>
-		
-		<section>
-			<h2>Navigation</h2>
-				<nav>
-					<ul>
-			           <li><a href="/categories">Voir les Catégories</a></li>
-			           <li><a href="/events">Voir les Événements</a></li>
-			           <li><a href="/offers">Voir les Offres</a></li>
-			           <li><a href="/register">S'inscrire</a></li>
-			           <li><a href="/login">Se connecter</a></li>
-			       </ul>
-			   </nav>
-		</section>
+    <header th:replace="~{fragments/header :: header}"></header>
 
-    <div class="container">
-       <footer th:replace="fragments/body :: footer"></footer>
-    </div>
+    <section>
+        <h1>Bienvenue aux Jeux Olympiques Paris 2024</h1>
+        <p>La cérémonie d'ouverture se tiendra le 26 Juillet 2024, à 18H sur tout le long de la Seine.</p>
+    </section>
+    
+    <section>
+        <h2>Navigation</h2>
+        <nav>
+            <ul>
+                <li><a href="/categories">Voir les Catégories</a></li>
+                <li><a href="/events">Voir les Événements</a></li>
+                <li><a href="/offers">Voir les Offres</a></li>
+                <li><a href="/register">S'inscrire</a></li>
+                <li><a href="/login">Se connecter</a></li>
+            </ul>
+        </nav>
+    </section>
+
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

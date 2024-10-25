@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catégories des JO 2024</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/javascript/scripts.js}"></script>
 </head>
 <body>
-    <header th:replace="fragments/body :: header"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
     <h1>Choisissez une catégorie</h1>
 
@@ -20,6 +20,6 @@
         </div>
     </div>
 
-    <footer th:replace="fragments/body :: footer"></footer>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>

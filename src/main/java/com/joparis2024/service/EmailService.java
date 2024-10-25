@@ -16,15 +16,21 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
     // Méthode pour envoyer les tickets par email
     public void sendTicket(Order order) {
+        // Récupère l'email de l'utilisateur connecté
+        String email = customUserDetailsService.getCurrentUserEmail();
+
         // Construction de l'email
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
             // Configurer les détails de l'email
-            helper.setTo(order.getUser().getEmail()); // Destinataire (email de l'utilisateur)
+            helper.setTo(email); // Utilise l'email récupéré de l'utilisateur connecté
             helper.setSubject("Vos billets pour l'événement " + order.getTickets().get(0).getEvent().getName()); // Objet de l'email
             helper.setText(buildEmailContent(order), true); // Corps de l'email (HTML)
 
@@ -47,8 +53,6 @@ public class EmailService {
         content.append("<p>Date : ").append(order.getOrderDate()).append("</p>");
         content.append("<p>Montant total : ").append(order.getTotalAmount()).append(" €</p>");
         content.append("<p>Merci pour votre achat !</p>");
-
-        // Tu peux ajouter ici des liens vers les billets ou même inclure des QR codes
 
         return content.toString();
     }

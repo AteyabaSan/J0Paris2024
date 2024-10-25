@@ -144,6 +144,7 @@ public class OrderManagementFacade {
 
                 totalAmount += ticket.getPrice() * ticketDTO.getQuantity();
 
+                // Associer le ticket à la commande
                 Order_TicketDTO orderTicketDTO = new Order_TicketDTO(savedOrderDTO.getId(), ticketDTO.getId(), ticketDTO.getQuantity(), offer.getId());
                 orderTicketService.createOrderTicket(orderTicketDTO);
 

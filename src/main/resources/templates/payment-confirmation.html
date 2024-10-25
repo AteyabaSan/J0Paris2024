@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-    <header th:replace="fragments/body :: header"></header>
+    <div th:replace="~{fragments/header :: header}"></div>
 
     <h1>Confirmation du paiement</h1>
 
@@ -26,6 +26,6 @@
         </li>
     </ul>
 
-    <footer th:replace="fragments/body :: footer"></footer>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

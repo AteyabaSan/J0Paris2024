@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de la commande</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <!-- Inclusion du header -->
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <div class="container">
+        <h1>Merci Pour Votre Commande !</h1>
+
+        <!-- Affichage du message de succès si le paramètre 'success' est présent -->
+        <div th:if="${message}">
+            <p th:text="${message}"></p>
+        </div>
+
+        <!-- Contenu principal de la page de confirmation de commande -->
+        <p>Votre commande a été confirmée. Vous pouvez maintenant procéder au paiement.</p>
+
+        <!-- Formulaire pour rediriger vers la session de paiement -->
+        <form action="/payment/create-session" method="post">
+            <button type="submit">Procéder au paiement</button>
+        </form>
+    </div>
+
+    <!-- Inclusion du footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <!-- Inclusion des scripts -->
+    <script th:src="@{/javascript/scripts.js}"></script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 package com.joparis2024.controller;
 
 import com.joparis2024.dto.TicketDTO;
+import com.joparis2024.mapper.TicketMapper;
+import com.joparis2024.model.Ticket;
 import com.joparis2024.service.TicketService;
 
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,7 @@ public class TicketController {
 
     private static final Logger logger = LoggerFactory.getLogger(TicketController.class);
     private final TicketService ticketService;
+    private TicketMapper ticketMapper;
 
     public TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
@@ -32,13 +35,22 @@ public class TicketController {
     public ResponseEntity<TicketDTO> createTicket(@RequestBody TicketDTO ticketDTO) {
         logger.info("Requête reçue pour créer un nouveau ticket");
         try {
-            TicketDTO createdTicket = ticketService.createTicket(ticketDTO);
-            return new ResponseEntity<>(createdTicket, HttpStatus.CREATED);
+            // Convertir le TicketDTO en Ticket avant d'appeler le service
+            Ticket ticket = ticketMapper.toEntity(ticketDTO);
+
+            // Appeler la méthode modifiée du service qui accepte un Ticket
+            Ticket savedTicket = ticketService.createTicket(ticket);
+
+            // Convertir à nouveau le Ticket en TicketDTO pour la réponse
+            TicketDTO savedTicketDTO = ticketMapper.toDTO(savedTicket);
+
+            return new ResponseEntity<>(savedTicketDTO, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("Erreur lors de la création du ticket", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // Récupérer un ticket par ID
     @GetMapping("/{id}")

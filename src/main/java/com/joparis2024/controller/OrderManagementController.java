@@ -3,27 +3,27 @@ package com.joparis2024.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
+//import org.springframework.ui.Model;
 //import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import com.joparis2024.dto.EventDTO;
-import com.joparis2024.dto.OfferDTO;
+//import com.joparis2024.dto.EventDTO;
+//import com.joparis2024.dto.OfferDTO;
 import com.joparis2024.dto.OrderDTO;
 import com.joparis2024.dto.TicketDTO;
-import com.joparis2024.mapper.OrderMapper;
-import com.joparis2024.model.Order;
+//import com.joparis2024.mapper.OrderMapper;
+//import com.joparis2024.model.Order;
 import com.joparis2024.model.User;
 import com.joparis2024.model.UserRole;
 import com.joparis2024.repository.UserRepository;
 import com.joparis2024.repository.UserRoleRepository;
-import com.joparis2024.service.EmailService;
+//import com.joparis2024.service.EmailService;
 import com.joparis2024.service.OrderManagementFacade;
-import com.joparis2024.service.OrderService;
-import com.joparis2024.service.PaymentManagementFacade;
-import com.joparis2024.service.StripeService;
+//import com.joparis2024.service.OrderService;
+//import com.joparis2024.service.PaymentManagementFacade;
+//import com.joparis2024.service.StripeService;
 
-import jakarta.servlet.http.HttpSession;
+//import jakarta.servlet.http.HttpSession;
 
 //import jakarta.validation.Valid;
 
@@ -48,20 +48,20 @@ public class OrderManagementController {
     @Autowired
     private UserRoleRepository userRoleRepository;
     
-    @Autowired
-    private PaymentManagementFacade paymentManagementFacade;
-    
-    @Autowired
-    private EmailService emailService;
-    
-    @Autowired
-    private OrderMapper orderMapper;
-  
-    @Autowired
-    private OrderService orderService;  // Injection du service
-
-    @Autowired
-    private StripeService stripeService; // Intégration de Stripe
+//    @Autowired
+//    private PaymentManagementFacade paymentManagementFacade;
+//    
+//    @Autowired
+//    private EmailService emailService;
+//    
+//    @Autowired
+//    private OrderMapper orderMapper;
+//  
+//    @Autowired
+//    private OrderService orderService;  // Injection du service
+//
+//    @Autowired
+//    private StripeService stripeService; // Intégration de Stripe
 
     private static final Logger logger = LoggerFactory.getLogger(OrderManagementController.class);
 
@@ -184,66 +184,66 @@ public class OrderManagementController {
         }
     }
     
- // Nouvelle méthode pour créer une session Stripe
-    @PostMapping("/payment/create-session")
-    public ResponseEntity<String> createStripeSession(@RequestParam("orderId") Long orderId) {
-        try {
-            // Récupérer la commande par ID
-            Order order = orderManagementFacade.getOrderEntityById(orderId);
-            
-            // Créer une session Stripe pour cette commande
-            String sessionId = stripeService.createStripePaymentSession(order);
-
-            // Retourner l'ID de session Stripe
-            return new ResponseEntity<>(sessionId, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Erreur lors de la création de la session Stripe : " + e.getMessage());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    
-    @GetMapping("/order-recap")
-    public String getOrderRecap(Model model, HttpSession session) {
-        EventDTO selectedEvent = (EventDTO) session.getAttribute("selectedEvent");
-        OfferDTO selectedOffer = (OfferDTO) session.getAttribute("selectedOffer");
-
-        if (selectedEvent == null || selectedOffer == null) {
-            return "error";  // Retourner une vue d'erreur si les données sont manquantes
-        }
-
-        // Récupérer les informations de l'événement et de l'offre
-        model.addAttribute("event", selectedEvent);
-        model.addAttribute("offer", selectedOffer);
-
-        // Calculer le total en fonction des tickets de l'événement et de l'offre
-        double totalAmount = orderService.calculateTotalPrice(selectedEvent.getTickets(), selectedOffer);  // Assurez-vous que la méthode prend une liste de tickets
-        model.addAttribute("totalAmount", totalAmount);
-
-        // Afficher la vue de récapitulatif
-        return "order-recap";
-    }
+// // Nouvelle méthode pour créer une session Stripe
+//    @PostMapping("/payment/create-session")
+//    public ResponseEntity<String> createStripeSession(@RequestParam("orderId") Long orderId) {
+//        try {
+//            // Récupérer la commande par ID
+//            Order order = orderManagementFacade.getOrderEntityById(orderId);
+//            
+//            // Créer une session Stripe pour cette commande
+//            String sessionId = stripeService.createStripePaymentSession(order);
+//
+//            // Retourner l'ID de session Stripe
+//            return new ResponseEntity<>(sessionId, HttpStatus.OK);
+//        } catch (Exception e) {
+//            logger.error("Erreur lors de la création de la session Stripe : " + e.getMessage());
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     
-    @GetMapping("/payment/success")
-    public String paymentSuccess(@RequestParam("session_id") String sessionId, Model model) {
-        try {
-            // Confirmer le paiement via Stripe
-            paymentManagementFacade.confirmPayment(sessionId);
-
-            // Récupérer la commande liée à la session
-            OrderDTO order = orderManagementFacade.getOrderBySessionId(sessionId);
-
-            // Envoyer les billets par email
-            emailService.sendTicket(orderMapper.toEntity(order));
-
-            model.addAttribute("message", "Paiement confirmé et tickets envoyés !");
-            return "paymentConfirmation";
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", "Erreur lors de la confirmation du paiement.");
-            return "error";
-        }
-    }
-    
+//    @GetMapping("/order-recap")
+//    public String getOrderRecap(Model model, HttpSession session) {
+//        EventDTO selectedEvent = (EventDTO) session.getAttribute("selectedEvent");
+//        OfferDTO selectedOffer = (OfferDTO) session.getAttribute("selectedOffer");
+//
+//        if (selectedEvent == null || selectedOffer == null) {
+//            return "error";  // Retourner une vue d'erreur si les données sont manquantes
+//        }
+//
+//        // Récupérer les informations de l'événement et de l'offre
+//        model.addAttribute("event", selectedEvent);
+//        model.addAttribute("offer", selectedOffer);
+//
+//        // Calculer le total en fonction des tickets de l'événement et de l'offre
+//        double totalAmount = orderService.calculateTotalPrice(selectedEvent.getTickets(), selectedOffer);  // Assurez-vous que la méthode prend une liste de tickets
+//        model.addAttribute("totalAmount", totalAmount);
+//
+//        // Afficher la vue de récapitulatif
+//        return "order-recap";
+//    }
+//
+//    
+//    @GetMapping("/payment/success")
+//    public String paymentSuccess(@RequestParam("session_id") String sessionId, Model model) {
+//        try {
+//            // Confirmer le paiement via Stripe
+//            paymentManagementFacade.confirmPayment(sessionId);
+//
+//            // Récupérer la commande liée à la session
+//            OrderDTO order = orderManagementFacade.getOrderBySessionId(sessionId);
+//
+//            // Envoyer les billets par email
+//            emailService.sendTicket(orderMapper.toEntity(order));
+//
+//            model.addAttribute("message", "Paiement confirmé et tickets envoyés !");
+//            return "paymentConfirmation";
+//        } catch (Exception e) {
+//            model.addAttribute("errorMessage", "Erreur lors de la confirmation du paiement.");
+//            return "error";
+//        }
+//    }
+//    
   
 }

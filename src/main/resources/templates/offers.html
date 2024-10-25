@@ -5,35 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offres disponibles</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/javascript/scripts.js}"></script>
 </head>
 <body>
-    <header th:replace="fragments/body :: header"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
     <h1>Offres disponibles pour l'événement sélectionné</h1>
 
     <div th:if="${event != null}">
-        <h2>Offre Solo</h2>
+        <h2>Offre Solo pour l'événement : <span th:text="${event.eventName}"></span></h2>
         <p>Nombre de places : 1</p>
-        <a th:href="@{|/orders/create?offerId=1&eventId=${event.id}|}">Choisir cette offre</a>
+        <a th:href="@{|/events/${event.id}/offers/select?offerId=1|}">Choisir cette offre</a>
     </div>
 
     <div th:if="${event != null}">
-        <h2>Offre Duo</h2>
+        <h2>Offre Duo pour l'événement : <span th:text="${event.eventName}"></span></h2>
         <p>Nombre de places : 2</p>
-        <a th:href="@{|/orders/create?offerId=2&eventId=${event.id}|}">Choisir cette offre</a>
+        <a th:href="@{|/events/${event.id}/offers/select?offerId=2|}">Choisir cette offre</a>
     </div>
 
     <div th:if="${event != null}">
-        <h2>Offre Family</h2>
+        <h2>Offre Familiale pour l'événement : <span th:text="${event.eventName}"></span></h2>
         <p>Nombre de places : 4</p>
-        <a th:href="@{|/orders/create?offerId=3&eventId=${event.id}|}">Choisir cette offre</a>
+        <a th:href="@{|/events/${event.id}/offers/select?offerId=3|}">Choisir cette offre</a>
     </div>
 
     <div th:if="${event == null}">
         <p>Aucun événement sélectionné ou erreur lors de la récupération de l'événement.</p>
     </div>
 
-    <footer th:replace="fragments/body :: footer"></footer>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>
 </html>
